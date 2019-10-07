@@ -22,7 +22,7 @@ def parse_census_data(link):
 
     for row in rows:
         i, name, t, rr2000, rr2010 = row.split(DELIM)
-        censusResp = CensusResponse(i, name, t, rr2000, rr2010)
+        censusResp = CensusResponse(i, name, t, float(rr2000), float(rr2010))
         responses.append(censusResp)
 
     return responses
