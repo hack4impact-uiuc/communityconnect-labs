@@ -6,13 +6,21 @@ import mapboxgl from "mapbox-gl";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA";
 
+const MAX_ZOOM = 22;
+const MIN_ZOOM = 2.5;
+const CENTER_LNG = -97;
+const CENTER_LAT = 38;
+const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
+const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
+const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
+
 class MapBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       lng: 5,
       lat: 34,
-      zoom: 1.5
+      zoom: 3.70,
     };
   }
 
@@ -23,7 +31,11 @@ class MapBox extends React.Component {
       container: this.mapContainer,
       style: "mapbox://styles/mapbox/streets-v9",
       center: [lng, lat],
-      zoom
+      zoom,
+      maxZoom: MAX_ZOOM,
+      minZoom: MIN_ZOOM,
+      center: [CENTER_LNG, CENTER_LAT],
+      maxBounds: MAX_BOUNDS
     });
 
     map.on("move", () => {
