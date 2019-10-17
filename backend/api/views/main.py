@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import db, Person, Email
+from api.models import db, Person, Email, CensusResponse
 from api.core import create_response, serialize_list, logger
 
 main = Blueprint("main", __name__)  # initialize blueprint
@@ -47,3 +47,15 @@ def create_person():
     return create_response(
         message=f"Successfully created person {new_person.name} with id: {new_person.id}"
     )
+
+@main.route("/census_response", methods=["POST"])
+def populate_db():
+    data = request.get_json()
+
+    logger.info("Census Response Data received")
+
+    for entry in data:
+        new_census_entry = CensusResponse(response_id=entry["id"], name=entry["name"], type=entry["type"], rate2000=entry["rate2000"], rate2010=entry["rate2010"])
+        new_census_entry.save()
+
+    return create_response(message=f"Successfully added {len(data)} new Census Responses")
