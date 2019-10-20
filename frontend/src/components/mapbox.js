@@ -1,15 +1,11 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 
-// from https://github.com/mapbox/mapbox-react-examples/tree/master/basic
+mapboxgl.accessToken = 'pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA';
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA";
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
-const CENTER_LNG = -97;
-const CENTER_LAT = 38;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
@@ -18,8 +14,8 @@ class MapBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lng: 5,
-      lat: 34,
+      lng: -97,
+      lat: 38,
       zoom: 3.70,
     };
   }
@@ -29,12 +25,11 @@ class MapBox extends React.Component {
 
     const map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: "mapbox://styles/mapbox/streets-v9",
+      style: "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
       center: [lng, lat],
       zoom,
       maxZoom: MAX_ZOOM,
       minZoom: MIN_ZOOM,
-      center: [CENTER_LNG, CENTER_LAT],
       maxBounds: MAX_BOUNDS
     });
 

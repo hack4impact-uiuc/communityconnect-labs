@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <div>
-        <Route path="/" component={Sample} />
+        <Route exact path="/" component={Sample} />
         <Route path="/map" component={MapBox} />
       </div>
     </Router>
