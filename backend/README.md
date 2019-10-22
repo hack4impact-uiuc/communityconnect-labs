@@ -36,7 +36,7 @@ Then, within Mongo, run:
 ```
 > use communityconnect-labs
 ```
-You will not need to run `mongo` after setup.
+You will not need to run `mongo` after setup- you'll just need to start the service.
 
 ### Server Setup
 
@@ -111,7 +111,7 @@ Then, make Postman calls to verify that the server works:
 
 You can also view the contents of your database by connecting to it in Mongo Compass using the default settings!
 
-### Repository Contents
+## Repository Contents
 
 - `api/views/` - Holds files that define your endpoints
 - `api/models/` - Holds files that defines your database schema
@@ -148,6 +148,3 @@ find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 - [Relational Databases](https://www.ntu.edu.sg/home/ehchua/programming/sql/Relational_Database_Design.html) - Designing a database schema
 - [REST API](http://www.restapitutorial.com/lessons/restquicktips.html) - tips on making an API Restful
 - [Docker Docs](https://docs.docker.com/get-started/) - Docker docs
-
-Feel free to contact me for questions and contributions are welcome :) <br>
-tk2@illinois.edu
