@@ -4,6 +4,7 @@ from api.models import CensusResponse
 
 DELIM = " ||"
 NAME = "Tract"
+COUNTY = "COUNTY"
 
 def validate_data(i, name, t, rate):
     if name != NAME:
@@ -11,6 +12,9 @@ def validate_data(i, name, t, rate):
     if rate < 0 or rate > 1:
         return False
     return True
+
+def is_county(t):
+    return t == COUNTY
 
 def parse_census_data(link, date, parse2000=False):
     result = requests.get(link).text
@@ -24,12 +28,20 @@ def parse_census_data(link, date, parse2000=False):
         t = columns[2]
         rates = [float(r) for r in columns[3:]]
 
+        id_to_county = {}
+
+        if is_county(t):
+            id_to_county[i] = name
+            continue
+
+        county_id = i[:5]
+
         if validate_data(i, name, t, rates[-1]):
-            censusResp = CensusResponse(tract_id=i, name="", rates={"2010": {date: rates[-1]}})
+            censusResp = CensusResponse(tract_id=i, county=id_to_county[county_id], rates={"2010": {date: rates[-1]}})
             responses.append(censusResp)
 
         if parse2000 and validate_data(i, name, t, rates[0]):
-            censusResp = CensusResponse(tract_id=i, name="", rates={"2000": {"00002000": rates[0]}})
+            censusResp = CensusResponse(tract_id=i, county=id_to_county[county_id], rates={"2000": {"00002000": rates[0]}})
             responses.append(censusResp)
 
     return responses

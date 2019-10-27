@@ -7,7 +7,7 @@ class CensusResponse(Document, Mixin):
     """CensusResponse Collection."""
 
     tract_id = StringField(required=True)
-    name = StringField(required=True)
+    county = StringField(required=True)
     rates = DictField(required=True)
 
     # def __init__(self, id: str, name: str, type: str, rate2000: int, rate2010: int):
