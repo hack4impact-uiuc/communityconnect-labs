@@ -14,7 +14,7 @@ def index():
     # access the logger with the logger from api.core and uses the standard logging module
     # try using ipdb here :) you can inject yourself
     logger.info("Hello World!")
-    return "<h1>Hello World!</h1>"
+    return "Hello World!"
 
 
 # function that is called when you visit /persons

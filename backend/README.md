@@ -3,37 +3,46 @@
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 [![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/tko22/flask-boilerplate&env=DATABASE_URL) 
 
-This is an minimal but opinionated boilerplate meant for building out simple REST APIs. It is primarily used at [Hack4Impact UIUC](https://github.com/hack4impact-uiuc). This app is written in Python 3.6 with Postgres 10 as the chosen data persistence. The default way to deploy it is with Heroku or Zeit now but you can deploy it with another service, like AWS, Google Cloud, or DigitalOcean with Gunicorn and Nginx, but instructions for that are not provided. Included are simple examples and instructions developing with or without Docker are provided. I've also written a <a href="https://medium.freecodecamp.org/docker-development-workflow-a-guide-with-flask-and-postgres-db1a1843044a">blog post</a> about using Docker based on this repository.<br>
+This is based off of [Flask Boilerplate](https://github.com/tko22/flask-boilerplate), but repurposed for MongoDB using MongoEngine.
 
-Documentation is located [here](https://github.com/tko22/flask-boilerplate/wiki). We use [black](https://github.com/ambv/black) for code formatting, and [mypy](http://mypy-lang.org/) for optional static typing.
+We use [black](https://github.com/ambv/black) for code formatting, and [mypy](http://mypy-lang.org/) for optional static typing.
 
 ![](../master/docs/flask.gif)
 
-## Goal
+## Setup
 
-The goal of this boilerplate is to allow developers to quickly write their API with code structured to best practices while giving them flexibility to easily add/change features. Here are the problems this is trying to solve:
+### MongoDB
 
-1.  **Flask is too flexible.** With Flask, you can write your application in any structure you like, even in one file. There are also a lot of different tutorials and guides providing different instructions & application structures to set up a Flask app with a database, confusing many newcomers about best practices.
+First, install [MongoDB](https://docs.mongodb.com/manual/administration/install-community/), and start it:
 
-2.  **Django and other Flask boilerplates are too heavy.** Sometimes, I don't need a fully featured admin portal with Redis and an Email manager nor do I need templates. Many APIs and applications require the use of a database though. Thus, I've chosen Postgres because it is a battle-tested and reliable database used in many companies and we know that 99% of applications can easily be designed to use relational databases (especially the ones used at Hack4Impact).
-
-## Docs
-
-Please Please **PLEASE** read the documentation if you don't understand something relevant to this boilerplate. Documentation is provided in the [wiki page](https://github.com/tko22/flask-boilerplate/wiki) of this repository. I've also added comments with links to specific Flask Documentation to explain certain design choices and/or a specific Flask API (ex: test clients).
-
-## Usage
-
-Here are some quickstart instructions, although I would look at the [documentation](https://github.com/tko22/flask-boilerplate/wiki) for more details and other options of setting up your environment (e.g. full Docker setup, installed postgres instance, pipenv, etc).
-
-First start a postgres docker container and persist the data with a volume `flask-app-db`:
-
+Linux: 
 ```
-make start_dev_db
+$ sudo service mongod start
+$ mongo
 ```
 
-Another option is to create a postgres instance on a cloud service like elephantsql and connect it to this app. Remember to change the postgres url and don't hard code it in!
+IOS:
+```
+$ mongod --config /usr/local/etc/mongod.conf
+$ mongo
+```
+OR
+```
+$ brew services start mongodb-community@4.2
+$ mongo
+```
 
-Then, start your virtual environment
+Then, within Mongo, run:
+```
+> use communityconnect-labs
+```
+You will not need to run `mongo` after setup- you'll just need to start the service.
+
+### Server Setup
+
+Make sure you have [Python3](https://realpython.com/installing-python/) and `pip3` installed.
+
+Start your virtual environment:
 
 ```
 $ pip3 install virtualenv
@@ -54,43 +63,61 @@ To exit the virtual environment:
 $
 ```
 
-For ease of setup, I have hard-coded postgres URLs for development and docker configurations. If you are using a separate postgres instance as mentioned above, _do not hardcode_ the postgres url including the credentials to your code. Instead, create a file called `creds.ini` in the same directory level as `manage.py` and write something like this:
+### Verifying
 
+Install [Postman](https://www.getpostman.com/downloads/) or your app of choice for testing API calls, and [Compass](https://www.mongodb.com/download-center/compass) to view the contents of the database.
+
+Then, make Postman calls to verify that the server works:
+1. `GET localhost:5000/` should return "Hello World"
+2. `POST localhost:5000/persons` with a JSON body (in Postman as raw JSON) of:
+```json
+{
+    "name": "Hack4Impact",
+    "emails": [
+        "hack4impact@illinois.edu", 
+        "contact@hack4impact.org", 
+        "uiuc@hack4impact.org"
+    ]
+}
 ```
-[pg_creds]
-pg_url = postgresql://testusr:password@127.0.0.1:5432/testdb
+3. `GET localhost:5000/persons` should return a result similar to:
+```json
+{
+  "message": "",
+  "result": {
+    "persons": [
+      {
+        "_id": {
+          "$oid": "5dacf1047d915d954f8e4291"
+        },
+        "emails": [
+          {
+            "email": "hack4impact@illinois.edu"
+          },
+          {
+            "email": "contact@hack4impact.org"
+          },
+          {
+            "email": "uiuc@hack4impact.org"
+          }
+        ],
+        "name": "Hack4Impact"
+      }
+    ]
+  },
+  "success": true
+}
 ```
-Note: you will need to call `api.core.get_pg_url` in the Config file.
 
-For production, you should do something similar with the flask `SECRET_KEY`.
+You can also view the contents of your database by connecting to it in Mongo Compass using the default settings!
 
-#### Easier setup
-
-I've created a makefile to make this entire process easier but purposely provided verbose instructions there to show you what is necessary to start this application. To do so:
-```
-$ make setup
-```
-
-If you like to destroy your docker postgres database and start over, run:
-```
-$ make recreate_db
-```
-This is under the assumption that you have only set up one postgres container that's linked to the `flask-app-db` volume.
-
-I would highly suggest reading the [documentation](https://github.com/tko22/flask-boilerplate/wiki) for more details on setup.
-
-#### Deployment
-
-You may use Heroku or Zeit Now and the instructions are defined in the [wiki page](https://github.com/tko22/flask-boilerplate/wiki). I would recommend Heroku. The easiest way to do so is to click the Heroku Deploy button. Remember, once you fork/copy this repo, you will need to change `app.json`, especially the `repository` key. Everything else should be fine.
-
-### Repository Contents
+## Repository Contents
 
 - `api/views/` - Holds files that define your endpoints
 - `api/models/` - Holds files that defines your database schema
 - `api/__init__.py` - What is initially ran when you start your application
 - `api/utils.py` - utility functions and classes - explained [here](https://github.com/tko22/flask-boilerplate/wiki/Conventions)
 - `api/core.py` - includes core functionality including error handlers and logger
-- `api/wsgi.py` - app reference for gunicorn
 - `tests/` - Folder holding tests
 
 #### Others
@@ -121,6 +148,3 @@ find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 - [Relational Databases](https://www.ntu.edu.sg/home/ehchua/programming/sql/Relational_Database_Design.html) - Designing a database schema
 - [REST API](http://www.restapitutorial.com/lessons/restquicktips.html) - tips on making an API Restful
 - [Docker Docs](https://docs.docker.com/get-started/) - Docker docs
-
-Feel free to contact me for questions and contributions are welcome :) <br>
-tk2@illinois.edu
