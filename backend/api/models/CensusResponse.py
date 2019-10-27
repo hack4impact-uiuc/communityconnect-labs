@@ -8,14 +8,15 @@ class CensusResponse(Document, Mixin):
 
     tract_id = StringField(required=True)
     county = StringField(required=True)
+    
+    """
+    Rates is a dictionary with the following format:
+    {
+        "2000": {"03252000": 0.24, ...},
+        "2010": {"03252010": 0.36, ...},
+    }
+    """
     rates = DictField(required=True)
-
-    # def __init__(self, id: str, name: str, type: str, rate2000: int, rate2010: int):
-    #     self.id = id
-    #     self.name = name
-    #     self.type = type
-    #     self.rate2000 = rate2000
-    #     self.rate2010 = rate2010
 
     def update(self, other):
         for i in self.rates:
