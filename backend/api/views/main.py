@@ -65,7 +65,6 @@ def populate_db():
 
     parse2000 = True
     for file, date in files.items():
-        print("storing data from {}".format(date))
         responses = parse_census_data(file, date, parse2000)
         parse2000 = False
         for r in responses:

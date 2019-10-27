@@ -4,7 +4,7 @@ from api.models import CensusResponse
 
 DELIM = " ||"
 NAME = "Tract"
-COUNTY = "COUNTY"
+COUNTY = "County"
 
 def validate_data(i, name, t, rate):
     if name != NAME:
@@ -20,15 +20,15 @@ def parse_census_data(link, date, parse2000=False):
     result = requests.get(link).text
     rows = result.strip().split("\n")
     responses = []
+    id_to_county = {}
 
+    # rows.sort() might be needed later because current code assumes counties are placed before tracts
     for row in rows:
         columns = row.split(DELIM)
         i = columns[0]
         name = columns[1]
         t = columns[2]
         rates = [float(r) for r in columns[3:]]
-
-        id_to_county = {}
 
         if is_county(t):
             id_to_county[i] = name
