@@ -25,11 +25,11 @@ def parse_census_data(link, date, parse2000=False):
         rates = [float(r) for r in columns[3:]]
 
         if validate_data(i, name, t, rates[-1]):
-            censusResp = CensusResponse(response_id=i, name="", rates={"2010": {date: rates[-1]}})
+            censusResp = CensusResponse(tract_id=i, name="", rates={"2010": {date: rates[-1]}})
             responses.append(censusResp)
 
         if parse2000 and validate_data(i, name, t, rates[0]):
-            censusResp = CensusResponse(response_id=i, name="", rates={"2000": {"00002000": rates[0]}})
+            censusResp = CensusResponse(tract_id=i, name="", rates={"2000": {"00002000": rates[0]}})
             responses.append(censusResp)
 
     return responses

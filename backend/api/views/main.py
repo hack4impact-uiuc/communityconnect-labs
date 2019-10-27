@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify
 from api.models import db, Person, Email, CensusResponse
 from api.core import create_response, serialize_list, logger
 
-main = Blueprint("main", __name__)  # initialize blueprint
+from .populate_db import parse_census_data
+from .web_scrap import extract_data_links
 
+main = Blueprint("main", __name__)  # initialize blueprint
 
 # function that is called when you visit /
 @main.route("/")
@@ -51,11 +53,28 @@ def create_person():
 @main.route("/census_response", methods=["POST"])
 def populate_db():
     data = request.get_json()
+    if "parent_link" not in data:
+        msg = "No parent link."
+        logger.info(msg)
+        return create_response(status=442, message=msg)
 
-    logger.info("Census Response Data received")
+    parent_link = data["parent_link"]
+    logger.info("Populating Census Response Data from {}".format(parent_link))
 
-    for entry in data:
-        new_census_entry = CensusResponse(response_id=entry["id"], name=entry["name"], type=entry["type"], rate2000=entry["rate2000"], rate2010=entry["rate2010"])
-        new_census_entry.save()
+    files = extract_data_links(parent_link)
 
-    return create_response(message=f"Successfully added {len(data)} new Census Responses")
+    parse2000 = True
+    for file, date in files.items():
+        print("storing data from {}".format(date))
+        responses = parse_census_data(file, date, parse2000)
+        parse2000 = False
+        for r in responses:
+            existing = CensusResponse.objects(tract_id=r.tract_id)
+            if len(existing) > 0:
+                existing = existing[0]
+                existing.update(r)
+                existing.save()
+            else:
+                r.save()
+
+    return create_response(message=f"Successfully added {len(responses)} new Census Responses")

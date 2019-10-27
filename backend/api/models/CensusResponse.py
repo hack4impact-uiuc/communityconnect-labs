@@ -6,7 +6,7 @@ from mongoengine import *
 class CensusResponse(Document, Mixin):
     """CensusResponse Collection."""
 
-    response_id = StringField(required=True)
+    tract_id = StringField(required=True)
     name = StringField(required=True)
     rates = DictField(required=True)
 
@@ -23,4 +23,4 @@ class CensusResponse(Document, Mixin):
 
 
     def __repr__(self):
-        return f"<CensusResponse {self.response_id}>"
+        return f"<CensusResponse {self.tract_id}>"
