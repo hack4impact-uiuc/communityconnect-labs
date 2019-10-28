@@ -1,5 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
+import getResponseByTractID from "../utils/apiWrapper";
 
 // from https://github.com/mapbox/mapbox-react-examples/tree/master/basic
 
@@ -20,11 +21,12 @@ class MapBox extends React.Component {
     this.state = {
       lng: 5,
       lat: 34,
-      zoom: 3.70,
+      zoom: 3.7
     };
   }
 
   componentDidMount() {
+    console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
     const map = new mapboxgl.Map({
