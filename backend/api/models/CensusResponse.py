@@ -3,12 +3,13 @@ from .base import db
 from flask_mongoengine import Document
 from mongoengine import *
 
+
 class CensusResponse(Document, Mixin):
     """CensusResponse Collection."""
 
     tract_id = StringField(required=True)
     county = StringField(required=True)
-    
+
     """
     Rates is a dictionary with the following format:
     {
@@ -21,7 +22,6 @@ class CensusResponse(Document, Mixin):
     def update(self, other):
         for i in self.rates:
             self.rates[i].update(other.rates.get(i, {}))
-
 
     def __repr__(self):
         return f"<CensusResponse {self.tract_id}>"

@@ -41,7 +41,7 @@ def create_person():
 
     #  create MongoEngine objects
     new_person = Person(name=data["name"])
-    for email in data["emails"]: 
+    for email in data["emails"]:
         email_obj = Email(email=email)
         new_person.emails.append(email_obj)
     new_person.save()
@@ -49,6 +49,7 @@ def create_person():
     return create_response(
         message=f"Successfully created person {new_person.name} with id: {new_person.id}"
     )
+
 
 @main.route("/census_response", methods=["POST"])
 def populate_db():
@@ -76,4 +77,6 @@ def populate_db():
             else:
                 r.save()
 
-    return create_response(message=f"Successfully added {len(responses)} new Census Responses")
+    return create_response(
+        message=f"Successfully added {len(responses)} new Census Responses"
+    )

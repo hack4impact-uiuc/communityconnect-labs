@@ -6,6 +6,7 @@ DELIM = " ||"
 NAME = "Tract"
 COUNTY = "County"
 
+
 def validate_data(i, name, t, rate):
     if name != NAME:
         return False
@@ -13,8 +14,10 @@ def validate_data(i, name, t, rate):
         return False
     return True
 
+
 def is_county(t):
     return t == COUNTY
+
 
 def parse_census_data(link, date, parse2000=False):
     result = requests.get(link).text
@@ -37,17 +40,23 @@ def parse_census_data(link, date, parse2000=False):
         county_id = i[:5]
 
         if validate_data(i, name, t, rates[-1]):
-            censusResp = CensusResponse(tract_id=i, county=id_to_county[county_id], rates={"2010": {date: rates[-1]}})
+            censusResp = CensusResponse(
+                tract_id=i,
+                county=id_to_county[county_id],
+                rates={"2010": {date: rates[-1]}},
+            )
             responses.append(censusResp)
 
         if parse2000 and validate_data(i, name, t, rates[0]):
-            censusResp = CensusResponse(tract_id=i, county=id_to_county[county_id], rates={"2000": {"00002000": rates[0]}})
+            censusResp = CensusResponse(
+                tract_id=i,
+                county=id_to_county[county_id],
+                rates={"2000": {"00002000": rates[0]}},
+            )
             responses.append(censusResp)
 
     return responses
 
-if __name__ == '__main__':
-    responses = parse_census_data(link, "03252010", parse2000=True)
 
-    # result = requests.post(DB_LINK, json=[r.json() for r in responses[]])
-    # print(result.text)
+if __name__ == "__main__":
+    responses = parse_census_data(link, "03252010", parse2000=True)

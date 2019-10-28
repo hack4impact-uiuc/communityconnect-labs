@@ -1,6 +1,7 @@
 import re
 import requests
 
+
 def extract_data_links(link):
     html = requests.get(link).text
     pattern = r"href\=\"(.*?dat)\""
@@ -15,7 +16,8 @@ def extract_data_links(link):
 
     return links
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     link = "https://www2.census.gov/programs-surveys/decennial/2010/program-management/4-release/mail-participation-rate/"
     links = extract_data_links(link)
     print(links)
