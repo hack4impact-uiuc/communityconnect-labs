@@ -23,28 +23,30 @@ def get_persons():
     persons = Person.objects()
     return create_response(data={"persons": persons})
 
+
 # function that is called when you visit /census_response
 @main.route("/census_response", methods=["GET"])
 def get_census_response():
-    responses = CensusResponse.objects() # CURRENTLY DOESNT HAVE DATE BUT USE IT LATER
+    responses = CensusResponse.objects()  # CURRENTLY DOESNT HAVE DATE BUT USE IT LATER
     response_rates = []
-    has_date = 'date' in request.args
-    
+    has_date = "date" in request.args
+
     if has_date:
-        date = request.args['date']
+        date = request.args["date"]
         year = date[-4:]
     else:
-        year = request.args['year']
+        year = request.args["year"]
 
     for resp in responses:
         if has_date:
             rate = resp.rates[year][date]
         else:
             rate = resp.rates[year]
-        id_and_rate = {"tract_id" : resp.tract_id, "rate" : rate}
+        id_and_rate = {"tract_id": resp.tract_id, "rate": rate}
         response_rates.append(id_and_rate)
 
     return create_response(data={"response_rates": response_rates})
+
 
 # POST request for /persons
 @main.route("/persons", methods=["POST"])
@@ -63,7 +65,7 @@ def create_person():
 
     #  create MongoEngine objects
     new_person = Person(name=data["name"])
-    for email in data["emails"]: 
+    for email in data["emails"]:
         email_obj = Email(email=email)
         new_person.emails.append(email_obj)
     new_person.save()
@@ -71,6 +73,7 @@ def create_person():
     return create_response(
         message=f"Successfully created person {new_person.name} with id: {new_person.id}"
     )
+
 
 @main.route("/census_response", methods=["POST"])
 def populate_db():
@@ -98,4 +101,6 @@ def populate_db():
             else:
                 r.save()
 
-    return create_response(message=f"Successfully added {len(responses)} new Census Responses")
+    return create_response(
+        message=f"Successfully added {len(responses)} new Census Responses"
+    )
