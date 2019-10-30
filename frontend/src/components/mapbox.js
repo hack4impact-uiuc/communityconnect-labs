@@ -1,9 +1,10 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import stateLayers from '../resources/stateLayers.js'
+import stateLayers from "../resources/stateLayers.js";
 import { getResponseByTractID } from "../utils/apiWrapper";
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA';
+mapboxgl.accessToken =
+  "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
@@ -17,7 +18,7 @@ class MapBox extends React.Component {
     this.state = {
       lng: -97,
       lat: 38,
-      zoom: 3.70,
+      zoom: 3.7
     };
   }
 
@@ -28,7 +29,7 @@ class MapBox extends React.Component {
 
     let map = new mapboxgl.Map({
       container: this.mapContainer,
-      style:   "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
+      style: "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
       center: [lng, lat],
       zoom,
       maxZoom: MAX_ZOOM,
@@ -38,14 +39,13 @@ class MapBox extends React.Component {
 
     // temporary data for testing
     const testData = [
-      {GEOID: "12095010200", response_rate: .73}, // florida (orlando)
-      {GEOID: "06085505009", response_rate: .56} // california- meg's home tract
-    ]
+      { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
+      { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
+    ];
 
-    map.on('load', function() {
-
+    map.on("load", function() {
       var fillColor = ["match", ["get", "GEOID"]];
-       
+
       // converting the response rate into a color
       testData.forEach(function(row) {
         var green = (row["response_rate"] / 1) * 255;
@@ -54,25 +54,25 @@ class MapBox extends React.Component {
       });
 
       fillColor.push("rgba(0,0,0,0)");
-       
-      stateLayers.map((stateLayer) =>
-        {
-          map.addLayer({
-            "id": stateLayer.sourceURL,
-            "type": "fill",
-            "source": {
+
+      stateLayers.map(stateLayer => {
+        map.addLayer(
+          {
+            id: stateLayer.sourceURL,
+            type: "fill",
+            source: {
               type: "vector",
               url: stateLayer.sourceURL
             },
             "source-layer": stateLayer.sourceLayer,
-            "paint": {
+            paint: {
               "fill-color": fillColor
-              }
-            }, 'admin-country');
-          });
-        }
-      )
-      
+            }
+          },
+          "admin-country"
+        );
+      });
+    });
 
     map.on("move", () => {
       const { lng, lat } = map.getCenter();
