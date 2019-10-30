@@ -2,6 +2,7 @@ from api.core import Mixin
 from .base import db
 from mongoengine import *
 
+
 class Email(EmbeddedDocument, Mixin):
     """Emails embedded within Person."""
 

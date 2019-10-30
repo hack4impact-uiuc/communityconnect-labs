@@ -4,6 +4,7 @@ from api.models import Email
 from flask_mongoengine import Document
 from mongoengine import *
 
+
 class Person(Document, Mixin):
     """Person Collection."""
 
