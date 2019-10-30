@@ -49,7 +49,7 @@ class MapBox extends React.Component {
         var color = "rgba(" + 0 + ", " + green + ", " + 0 + ", 1)";
         fillColor.push(row["GEOID"], color);
       });
-      
+
       fillColor.push("rgba(0,0,0,0)");
        
       stateLayers.map((stateLayer) =>
@@ -65,7 +65,7 @@ class MapBox extends React.Component {
             "paint": {
               "fill-color": fillColor
               }
-            }, 'state-label');
+            }, 'admin-country');
           });
         }
       )
