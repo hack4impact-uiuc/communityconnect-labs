@@ -25,7 +25,7 @@ def parse_census_data(link, date, date_initial, parse2000=False):
     rows = result.strip().split("\n")
     responses = []
     id_to_county = {}
-    date_initial_obj = datetime.date(int(date_initial[-4:]), int(date_initial[:2]), int(date_initial[2:4]))
+    date_initial_obj = datetime.datetime.strptime(date_initial, "%m%d%Y").date()
 
     # rows.sort() might be needed later because current code assumes counties are placed before tracts
     for row in rows:
@@ -42,7 +42,7 @@ def parse_census_data(link, date, date_initial, parse2000=False):
         county_id = i[:5]
 
         if validate_data(i, name, t, rates[-1]):
-            date_obj = datetime.date(int(date[-4:]), int(date[:2]), int(date[2:4]))
+            date_obj = datetime.datetime.strptime(date, "%m%d%Y").date()
             delta = date_obj - date_initial_obj
             censusResp = CensusResponse(
                 tract_id=i,
