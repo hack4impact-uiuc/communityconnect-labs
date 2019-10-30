@@ -26,6 +26,7 @@ class MapBox extends React.Component {
   }
 
   componentDidMount() {
+    // TODO: Replace the log below with a valid tract request
     console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
