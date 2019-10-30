@@ -47,6 +47,19 @@ class MapBox extends React.Component {
         zoom: map.getZoom().toFixed(2)
       });
     });
+
+    map.on('mousemove', (e) => {
+      var states = map.queryRenderedFeatures(e.point, {
+        layers: ['statedata']
+      });
+      
+      if (states.length > 0) {
+        document.getElementById('pd').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.density + '</strong> people per square mile</em></p>';
+      } else {
+        document.getElementById('pd').innerHTML = '<p>Hover over a state!</p>';
+      }
+
+    });
   }
 
   render() {
@@ -61,6 +74,8 @@ class MapBox extends React.Component {
           ref={el => (this.mapContainer = el)}
           className="absolute top right left bottom"
         />
+        <div id='map'></div>
+        <div className='map-overlay' id='features'><h6> tract </h6><div id='pd'><h2>City Name</h2></div></div>
       </div>
     );
   }
