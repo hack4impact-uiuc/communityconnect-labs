@@ -1,6 +1,7 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from '../resources/stateLayers.js'
+import { getResponseByTractID } from "../utils/apiWrapper";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA';
 
@@ -21,6 +22,8 @@ class MapBox extends React.Component {
   }
 
   componentDidMount() {
+    // TODO: Replace the log below with a valid tract request
+    console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
     let map = new mapboxgl.Map({

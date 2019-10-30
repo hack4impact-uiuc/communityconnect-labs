@@ -24,7 +24,7 @@ def runworker():
 
 
 @manager.command
-def recreate_db(): # TODO
+def recreate_db():  # TODO
     """
     Recreates a database. This should only be used once
     when there's a new database instance. This shouldn't be

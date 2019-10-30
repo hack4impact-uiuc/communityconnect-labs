@@ -71,7 +71,7 @@ def all_exception_handler(error: Exception) -> Tuple[Response, int]:
     return create_response(message=str(error), status=500)
 
 
-def get_pg_url(file: str = "creds.ini") -> str: # TODO
+def get_pg_url(file: str = "creds.ini") -> str:  # TODO
     """Gets Postgres URL including credentials from specified file.
 
     Example of File:
