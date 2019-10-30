@@ -25,7 +25,7 @@ def get_persons():
 
 
 # function that is called when you visit /census_response
-@main.route("/census_response", methods=["GET"])
+@main.route("/census_response_by_datetime", methods=["GET"])
 def get_census_response():
     responses = CensusResponse.objects()  # CURRENTLY DOESNT HAVE DATE BUT USE IT LATER
     response_rates = []
