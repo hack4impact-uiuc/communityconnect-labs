@@ -89,8 +89,11 @@ def populate_db():
     files = extract_data_links(parent_link)
 
     parse2000 = True
+    dates = list(files.values())
+    dates.sort()
+    date_initial = dates[0]
     for file, date in files.items():
-        responses = parse_census_data(file, date, parse2000)
+        responses = parse_census_data(file, date, date_initial, parse2000)
         parse2000 = False
         for r in responses:
             existing = CensusResponse.objects(tract_id=r.tract_id)
