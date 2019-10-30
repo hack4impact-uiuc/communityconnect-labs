@@ -1,16 +1,13 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
+import stateLayers from "../resources/stateLayers.js";
 import { getResponseByTractID } from "../utils/apiWrapper";
 
-// from https://github.com/mapbox/mapbox-react-examples/tree/master/basic
-
 mapboxgl.accessToken =
-  "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA";
+  "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
-const CENTER_LNG = -97;
-const CENTER_LAT = 38;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
@@ -19,8 +16,8 @@ class MapBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lng: 5,
-      lat: 34,
+      lng: -97,
+      lat: 38,
       zoom: 3.7
     };
   }
@@ -30,15 +27,51 @@ class MapBox extends React.Component {
     console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
-    const map = new mapboxgl.Map({
+    let map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: "mapbox://styles/mapbox/streets-v9",
+      style: "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
       center: [lng, lat],
       zoom,
       maxZoom: MAX_ZOOM,
       minZoom: MIN_ZOOM,
-      center: [CENTER_LNG, CENTER_LAT],
       maxBounds: MAX_BOUNDS
+    });
+
+    // temporary data for testing
+    const testData = [
+      { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
+      { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
+    ];
+
+    map.on("load", function() {
+      var fillColor = ["match", ["get", "GEOID"]];
+
+      // converting the response rate into a color
+      testData.forEach(function(row) {
+        var green = (row["response_rate"] / 1) * 255;
+        var color = "rgba(" + 0 + ", " + green + ", " + 0 + ", 1)";
+        fillColor.push(row["GEOID"], color);
+      });
+
+      fillColor.push("rgba(0,0,0,0)");
+
+      stateLayers.map(stateLayer => {
+        map.addLayer(
+          {
+            id: stateLayer.sourceURL,
+            type: "fill",
+            source: {
+              type: "vector",
+              url: stateLayer.sourceURL
+            },
+            "source-layer": stateLayer.sourceLayer,
+            paint: {
+              "fill-color": fillColor
+            }
+          },
+          "admin-country"
+        );
+      });
     });
 
     map.on("move", () => {
