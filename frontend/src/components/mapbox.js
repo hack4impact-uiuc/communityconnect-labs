@@ -1,6 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import {getResponseByTractID} from "../utils/apiWrapper";
+import { getResponseByTractID } from "../utils/apiWrapper";
 
 // from https://github.com/mapbox/mapbox-react-examples/tree/master/basic
 

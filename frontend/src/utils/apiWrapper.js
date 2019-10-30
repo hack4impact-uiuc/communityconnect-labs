@@ -8,8 +8,7 @@ export const getResponseByTractID = tract_id => {
    * Returns all tracts associated to that id upon success
    * Returns GET_TRACT_DATA_FAIL upon failure
    */
-  const requestString =
-    `http://localhost:5000/response_data?tract_id=${tract_id}`;
+  const requestString = `http://localhost:5000/response_data?tract_id=${tract_id}`;
   return axios
     .get(requestString, {
       headers: {
