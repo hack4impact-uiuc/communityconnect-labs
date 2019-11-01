@@ -28,7 +28,7 @@ def create_app(test_config=None):
     if __main__ == "__name__":
         app.run()
     """
-    
+
     app = Flask(__name__)
 
     CORS(app)  # add CORS
@@ -72,17 +72,16 @@ def create_app(test_config=None):
     #     if not database_exists(db_url):
     #         create_database(db_url)
 
-
     # app.config["MONGO_URI"] = "mongodb://localhost:27017/communityconnect-labs"
-    app.config['MONGODB_SETTINGS'] = {
-        'db': 'communityconnect-labs',
-        'host': '127.0.0.1',
-        'port': 27017
+    app.config["MONGODB_SETTINGS"] = {
+        "db": "communityconnect-labs",
+        "host": "127.0.0.1",
+        "port": 27017,
     }
 
     # register mongoengine to this app
     from api.models import db
-    
+
     db.init_app(app)  # initialize Flask MongoEngine with this flask app
     Migrate(app, db)
 

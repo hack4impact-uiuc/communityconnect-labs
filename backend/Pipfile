@@ -16,4 +16,4 @@ Flask-Script = "==2.0.6"
 Flask = ">=1.0.2"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
