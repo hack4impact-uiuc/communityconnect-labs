@@ -43,9 +43,6 @@ class MapBox extends React.Component {
             return { GEOID: response_rate.tract_id, response_rate: response_rate.rate}
         });
 
-
-        tractData.splice(0, 0, { GEOID: "06085505009", response_rate: 0.56 });
-
         map.on("load", function() {
           var fillColor = ["match", ["get", "GEOID"]];
 
@@ -55,8 +52,6 @@ class MapBox extends React.Component {
             var color = "rgba(" + red + ", " + 0 + ", " + 0 + ", 1)";
             fillColor.push(row["GEOID"], color);
           });
-          console.log(tractData);
-          console.log(fillColor);
 
           fillColor.push("rgba(0,0,0,0)");
 
@@ -78,8 +73,6 @@ class MapBox extends React.Component {
             );
           });
         });
-
-        console.log("asdfasdf")
     });
 
 
