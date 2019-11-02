@@ -28,7 +28,7 @@ def get_persons():
 @main.route("/census_response", methods=["GET"])
 def get_census_response():
     responses = CensusResponse.objects()  # CURRENTLY DOESNT HAVE DATE BUT USE IT LATER
-    response_rates = []
+    response_rates = {}
     has_date = "date" in request.args
 
     if has_date:
@@ -42,10 +42,9 @@ def get_census_response():
             rate = resp.rates[year][date]
         else:
             rate = resp.rates[year]
-        id_and_rate = {"tract_id": resp.tract_id, "rate": rate}
-        response_rates.append(id_and_rate)
+        response_rates[resp.tract_id] = rate
 
-    return create_response(data={"response_rates": response_rates})
+    return create_response(data={"response_rates": [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]})
 
 
 # POST request for /persons
