@@ -25,7 +25,7 @@ def parse_census_data(link, date, parse2000=False):
     responses = []
     id_to_county = {}
 
-    # rows.sort() might be needed later because current code assumes counties are placed before tracts
+    rows.sort() # might be needed later because current code assumes counties are placed before tracts
     for row in rows:
         columns = row.split(DELIM)
         i = columns[0]
