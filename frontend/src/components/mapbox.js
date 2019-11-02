@@ -37,19 +37,26 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
-    getResponseRatesByDate("03252010").then(data => {
+    getResponseRatesByDate("03312010").then(data => {
         var responseRates = data.data.result.response_rates;
         var tractData = responseRates.map(response_rate => {
-            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate}
+            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
         });
+
+        console.log(tractData);
 
         map.on("load", function() {
           var fillColor = ["match", ["get", "GEOID"]];
 
           // converting the response rate into a color
-          tractData.forEach(function(row) {
-            var red = (row["response_rate"] / 1) * 255;
-            var color = "rgba(" + red + ", " + 0 + ", " + 0 + ", 1)";
+          const LIGHTEST = [233, 244, 222];
+          const DARKEST = [64, 89, 34];
+          tractData.forEach(row => {
+            var rate = row["response_rate"];
+            var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+            var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+            var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+            var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
             fillColor.push(row["GEOID"], color);
           });
 
