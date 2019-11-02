@@ -11,6 +11,7 @@ const MIN_ZOOM = 2.5;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
+const MAP_TRACKS = stateLayers.map(x => x);
 
 class MapBox extends React.Component {
   constructor(props) {
@@ -86,19 +87,23 @@ class MapBox extends React.Component {
     });
 
     map.on('mousemove', (e) => {
-      var states = map.queryRenderedFeatures(e.point, {
-        layers: ['stateLayers']
-      }); 
+      //MAP_TRACKS.forEach((element) => {
+        var tracks = map.queryRenderedFeatures(e.point, {
+          layers: MAP_TRACKS
+        });
 
-      if (states.length > 0) {
-        this.setState({
-          trackSelected: true
-        });
-      } else {
-        this.setState({
-          trackSelected: false
-        });
-      }
+        if (tracks.length > 0) {
+          console.log("true");
+          this.setState({
+            trackSelected: true
+          })
+        } else {
+          console.log("false");
+          this.setState({
+            trackSelected: false
+          })
+        }
+//});
     });
   }
 
@@ -114,7 +119,7 @@ class MapBox extends React.Component {
           ref={el => (this.mapContainer = el)}
           className="absolute top right left bottom"
         />
-        <div className='map-overlay' id='features'><h6> tract </h6><div id='pd'><h2>City Name</h2> </div>
+        <div className='map-overlay' id='features'><h6> tract </h6><h2>City Name</h2>
         {this.state.trackSelected ? (<p> Tract Data! </p>) : (<p>Hover over to see more detailed info!</p>)} </div>
       </div>
     );
