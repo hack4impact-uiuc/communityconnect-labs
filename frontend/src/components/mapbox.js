@@ -18,7 +18,8 @@ class MapBox extends React.Component {
     this.state = {
       lng: -97,
       lat: 38,
-      zoom: 3.7
+      zoom: 3.7,
+      trackSelected: false
     };
   }
 
@@ -86,15 +87,18 @@ class MapBox extends React.Component {
 
     map.on('mousemove', (e) => {
       var states = map.queryRenderedFeatures(e.point, {
-        layers: ['statedata']
-      });
-      
-      if (states.length > 0) {
-        document.getElementById('pd').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.density + '</strong> people per square mile</em></p>';
-      } else {
-        document.getElementById('pd').innerHTML = '<p>Hover over a state!</p>';
-      }
+        layers: ['stateLayers']
+      }); 
 
+      if (states.length > 0) {
+        this.setState({
+          trackSelected: true
+        });
+      } else {
+        this.setState({
+          trackSelected: false
+        });
+      }
     });
   }
 
@@ -110,8 +114,8 @@ class MapBox extends React.Component {
           ref={el => (this.mapContainer = el)}
           className="absolute top right left bottom"
         />
-        <div id='map'></div>
-        <div className='map-overlay' id='features'><h6> tract </h6><div id='pd'><h2>City Name</h2></div></div>
+        <div className='map-overlay' id='features'><h6> tract </h6><div id='pd'><h2>City Name</h2> </div>
+        {this.state.trackSelected ? (<p> Tract Data! </p>) : (<p>Hover over to see more detailed info!</p>)} </div>
       </div>
     );
   }
