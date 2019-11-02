@@ -1,7 +1,7 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
-import { getResponseByTractID } from "../utils/apiWrapper";
+import { getResponseByTractID, getResponseRatesByDate } from "../utils/apiWrapper";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -39,42 +39,51 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
-    // temporary data for testing
-    const testData = [
-      { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
-      { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
-    ];
+    getResponseRatesByDate("03312010").then(data => {
+        var responseRates = data.data.result.response_rates;
+        var tractData = responseRates.map(response_rate => {
+            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
+        });
 
-    map.on("load", function() {
-      var fillColor = ["match", ["get", "GEOID"]];
+        console.log(tractData);
 
-      // converting the response rate into a color
-      testData.forEach(function(row) {
-        var green = (row["response_rate"] / 1) * 255;
-        var color = "rgba(" + 0 + ", " + green + ", " + 0 + ", 1)";
-        fillColor.push(row["GEOID"], color);
-      });
+        map.on("load", function() {
+          var fillColor = ["match", ["get", "GEOID"]];
 
-      fillColor.push("rgba(0,0,0,0)");
+          // converting the response rate into a color
+          const LIGHTEST = [233, 244, 222];
+          const DARKEST = [64, 89, 34];
+          tractData.forEach(row => {
+            var rate = row["response_rate"];
+            var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+            var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+            var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+            var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+            fillColor.push(row["GEOID"], color);
+          });
 
-      stateLayers.map(stateLayer => {
-        map.addLayer(
-          {
-            id: stateLayer.sourceURL,
-            type: "fill",
-            source: {
-              type: "vector",
-              url: stateLayer.sourceURL
-            },
-            "source-layer": stateLayer.sourceLayer,
-            paint: {
-              "fill-color": fillColor
-            }
-          },
-          "admin-country"
-        );
-      });
+          fillColor.push("rgba(0,0,0,0)");
+
+          stateLayers.map(stateLayer => {
+            map.addLayer(
+              {
+                id: stateLayer.sourceURL,
+                type: "fill",
+                source: {
+                  type: "vector",
+                  url: stateLayer.sourceURL
+                },
+                "source-layer": stateLayer.sourceLayer,
+                paint: {
+                  "fill-color": fillColor
+                }
+              },
+              "state-label"
+            );
+          });
+        });
     });
+
 
     map.on("move", () => {
       const { lng, lat } = map.getCenter();
