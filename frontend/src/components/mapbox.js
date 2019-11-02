@@ -96,23 +96,20 @@ class MapBox extends React.Component {
     });
 
     map.on('mousemove', (e) => {
-      //MAP_TRACKS.forEach((element) => {
-        var tracks = map.queryRenderedFeatures(e.point, {
-          layers: MAP_TRACKS
-        });
+      MAP_TRACKS.forEach((element) => {
+        var tracks = map.queryRenderedFeatures(e.point);
+        console.log(tracks);
 
         if (tracks.length > 0) {
-          console.log("true");
           this.setState({
             trackSelected: true
           })
         } else {
-          console.log("false");
           this.setState({
             trackSelected: false
           })
         }
-//});
+      });
     });
   }
 
