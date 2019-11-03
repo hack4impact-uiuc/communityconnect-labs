@@ -1,7 +1,10 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
-import { getResponseByTractID, getResponseRatesByDate } from "../utils/apiWrapper";
+import {
+  getResponseByTractID,
+  getResponseRatesByDate
+} from "../utils/apiWrapper";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -11,7 +14,7 @@ const MIN_ZOOM = 2.5;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
-const MAP_TRACKS = stateLayers.map(x => x);
+const MAP_TRACTS = stateLayers.map(x => x);
 
 class MapBox extends React.Component {
   constructor(props) {
@@ -20,13 +23,13 @@ class MapBox extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      trackSelected: false
+      tractSelected: false,
+      currentTract: {},
+      tractToRates: {}
     };
   }
 
   componentDidMount() {
-    // TODO: Replace the log below with a valid tract request
-    console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
     let map = new mapboxgl.Map({
@@ -40,50 +43,61 @@ class MapBox extends React.Component {
     });
 
     getResponseRatesByDate("03312010").then(data => {
-        var responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
-            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
+      var responseRates = data.data.result.response_rates;
+
+      // We're going to map IDs to response rates so we can display them
+      var tractToRates = {};
+      responseRates.forEach(response_rate => {
+        tractToRates[response_rate.tract_id] = response_rate.rate;
+      });
+      this.setState({
+        tractToRates: tractToRates
+      });
+
+      var tractData = responseRates.map(response_rate => {
+        return {
+          GEOID: response_rate.tract_id,
+          response_rate: response_rate.rate
+        };
+      });
+
+      map.on("load", function() {
+        var fillColor = ["match", ["get", "GEOID"]];
+
+        // converting the response rate into a color
+        const LIGHTEST = [233, 244, 222];
+        const DARKEST = [64, 89, 34];
+        tractData.forEach(row => {
+          var rate = row["response_rate"];
+          // push the rate onto a property
+          var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+          var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+          var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+          var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+          fillColor.push(row["GEOID"], color);
         });
 
-        console.log(tractData);
+        fillColor.push("rgba(0,0,0,0)");
 
-        map.on("load", function() {
-          var fillColor = ["match", ["get", "GEOID"]];
-
-          // converting the response rate into a color
-          const LIGHTEST = [233, 244, 222];
-          const DARKEST = [64, 89, 34];
-          tractData.forEach(row => {
-            var rate = row["response_rate"];
-            var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-            var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-            var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-            var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-            fillColor.push(row["GEOID"], color);
-          });
-
-          fillColor.push("rgba(0,0,0,0)");
-
-          stateLayers.map(stateLayer => {
-            map.addLayer(
-              {
-                id: stateLayer.sourceURL,
-                type: "fill",
-                source: {
-                  type: "vector",
-                  url: stateLayer.sourceURL
-                },
-                "source-layer": stateLayer.sourceLayer,
-                paint: {
-                  "fill-color": fillColor
-                }
+        stateLayers.map(stateLayer => {
+          map.addLayer(
+            {
+              id: stateLayer.sourceURL,
+              type: "fill",
+              source: {
+                type: "vector",
+                url: stateLayer.sourceURL
               },
-              "state-label"
-            );
-          });
+              "source-layer": stateLayer.sourceLayer,
+              paint: {
+                "fill-color": fillColor
+              }
+            },
+            "state-label"
+          );
         });
+      });
     });
-
 
     map.on("move", () => {
       const { lng, lat } = map.getCenter();
@@ -95,19 +109,25 @@ class MapBox extends React.Component {
       });
     });
 
-    map.on('mousemove', (e) => {
-      MAP_TRACKS.forEach((element) => {
-        var tracks = map.queryRenderedFeatures(e.point);
-        console.log(tracks);
+    map.on("mousemove", e => {
+      MAP_TRACTS.forEach(element => {
+        var tracts = map.queryRenderedFeatures(e.point, {
+          layers: ["mapbox://meghabyte.ac7v02uw"]
+        });
 
-        if (tracks.length > 0) {
+        if (tracts.length > 0) {
           this.setState({
-            trackSelected: true
-          })
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            }
+          });
         } else {
           this.setState({
-            trackSelected: false
-          })
+            tractSelected: false,
+            currentTract: null
+          });
         }
       });
     });
@@ -125,8 +145,20 @@ class MapBox extends React.Component {
           ref={el => (this.mapContainer = el)}
           className="absolute top right left bottom"
         />
-        <div className='map-overlay' id='features'><h6> tract </h6><h2>City Name</h2>
-        {this.state.trackSelected ? (<p> Tract Data! </p>) : (<p>Hover over to see more detailed info!</p>)} </div>
+        <div className="map-overlay" id="features">
+          {this.state.tractSelected ? (
+            <>
+              <h2> {this.state.currentTract.name} </h2>
+              <p>
+                {" "}
+                Response rate:{" "}
+                {this.state.tractToRates[this.state.currentTract.id]}{" "}
+              </p>
+            </>
+          ) : (
+            <p> Hover over to see more detailed info! </p>
+          )}
+        </div>
       </div>
     );
   }
