@@ -42,6 +42,7 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
+    // TODO: set a default start date?
     getResponseRatesByDate("03312010").then(data => {
       var responseRates = data.data.result.response_rates;
 
@@ -112,6 +113,7 @@ class MapBox extends React.Component {
     map.on("mousemove", e => {
       MAP_TRACTS.forEach(element => {
         var tracts = map.queryRenderedFeatures(e.point, {
+          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
           layers: ["mapbox://meghabyte.ac7v02uw"]
         });
 
