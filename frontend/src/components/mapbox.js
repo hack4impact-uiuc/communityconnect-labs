@@ -1,7 +1,10 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
-import { getResponseByTractID, getResponseRatesByDate } from "../utils/apiWrapper";
+import {
+  getResponseByTractID,
+  getResponseRatesByDate
+} from "../utils/apiWrapper";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -18,13 +21,14 @@ class MapBox extends React.Component {
     this.state = {
       lng: -97,
       lat: 38,
-      zoom: 3.7
+      zoom: 3.7,
+      tractSelected: false,
+      currentTract: {},
+      tractData: {}
     };
   }
 
   componentDidMount() {
-    // TODO: Replace the log below with a valid tract request
-    console.log(getResponseByTractID("0"));
     const { lng, lat, zoom } = this.state;
 
     let map = new mapboxgl.Map({
@@ -37,51 +41,58 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
+    // TODO: set a default start date?
     getResponseRatesByDate("03312010").then(data => {
-        var responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
-            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
+      var responseRates = data.data.result.response_rates;
+
+      // We're going to map IDs to response rates so we can display them
+      var tractData = {};
+      responseRates.forEach(response_rate => {
+        tractData[response_rate.tract_id] = response_rate.rate;
+      });
+      this.setState({
+        tractData: tractData
+      });
+
+      map.on("load", function() {
+        var fillColor = ["match", ["get", "GEOID"]];
+
+        // converting the response rate into a color
+        const LIGHTEST = [233, 244, 222];
+        const DARKEST = [64, 89, 34];
+
+        const geoIds = Object.keys(tractData);
+        geoIds.map(geoId => {
+          var rate = tractData[geoId];
+          // push the rate onto a property
+          var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+          var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+          var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+          var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+          fillColor.push(geoId, color);
         });
 
-        console.log(tractData);
+        fillColor.push("rgba(0,0,0,0)");
 
-        map.on("load", function() {
-          var fillColor = ["match", ["get", "GEOID"]];
-
-          // converting the response rate into a color
-          const LIGHTEST = [233, 244, 222];
-          const DARKEST = [64, 89, 34];
-          tractData.forEach(row => {
-            var rate = row["response_rate"];
-            var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-            var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-            var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-            var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-            fillColor.push(row["GEOID"], color);
-          });
-
-          fillColor.push("rgba(0,0,0,0)");
-
-          stateLayers.map(stateLayer => {
-            map.addLayer(
-              {
-                id: stateLayer.sourceURL,
-                type: "fill",
-                source: {
-                  type: "vector",
-                  url: stateLayer.sourceURL
-                },
-                "source-layer": stateLayer.sourceLayer,
-                paint: {
-                  "fill-color": fillColor
-                }
+        stateLayers.map(stateLayer => {
+          map.addLayer(
+            {
+              id: stateLayer.sourceURL,
+              type: "fill",
+              source: {
+                type: "vector",
+                url: stateLayer.sourceURL
               },
-              "state-label"
-            );
-          });
+              "source-layer": stateLayer.sourceLayer,
+              paint: {
+                "fill-color": fillColor
+              }
+            },
+            "state-label"
+          );
         });
+      });
     });
-
 
     map.on("move", () => {
       const { lng, lat } = map.getCenter();
@@ -90,6 +101,30 @@ class MapBox extends React.Component {
         lng: lng.toFixed(4),
         lat: lat.toFixed(4),
         zoom: map.getZoom().toFixed(2)
+      });
+    });
+
+    map.on("mousemove", e => {
+      stateLayers.forEach(element => {
+        var tracts = map.queryRenderedFeatures(e.point, {
+          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
+          layers: ["mapbox://meghabyte.ac7v02uw"]
+        });
+
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            }
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null
+          });
+        }
       });
     });
   }
@@ -106,6 +141,19 @@ class MapBox extends React.Component {
           ref={el => (this.mapContainer = el)}
           className="absolute top right left bottom"
         />
+        <div className="map-overlay" id="features">
+          {this.state.tractSelected ? (
+            <>
+              <h2> {this.state.currentTract.name} </h2>
+              <p>
+                Response rate:
+                {this.state.tractData[this.state.currentTract.id]}
+              </p>
+            </>
+          ) : (
+            <p> Hover over to see more detailed info! </p>
+          )}
+        </div>
       </div>
     );
   }
