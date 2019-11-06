@@ -115,9 +115,11 @@ def populate_db():
 def get_predictions():
     tract = request.args["tract"]
     responses = CensusResponse.objects(tract_id=tract).first()
+    
     values = list(responses.rates["2010"].values())
-
     print(values)
+    values2000 = list(responses.rates["2000"].values())
+    print(values2000)
 
     return create_response(data={"response_rates": "b"})
 
