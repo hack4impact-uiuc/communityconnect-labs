@@ -18,6 +18,7 @@ class Graph extends React.Component {
                 { x: "80", y: 4 },
                 { x: "90", y: 6 }
               ]
+            // use endpoint
         };
     }
 
@@ -25,32 +26,8 @@ class Graph extends React.Component {
     render() {
         return (
             <>
-            <VictoryAxis crossAxis
-                width={200}
-                height={200}
-                domain={[0, 10]}
-                theme={VictoryTheme.material}
-                offsetY={200}
-                standalone={false}
-            />
-            <VictoryAxis dependentAxis crossAxis
-                width={800}
-                tickCount={10}
-                tickValues={["90", "80", "70", "60", "50", "40", "30"]}
-            />
-
             <VictoryChart>
-                <VictoryLine
-                    data={this.state.data}
-                    style={{
-                    data: {
-                        stroke: "#02B875"
-                    }
-                    }}
-                />
-            </VictoryChart>
-
-            {/* <VictoryStack>
+            <VictoryStack>
                 <VictoryArea
                     data={[{x: "a", y: 2}, {x: "b", y: 3}, {x: "c", y: 5}]}
                 />
@@ -60,7 +37,8 @@ class Graph extends React.Component {
                 <VictoryArea
                     data={[{x: "a", y: 3}, {x: "b", y: 2}, {x: "c", y: 6}]}
                 />
-            </VictoryStack> */}
+            </VictoryStack>
+            </VictoryChart>
             </>
         )
     }
