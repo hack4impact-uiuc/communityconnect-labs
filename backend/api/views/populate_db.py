@@ -51,13 +51,16 @@ def parse_census_data(link, date, date_initial, parse2000=False):
             )
             responses.append(censusResp)
 
-        elif parse2000 and validate_data(i, name, t, rates[0]):
+        if parse2000 and validate_data(i, name, t, rates[0]):
             date_obj = datetime.date(2000, 1, 1)
             delta = date_obj - date_initial_obj
+            days = delta.days
+            if delta.days < 0:
+                days = 0
             censusResp = CensusResponse(
                 tract_id=i,
                 county=id_to_county[county_id],
-                rates={"2000": {date: [rates[0], delta.days]}},
+                rates={"2000": {"00002000": [rates[0], days]}},
             )
             responses.append(censusResp)
 

@@ -95,6 +95,8 @@ def populate_db():
         responses = parse_census_data(file, date, date_initial, parse2000)
         parse2000 = False
         for r in responses:
+            if r.tract_id != '17001000100':
+                continue
             existing = CensusResponse.objects(tract_id=r.tract_id)
             if len(existing) > 0:
                 existing = existing[0]
@@ -102,7 +104,20 @@ def populate_db():
                 existing.save()
             else:
                 r.save()
+        break
 
     return create_response(
         message=f"Successfully added {len(responses)} new Census Responses"
     )
+
+# function that is called when you visit /predictions
+@main.route("/predictions", methods=["GET"])
+def get_predictions():
+    tract = request.args["tract"]
+    responses = CensusResponse.objects(tract_id=tract).first()
+    values = list(responses.rates["2010"].values())
+
+    print(values)
+
+    return create_response(data={"response_rates": "b"})
+

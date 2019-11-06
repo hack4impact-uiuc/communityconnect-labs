@@ -21,7 +21,10 @@ class CensusResponse(Document, Mixin):
 
     def update(self, other):
         for i in self.rates:
-            self.rates[i].update(other.rates.get(i, {}))
+            self.rates[i].update(other.rates.get(i, {}))        
+        for i in other.rates:
+            if i not in self.rates:
+                self.rates[i] = other.rates[i]
 
     def __repr__(self):
         return f"<CensusResponse {self.tract_id}>"
