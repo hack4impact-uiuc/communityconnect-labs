@@ -14,7 +14,6 @@ const MIN_ZOOM = 2.5;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
-const MAP_TRACTS = stateLayers.map(x => x);
 
 class MapBox extends React.Component {
   constructor(props) {
@@ -25,7 +24,7 @@ class MapBox extends React.Component {
       zoom: 3.7,
       tractSelected: false,
       currentTract: {},
-      tractToRates: {}
+      tractData: {}
     };
   }
 
@@ -47,19 +46,12 @@ class MapBox extends React.Component {
       var responseRates = data.data.result.response_rates;
 
       // We're going to map IDs to response rates so we can display them
-      var tractToRates = {};
+      var tractData = {};
       responseRates.forEach(response_rate => {
-        tractToRates[response_rate.tract_id] = response_rate.rate;
+        tractData[response_rate.tract_id] = response_rate.rate;
       });
       this.setState({
-        tractToRates: tractToRates
-      });
-
-      var tractData = responseRates.map(response_rate => {
-        return {
-          GEOID: response_rate.tract_id,
-          response_rate: response_rate.rate
-        };
+        tractData: tractData
       });
 
       map.on("load", function() {
@@ -68,14 +60,16 @@ class MapBox extends React.Component {
         // converting the response rate into a color
         const LIGHTEST = [233, 244, 222];
         const DARKEST = [64, 89, 34];
-        tractData.forEach(row => {
-          var rate = row["response_rate"];
+
+        const geoIds = Object.keys(tractData);
+        geoIds.map(geoId => {
+          var rate = tractData[geoId];
           // push the rate onto a property
           var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
           var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
           var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
           var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-          fillColor.push(row["GEOID"], color);
+          fillColor.push(geoId, color);
         });
 
         fillColor.push("rgba(0,0,0,0)");
@@ -111,7 +105,7 @@ class MapBox extends React.Component {
     });
 
     map.on("mousemove", e => {
-      MAP_TRACTS.forEach(element => {
+      stateLayers.forEach(element => {
         var tracts = map.queryRenderedFeatures(e.point, {
           // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
           layers: ["mapbox://meghabyte.ac7v02uw"]
@@ -152,9 +146,8 @@ class MapBox extends React.Component {
             <>
               <h2> {this.state.currentTract.name} </h2>
               <p>
-                {" "}
-                Response rate:{" "}
-                {this.state.tractToRates[this.state.currentTract.id]}{" "}
+                Response rate:
+                {this.state.tractData[this.state.currentTract.id]}
               </p>
             </>
           ) : (
