@@ -1,0 +1,72 @@
+.sidebar-logo-text{  
+    width: 70%;
+    padding-top: 20px;
+    padding-bottom:20px;
+}
+
+.sidebar-logo{  
+    width: 60px;
+    height: 100px;
+    padding-top: 20px;
+    padding-bottom:20px;
+}
+.sidebar{
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+    background-color: white;
+}
+.sidebarOpen{
+    /* align-items: center; */
+    flex-direction: column;
+}
+.sidebarClosed{
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+}
+
+@media only screen and (min-width: 600px) {
+    .sidebarOpen, .sidebarClosed{
+        height: 100vh;
+        position: absolute;
+        padding: 20px;
+    }
+}
+
+p{
+    color: black;
+    width: 70%;
+    padding-top: 10px;
+}
+
+.header-text{
+    padding-top: 20px;
+    padding-bottom:20px;
+    font-weight: 500;
+    font-size: 18pt;
+}
+.sub-header-text{
+    padding-bottom:20px;
+    font-weight: 500;
+    font-size: 14pt;
+    display: block;
+}
+.search-input{
+    border-radius: 5px;
+    background-color: #F2F2F2;
+    border-width: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.search-button{
+    border-radius: 5px;
+    margin-top: 10px;
+    background-color: #F2F2F2;
+    font-weight: 500;
+    width: 90px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 10pt;
+    text-align: center;
+}

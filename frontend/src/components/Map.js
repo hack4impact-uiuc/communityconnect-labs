@@ -2,10 +2,11 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import { getResponseByTractID, getResponseRatesByDate } from "../utils/apiWrapper";
-
+import "../styles/index.css";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
+var MapboxGeocoder = require('@mapbox/mapbox-gl-geocoder');
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
@@ -37,13 +38,21 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
-    getResponseRatesByDate("03312010").then(data => {
-        var responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
-            return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
-        });
+    let geocoder =  new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+    });
 
-        console.log(tractData);
+    getResponseRatesByDate("03312010").then(data => {
+        // var responseRates = data.data.result.response_rates;
+        // var tractData = responseRates.map(response_rate => {
+        //     return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
+        // });
+
+        const tractData = [
+          { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
+          { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
+        ];
 
         map.on("load", function() {
           var fillColor = ["match", ["get", "GEOID"]];
@@ -92,14 +101,17 @@ class MapBox extends React.Component {
         zoom: map.getZoom().toFixed(2)
       });
     });
+
+    // document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+    map.addControl(geocoder);
   }
 
   render() {
     const { lng, lat, zoom } = this.state;
 
     return (
-      <div>
-        <div className="inline-block absolute top left mt12 ml12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
+      <div className = "map">
+        <div className="inline-block absolute top right mt12 mr12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
           <div>{`Longitude: ${lng} Latitude: ${lat} Zoom: ${zoom}`}</div>
         </div>
         <div
