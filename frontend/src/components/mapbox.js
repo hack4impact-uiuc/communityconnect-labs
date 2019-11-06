@@ -1,5 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
+import Graph from './graph.js'
 import stateLayers from "../resources/stateLayers.js";
 import {
   getResponseByTractID,
@@ -154,6 +155,7 @@ class MapBox extends React.Component {
             <p> Hover over to see more detailed info! </p>
           )}
         </div>
+        <Graph></Graph>
       </div>
     );
   }
