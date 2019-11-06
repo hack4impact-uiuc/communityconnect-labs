@@ -2,6 +2,7 @@ from api.core import logger
 from api.models import db, CensusResponse
 import re
 
+
 def get_response_rates_by_date(date):
     response_rates = {}
 
@@ -13,6 +14,7 @@ def get_response_rates_by_date(date):
         response_rates[resp.tract_id] = rate
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
+
 
 def get_response_rates_by_year(year):
     response_rates = {}
@@ -26,10 +28,11 @@ def get_response_rates_by_year(year):
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
 
+
 def get_response_rates_by_state(state, date):
     response_rates = {}
 
-    regex = re.compile('^{}.*'.format(state))
+    regex = re.compile("^{}.*".format(state))
     logger.info(regex)
     responses = CensusResponse.objects(tract_id=regex)
     year = date[-4:]

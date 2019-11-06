@@ -24,6 +24,7 @@ def get_persons():
     persons = Person.objects()
     return create_response(data={"persons": persons})
 
+
 # POST request for /persons
 @main.route("/persons", methods=["POST"])
 def create_person():
@@ -50,22 +51,23 @@ def create_person():
         message=f"Successfully created person {new_person.name} with id: {new_person.id}"
     )
 
+
 # function that is called when you visit /census_response
 @main.route("/response_rates", methods=["GET"])
 def get_response_rates():
     responses_rate = None
 
-    if 'date' in request.args:
-        date = request.args['date']
-        if 'state' in request.args:
-            response_rates = get_response_rates_by_state(request.args['state'], date)
+    if "date" in request.args:
+        date = request.args["date"]
+        if "state" in request.args:
+            response_rates = get_response_rates_by_state(request.args["state"], date)
         else:
             response_rates = get_response_rates_by_date(date)
 
-    elif 'year' in request.args:
-        response_rates = get_response_rates_by_year(request.args['year'])
+    elif "year" in request.args:
+        response_rates = get_response_rates_by_year(request.args["year"])
     else:
-        return create_response(status=442, message='Missing request parameters')
+        return create_response(status=442, message="Missing request parameters")
 
     return create_response(data={"response_rates": response_rates})
 
