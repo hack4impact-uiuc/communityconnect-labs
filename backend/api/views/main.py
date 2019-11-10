@@ -24,21 +24,35 @@ def get_persons():
     return create_response(data={"persons": persons})
 
 
-# function that is called when you visit /census_response
+
+# Given:
+# date in database
+# (optional) tract_id in database
+#
+# Returns all response rates associated to that date (and id)
 @main.route("/census_response", methods=["GET"])
 def get_census_response():
     responses = CensusResponse.objects()
     response_rates = []
+    check_tract_id = False
+    tract_id = 0
     date = request.args["date"]
-    tract_id = request.args["tract_id"]
+    if "tract_id" in request.args:
+        tract_id = request.args["tract_id"]
+        check_tract_id = True
     DATE_INDEX = -4
     year = date[DATE_INDEX:]
 
     for resp in responses:
-        if year in resp.rates and date in resp.rates[year] and resp.tract_id == tract_id:
+        if year in resp.rates and date in resp.rates[year]:
             rate = resp.rates[year][date]
             id_and_rate = {"tract_id": resp.tract_id, "rate": rate}
-            response_rates.append(id_and_rate)
+            if check_tract_id:
+                if tract_id == resp.tract_id:
+                    response_rates.append(id_and_rate)
+            else:
+                response_rates.append(id_and_rate)
+
     return create_response(data={"response_rates": response_rates})
 
 
