@@ -27,14 +27,15 @@ def get_persons():
 # function that is called when you visit /census_response
 @main.route("/census_response", methods=["GET"])
 def get_census_response():
-    DATE_INDEX = -4
     responses = CensusResponse.objects()
     response_rates = []
     date = request.args["date"]
+    tract_id = request.args["tract_id"]
+    DATE_INDEX = -4
     year = date[DATE_INDEX:]
 
     for resp in responses:
-        if year in resp.rates and date in resp.rates[year]:
+        if year in resp.rates and date in resp.rates[year] and resp.tract_id == tract_id:
             rate = resp.rates[year][date]
             id_and_rate = {"tract_id": resp.tract_id, "rate": rate}
             response_rates.append(id_and_rate)
