@@ -23,7 +23,10 @@ def get_census_responses(tract_id, state):
 
 '''
 Returns response rate by date
-Parameters: date string with format MMDDYYYY
+Parameters:
+    date: string with format MMDDYYYY
+    optional tract_id: string 11 digit tract id
+    optional state id: string 2 digit state id
 Output:
     [
     {"tract_id": string, "rate": float},
@@ -45,7 +48,10 @@ def get_response_rates_by_date(date, tract_id=None, state=None):
 
 '''
 Returns response rate by year
-Parameters: date string with format YY
+Parameters:
+    date: string with format YY
+    optional tract_id: string 11 digit tract id
+    optional state id: string 2 digit state id
 Output:
     [
     {"tract_id": string, "rate": float},
