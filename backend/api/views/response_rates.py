@@ -2,7 +2,15 @@ from api.core import logger
 from api.models import db, CensusResponse
 import re
 
-
+'''
+Returns response rate by date
+Parameters: date string with format MMDDYYYY
+Output:
+    [
+    {"tract_id": string, "rate": float},
+    ...
+    ]
+'''
 def get_response_rates_by_date(date):
     response_rates = {}
 
@@ -15,7 +23,16 @@ def get_response_rates_by_date(date):
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
 
-
+'''
+Returns response rate by year
+Parameters: date string with format YY
+Output:
+    [
+    {"tract_id": string, "rate": float},
+    ...
+    ]
+The returned rate is the response rate on the last collection day in the year
+'''
 def get_response_rates_by_year(year):
     response_rates = {}
 
@@ -28,7 +45,16 @@ def get_response_rates_by_year(year):
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
 
-
+'''
+Returns response rate by date
+Parameters: date string with format MMDDYYYY
+            2 digit state id
+Output:
+    [
+    {"tract_id": string, "rate": float},
+    ...
+    ]
+'''
 def get_response_rates_by_state(state, date):
     response_rates = {}
 
