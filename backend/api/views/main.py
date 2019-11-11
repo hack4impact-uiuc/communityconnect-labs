@@ -52,7 +52,14 @@ def create_person():
     )
 
 
-# function that is called when you visit /census_response
+'''
+function that is called when you visit /response_rates
+Parameters
+    date: date string with the format MMDDYYYY
+    year: year string with format YY
+    state: two digit id string
+Either date or year is required. State is optional if date is given
+'''
 @main.route("/response_rates", methods=["GET"])
 def get_response_rates():
     responses_rate = None

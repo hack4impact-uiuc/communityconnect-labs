@@ -32,8 +32,8 @@ def get_response_rates_by_year(year):
 def get_response_rates_by_state(state, date):
     response_rates = {}
 
+    # this regex is looking for all tract ids that start with the 2-digit state ID
     regex = re.compile("^{}.*".format(state))
-    logger.info(regex)
     responses = CensusResponse.objects(tract_id=regex)
     year = date[-4:]
 
