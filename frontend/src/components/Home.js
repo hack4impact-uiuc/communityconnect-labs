@@ -120,7 +120,7 @@ class MapBox extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className="absolute top right left bottom"
+            className="absolute top right bottom col-9 col-s-9"
           />
         </div>
         <div>
