@@ -27,7 +27,7 @@ def parse_census_data(link, date, date_initial, parse2000=False):
     id_to_county = {}
     date_initial_obj = datetime.datetime.strptime(date_initial, "%m%d%Y").date()
 
-    rows.sort() # might be needed later because current code assumes counties are placed before tracts
+    rows.sort()  # might be needed later because current code assumes counties are placed before tracts
     for row in rows:
         columns = row.split(DELIM)
         i = columns[0]
