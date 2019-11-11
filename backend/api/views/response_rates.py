@@ -5,7 +5,7 @@ import time
 
 
 def get_year(date):
-    return time.strptime(date, "%m%d%Y").tm_year
+    return str(time.strptime(date, "%m%d%Y").tm_year)
 
 '''
 returns a collection of CensusResponses
