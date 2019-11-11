@@ -24,13 +24,11 @@ export const getResponseByTractID = tract_id => {
 };
 
 export const getResponseRatesByDate = date => {
-    const requestString = `http://localhost:5000/census_response?date=${date}`;
-    return axios
-        .get(requestString)
-        .catch(error => {
-            return {
-                type: "GET_TRACT_DATA_FAIL",
-                error
-            };
-        });
-}
+  const requestString = `http://localhost:5000/census_response?date=${date}`;
+  return axios.get(requestString).catch(error => {
+    return {
+      type: "GET_TRACT_DATA_FAIL",
+      error
+    };
+  });
+};

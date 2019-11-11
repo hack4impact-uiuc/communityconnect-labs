@@ -6,8 +6,8 @@ import Geocoder from "react-geocoder-autocomplete";
 import { getResponseRatesByDate } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
-import logoWithText from "../resources/ccl_logo_text.png"
-import logo from "../resources/ccl_logo.png"
+import logoWithText from "../resources/ccl_logo_text.png";
+import logo from "../resources/ccl_logo.png";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -26,12 +26,10 @@ class MapBox extends React.Component {
       lat: 38,
       zoom: 3.7,
       isOpen: true,
-      searchText: '',
-      geocoderValue: '',
+      searchText: "",
+      geocoderValue: ""
     };
     this.map = null;
-    this.ref = React.createRef();
-
   }
 
   componentDidMount() {
@@ -49,36 +47,39 @@ class MapBox extends React.Component {
     });
 
     getResponseRatesByDate("03312010").then(data => {
-        // var responseRates = data.data.result.response_rates;
-        // var tractData = responseRates.map(response_rate => {
-        //     return { GEOID: response_rate.tract_id, response_rate: response_rate.rate }
-        // });
+      var responseRates = data.data.result.response_rates;
+      var tractData = responseRates.map(response_rate => {
+        return {
+          GEOID: response_rate.tract_id,
+          response_rate: response_rate.rate
+        };
+      });
 
-        const tractData = [
-          { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
-          { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
-        ];
+      // const tractData = [
+      //   { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
+      //   { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
+      // ];
 
-        this.map.on("load", function() {
+      this.map.on("load", function() {
+        var fillColor = ["match", ["get", "GEOID"]];
 
-          var fillColor = ["match", ["get", "GEOID"]];
+        // converting the response rate into a color
+        const LIGHTEST = [233, 244, 222];
+        const DARKEST = [64, 89, 34];
+        tractData.forEach(row => {
+          var rate = row["response_rate"];
+          var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+          var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+          var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+          var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+          fillColor.push(row["GEOID"], color);
+        });
 
-          // converting the response rate into a color
-          const LIGHTEST = [233, 244, 222];
-          const DARKEST = [64, 89, 34];
-          tractData.forEach(row => {
-            var rate = row["response_rate"];
-            var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-            var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-            var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-            var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-            fillColor.push(row["GEOID"], color);
-          });
+        fillColor.push("rgba(0,0,0,0)");
 
-          fillColor.push("rgba(0,0,0,0)");
-
-          stateLayers.map(stateLayer => {
-            this.map && this.map.addLayer(
+        stateLayers.map(stateLayer => {
+          this.map &&
+            this.map.addLayer(
               {
                 id: stateLayer.sourceURL,
                 type: "fill",
@@ -93,10 +94,9 @@ class MapBox extends React.Component {
               },
               "state-label"
             );
-          });
         });
+      });
     });
-
 
     this.map.on("move", () => {
       const { lng, lat } = this.map.getCenter();
@@ -114,7 +114,7 @@ class MapBox extends React.Component {
 
     return (
       <div>
-        <div className = "map">
+        <div className="map">
           <div className="inline-block absolute top right mt12 mr12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
             <div>{`Longitude: ${lng} Latitude: ${lat} Zoom: ${zoom}`}</div>
           </div>
@@ -124,33 +124,47 @@ class MapBox extends React.Component {
           />
         </div>
         <div>
-            {this.state.isOpen ? 
-                (
-                  <div className = "sidebar sidebarOpen col-3 col-s-3">
-                      <img src={logoWithText} alt="CCL Logo" className="sidebar-logo-text"/>
-                      <Geocoder
-                        accessToken={mapboxgl.accessToken}
-                        value={this.state.searchText}
-                        onInput={(e) => {this.setState({searchText: e})}}
-                        onSelect={(e) => {this.map.flyTo({center: e.center, zoom: 10})}}
-                        showLoader={true}
-                        inputClass='search-input'
-                        inputPlaceholder= 'Search for tract, address or zipcode'
-                        resultClass='search-results'
-                        />
-                      <p onClick = {() => {this.setState({isOpen: false})}}>&lt; Minimize</p>
-                  </div>
-                )
-                :
-                (
-                  <div className = "sidebar sidebarClosed col-1 col-s-1" onClick = {() => {this.setState({isOpen: true})}}>
-                      <img src={logo} alt="CCL Logo" className="sidebar-logo"/>
-                  </div>
-                )
-            }
+          {this.state.isOpen ? (
+            <div className="sidebar sidebarOpen col-3 col-s-3">
+              <img
+                src={logoWithText}
+                alt="CCL Logo"
+                className="sidebar-logo-text"
+              />
+              <Geocoder
+                accessToken={mapboxgl.accessToken}
+                value={this.state.searchText}
+                onInput={e => {
+                  this.setState({ searchText: e });
+                }}
+                onSelect={e => {
+                  this.map.flyTo({ center: e.center, zoom: 10 });
+                }}
+                showLoader={true}
+                inputClass="search-input"
+                inputPlaceholder="Search for tract, address or zipcode"
+                resultClass="search-results"
+              />
+              <p
+                onClick={() => {
+                  this.setState({ isOpen: false });
+                }}
+              >
+                &lt; Minimize
+              </p>
+            </div>
+          ) : (
+            <div
+              className="sidebar sidebarClosed col-1 col-s-1"
+              onClick={() => {
+                this.setState({ isOpen: true });
+              }}
+            >
+              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
+            </div>
+          )}
         </div>
       </div>
-      
     );
   }
 }
