@@ -6,6 +6,7 @@ from .populate_db import parse_census_data
 from .web_scrap import extract_data_links
 
 main = Blueprint("main", __name__)  # initialize blueprint
+DATE_INDEX = -4
 
 # function that is called when you visit /
 @main.route("/")
@@ -25,9 +26,9 @@ def get_persons():
 
 
 
-# Given:
-# date in database
-# (optional) tract_id in database
+# Given (params):
+# date in database as a string of length 8 (ex: MMDDYYYY)
+# (optional) tract_id in database as a string (ex: 12345)
 #
 # Returns all response rates associated to that date (and id)
 @main.route("/census_response", methods=["GET"])
@@ -40,7 +41,6 @@ def get_census_response():
     if "tract_id" in request.args:
         tract_id = request.args["tract_id"]
         check_tract_id = True
-    DATE_INDEX = -4
     year = date[DATE_INDEX:]
 
     for resp in responses:
@@ -52,7 +52,8 @@ def get_census_response():
                     response_rates.append(id_and_rate)
             else:
                 response_rates.append(id_and_rate)
-
+    if len(response_rates) == 0:
+        return create_response(status=404, message="No contact with this configuration exists")
     return create_response(data={"response_rates": response_rates})
 
 
