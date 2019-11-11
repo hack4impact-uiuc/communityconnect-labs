@@ -2,7 +2,6 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-// import Geocoder from "react-map-gl-geocoder";
 import { getResponseRatesByDate } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
@@ -54,11 +53,6 @@ class MapBox extends React.Component {
           response_rate: response_rate.rate
         };
       });
-
-      // const tractData = [
-      //   { GEOID: "12095010200", response_rate: 0.73 }, // florida (orlando)
-      //   { GEOID: "06085505009", response_rate: 0.56 } // california- meg's home tract
-      // ];
 
       this.map.on("load", function() {
         var fillColor = ["match", ["get", "GEOID"]];
