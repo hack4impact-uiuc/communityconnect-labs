@@ -75,7 +75,7 @@ def get_response_rates():
     elif year:
         response_rates = get_response_rates_by_year(year, tract_id, state)
     else:
-        return create_response(status=442, message="Missing request parameters")
+        return create_response(status=422, message="Missing request parameters")
 
     return create_response(data={"response_rates": response_rates})
 
@@ -86,7 +86,7 @@ def populate_db():
     if "parent_link" not in data:
         msg = "No parent link."
         logger.info(msg)
-        return create_response(status=442, message=msg)
+        return create_response(status=422, message=msg)
 
     parent_link = data["parent_link"]
     logger.info("Populating Census Response Data from {}".format(parent_link))
