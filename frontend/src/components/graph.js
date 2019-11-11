@@ -1,29 +1,28 @@
 import React from "react";
 import { VictoryStack, VictoryAxis, VictoryArea, VictoryTheme, VictoryChart, VictoryLine, LineSegment, VictoryLabel} from 'victory';
-import { getResponseByTractID } from "../utils/apiWrapper";
+import {
+    getResponseByTractIDAndYear
+} from "../utils/apiWrapper";
 
+const year = "2010";
+const id = "34007603603";
 
 class Graph extends React.Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            data: [
-                { x: "20", y: 3 },
-                { x: "30", y: 2 },
-                { x: "40", y: 0 },
-                { x: "50", y: 8 },
-                { x: "60", y: 4 },
-                { x: "70", y: 2 },
-                { x: "80", y: 4 },
-                { x: "90", y: 6 }
-              ]
+            data: []
         };
     }
 
-    // componentDidMount() {
-    //     getResponseByTractIDAndYear(id, year); // change this when ready
-    // }
+    async componentDidMount() {
+        const arr = await getResponseByTractIDAndYear(id, year);
+        console.log(arr)
+        this.setState({
+            data: arr.result
+        });
+    }
 
     render() {
         return (
@@ -45,12 +44,7 @@ class Graph extends React.Component {
                     data: { stroke: "#d18b30" },
                     parent: { border: "1px solid #ccc"}
                     }}
-                    data={[
-                    { x: 10, y: 60 },
-                    { x: 20, y: 30 },
-                    { x: 30, y: 50 },
-                    { x: 40, y: 40 }
-                    ]}
+                    data={this.state.data}
                 />
             </VictoryChart>
             </>
