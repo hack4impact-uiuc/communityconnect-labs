@@ -128,6 +128,11 @@ class MapBox extends React.Component {
         }
       });
     });
+
+    map.on("click", function(e) {
+      // If (mouse click location is inside a tract):
+      // display graph for tract
+    })
   }
 
   render() {

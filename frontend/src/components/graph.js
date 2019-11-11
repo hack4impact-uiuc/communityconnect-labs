@@ -1,6 +1,6 @@
 import React from "react";
-import * as V from 'victory';
-import { VictoryStack, VictoryAxis, VictoryArea, VictoryTheme, VictoryChart, VictoryLine, LineSegment} from 'victory';
+import { VictoryStack, VictoryAxis, VictoryArea, VictoryTheme, VictoryChart, VictoryLine, LineSegment, VictoryLabel} from 'victory';
+import { getResponseByTractID } from "../utils/apiWrapper";
 
 
 class Graph extends React.Component {
@@ -18,26 +18,40 @@ class Graph extends React.Component {
                 { x: "80", y: 4 },
                 { x: "90", y: 6 }
               ]
-            // use endpoint
         };
     }
 
+    // componentDidMount() {
+    //     getResponseByTractIDAndYear(id, year); // change this when ready
+    // }
 
     render() {
         return (
             <>
-            <VictoryChart>
-            <VictoryStack>
-                <VictoryArea
-                    data={[{x: "a", y: 2}, {x: "b", y: 3}, {x: "c", y: 5}]}
+            <VictoryChart domainPadding={20}>
+                <VictoryLabel text="(YEAR) Actual Response Rates Data" x={225} y={50} textAnchor="middle"/>
+                <VictoryAxis
+                    tickValues={[10, 20, 30, 40]}
+                    label="Days After Initial Census Mailing"
                 />
-                <VictoryArea
-                    data={[{x: "a", y: 1}, {x: "b", y: 4}, {x: "c", y: 5}]}
+                <VictoryAxis
+                    dependentAxis
+                    tickValues={[30, 40, 50, 60, 70, 80]}
+                    label="Self Response Rate (YEAR)"
                 />
-                <VictoryArea
-                    data={[{x: "a", y: 3}, {x: "b", y: 2}, {x: "c", y: 6}]}
+
+                <VictoryLine
+                    style={{
+                    data: { stroke: "#d18b30" },
+                    parent: { border: "1px solid #ccc"}
+                    }}
+                    data={[
+                    { x: 10, y: 60 },
+                    { x: 20, y: 30 },
+                    { x: 30, y: 50 },
+                    { x: 40, y: 40 }
+                    ]}
                 />
-            </VictoryStack>
             </VictoryChart>
             </>
         )
