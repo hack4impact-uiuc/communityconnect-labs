@@ -7,7 +7,7 @@ export const getResponseByTractID = tract_id => {
    * Given:
    * tract id in database
    *
-   * Returns all tracts associated to that id upon success
+   * Returns all response rates associated to that id upon success
    * Returns GET_TRACT_DATA_FAIL upon failure
    */
   const requestString = `${BASE_URL}response_data?tract_id=${tract_id}`;

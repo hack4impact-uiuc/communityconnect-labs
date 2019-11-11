@@ -7,6 +7,7 @@ from .web_scrap import extract_data_links
 from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
+DATE_INDEX = -4
 
 # function that is called when you visit /
 @main.route("/")
@@ -63,16 +64,19 @@ Either date or year is required. State is optional if date is given
 @main.route("/response_rates", methods=["GET"])
 def get_response_rates():
     responses_rate = None
+    
+    tract_id = request.args.get("tract_id", None)
+    date = request.args.get("date", None)
+    year = request.args.get("year", None)
+    state = request.args.get("state", None)
 
-    if "date" in request.args:
-        date = request.args["date"]
-        if "state" in request.args:
-            response_rates = get_response_rates_by_state(request.args["state"], date)
+    if date:
+        if state:
+            response_rates = get_response_rates_by_state(state, date)
         else:
-            response_rates = get_response_rates_by_date(date)
-
-    elif "year" in request.args:
-        response_rates = get_response_rates_by_year(request.args["year"])
+            response_rates = get_response_rates_by_date(date, tract_id)
+    elif year:
+        response_rates = get_response_rates_by_year(year, tract_id)
     else:
         return create_response(status=442, message="Missing request parameters")
 

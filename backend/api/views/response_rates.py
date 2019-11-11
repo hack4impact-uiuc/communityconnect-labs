@@ -1,6 +1,21 @@
 from api.core import logger
 from api.models import db, CensusResponse
 import re
+import time
+
+
+def get_year(date):
+    return time.strptime(date, "%m%d%Y").tm_year
+
+'''
+returns a collection of CensusResponses
+filtered by tract_id if tract_id parameter is not None
+'''
+def get_census_responses(tract_id):
+    if tract_id:
+        return CensusResponse.objects(tract_id=tract_id)
+    else:
+        return CensusResponse.objects()
 
 '''
 Returns response rate by date
@@ -11,11 +26,12 @@ Output:
     ...
     ]
 '''
-def get_response_rates_by_date(date):
+def get_response_rates_by_date(date, tract_id=None):
     response_rates = {}
 
-    responses = CensusResponse.objects()
-    year = date[-4:]
+    responses = get_census_responses(tract_id);
+
+    year = get_year(date)
 
     for resp in responses:
         rate = resp.rates[year][date]
@@ -33,10 +49,10 @@ Output:
     ]
 The returned rate is the response rate on the last collection day in the year
 '''
-def get_response_rates_by_year(year):
+def get_response_rates_by_year(year, tract_id=None):
     response_rates = {}
 
-    responses = CensusResponse.objects()
+    responses = get_census_responses(tract_id);
 
     for resp in responses:
         rates = resp.rates[year]
@@ -61,7 +77,8 @@ def get_response_rates_by_state(state, date):
     # this regex is looking for all tract ids that start with the 2-digit state ID
     regex = re.compile("^{}.*".format(state))
     responses = CensusResponse.objects(tract_id=regex)
-    year = date[-4:]
+    
+    year = get_year(date)
 
     for resp in responses:
         rate = resp.rates[year][date]
