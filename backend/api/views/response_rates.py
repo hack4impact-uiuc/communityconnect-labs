@@ -14,7 +14,7 @@ filtered by tract_id if tract_id parameter is not None
 '''
 def get_census_responses(tract_id, state):
     if state:
-        regex = re.compile("^{}.*".format(state))
+        regex = re.compile("^{}.*".format(state)) # this regex searched for all tract_ids that begin with the state ID
         return CensusResponse.objects(tract_id=regex)
     elif tract_id:
         return CensusResponse.objects(tract_id=tract_id)
