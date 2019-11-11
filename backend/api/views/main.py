@@ -7,7 +7,6 @@ from .web_scrap import extract_data_links
 from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
-DATE_INDEX = -4
 
 # function that is called when you visit /
 @main.route("/")

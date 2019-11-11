@@ -3,9 +3,10 @@ from api.models import db, CensusResponse
 import re
 import time
 
+DATE_FORMAT = "%m%d%Y"
 
 def get_year(date):
-    return str(time.strptime(date, "%m%d%Y").tm_year)
+    return str(time.strptime(date, DATE_FORMAT).tm_year)
 
 '''
 returns a collection of CensusResponses
