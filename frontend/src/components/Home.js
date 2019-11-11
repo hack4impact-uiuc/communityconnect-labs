@@ -45,16 +45,16 @@ class MapBox extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
-    getResponseRatesByDate("03312010").then(data => {
-      var responseRates = data.data.result.response_rates;
-      var tractData = responseRates.map(response_rate => {
-        return {
-          GEOID: response_rate.tract_id,
-          response_rate: response_rate.rate
-        };
-      });
+    this.map.on("load", function() {
+      getResponseRatesByDate("03252010").then(data => {
+        var responseRates = data.data.result.response_rates;
+        var tractData = responseRates.map(response_rate => {
+          return {
+            GEOID: response_rate.tract_id,
+            response_rate: response_rate.rate[0]
+          };
+        });
 
-      this.map.on("load", function() {
         var fillColor = ["match", ["get", "GEOID"]];
 
         // converting the response rate into a color
@@ -90,6 +90,7 @@ class MapBox extends React.Component {
             );
         });
       });
+
     });
 
     this.map.on("move", () => {
