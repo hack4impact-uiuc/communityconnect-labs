@@ -58,8 +58,9 @@ function that is called when you visit /response_rates
 Parameters
     date: date string with the format MMDDYYYY
     year: year string with format YY
-    state: two digit id string
-Either date or year is required. State is optional if date is given
+    optional tract_id: 11-digit tract id string
+    optional state: two digit id string
+Either date or year is required.
 '''
 @main.route("/response_rates", methods=["GET"])
 def get_response_rates():
@@ -71,12 +72,9 @@ def get_response_rates():
     state = request.args.get("state", None)
 
     if date:
-        if state:
-            response_rates = get_response_rates_by_state(state, date)
-        else:
-            response_rates = get_response_rates_by_date(date, tract_id)
+        response_rates = get_response_rates_by_date(date, tract_id, state)
     elif year:
-        response_rates = get_response_rates_by_year(year, tract_id)
+        response_rates = get_response_rates_by_year(year, tract_id, state)
     else:
         return create_response(status=442, message="Missing request parameters")
 
