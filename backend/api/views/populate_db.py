@@ -1,3 +1,4 @@
+import datetime
 import requests
 
 from api.models import CensusResponse
@@ -19,13 +20,14 @@ def is_county(t):
     return t == COUNTY
 
 
-def parse_census_data(link, date, parse2000=False):
+def parse_census_data(link, date, date_initial, parse2000=False):
     result = requests.get(link).text
     rows = result.strip().split("\n")
     responses = []
     id_to_county = {}
+    date_initial_obj = datetime.datetime.strptime(date_initial, "%m%d%Y").date()
 
-    rows.sort() # might be needed later because current code assumes counties are placed before tracts
+    rows.sort()  # might be needed later because current code assumes counties are placed before tracts
     for row in rows:
         columns = row.split(DELIM)
         i = columns[0]
@@ -40,18 +42,25 @@ def parse_census_data(link, date, parse2000=False):
         county_id = i[:5]
 
         if validate_data(i, name, t, rates[-1]):
+            date_obj = datetime.datetime.strptime(date, "%m%d%Y").date()
+            delta = date_obj - date_initial_obj
             censusResp = CensusResponse(
                 tract_id=i,
                 county=id_to_county[county_id],
-                rates={"2010": {date: rates[-1]}},
+                rates={"2010": {date: [rates[-1], delta.days]}},
             )
             responses.append(censusResp)
 
         if parse2000 and validate_data(i, name, t, rates[0]):
+            date_obj = datetime.date(2000, 1, 1)
+            delta = date_obj - date_initial_obj
+            days = delta.days
+            if delta.days < 0:
+                days = 0
             censusResp = CensusResponse(
                 tract_id=i,
                 county=id_to_county[county_id],
-                rates={"2000": {"00002000": rates[0]}},
+                rates={"2000": {"00002000": [rates[0], days]}},
             )
             responses.append(censusResp)
 

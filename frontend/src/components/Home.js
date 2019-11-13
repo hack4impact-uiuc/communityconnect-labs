@@ -26,6 +26,8 @@ class MapBox extends React.Component {
       zoom: 3.7,
       isOpen: true,
       searchText: "",
+      tractSelected: false,
+      currentTract: {},
       geocoderValue: ""
     };
     this.map = null;
@@ -102,6 +104,30 @@ class MapBox extends React.Component {
         zoom: this.map.getZoom().toFixed(2)
       });
     });
+
+    this.map.on("mousemove", e => {
+      stateLayers.forEach(element => {
+        var tracts = this.map.queryRenderedFeatures(e.point, {
+          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
+          layers: ["mapbox://meghabyte.ac7v02uw"]
+        });
+
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            }
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null
+          });
+        }
+      });
+    });
   }
 
   render() {
@@ -121,6 +147,19 @@ class MapBox extends React.Component {
                 : "absolute top right bottom col-11 col-s-11"
             }
           />
+          <div className="map-overlay" id="features">
+            {this.state.tractSelected ? (
+              <>
+                <h2> {this.state.currentTract.name} </h2>
+                <p>
+                  Response rate:
+                  {this.state.tractData[this.state.currentTract.id]}
+                </p>
+              </>
+            ) : (
+              <p> Hover over to see more detailed info! </p>
+            )}
+        </div>
         </div>
         <div>
           {isOpen ? (
