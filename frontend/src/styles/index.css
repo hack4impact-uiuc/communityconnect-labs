@@ -97,7 +97,8 @@ code {
   }
 }
 
-h2,h3 {
+h2,
+h3 {
   margin: 10px;
   font-size: 1.2em;
 }

@@ -51,8 +51,9 @@ class Home extends React.Component {
     this.map.on("load", () => {
       getResponseRatesByDate("03252010").then(data => {
         const responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
-          return tractData[response_rate.tract_id] = response_rate.rate;
+        var tractData = {};
+        responseRates.forEach(response_rate => {
+          tractData[response_rate.tract_id] = response_rate.rate;
         });
         this.setState({
           tractData: tractData
@@ -159,7 +160,7 @@ class Home extends React.Component {
             ) : (
               <p> Hover over to see more detailed info! </p>
             )}
-        </div>
+          </div>
         </div>
         <div>
           {isOpen ? (
