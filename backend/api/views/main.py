@@ -55,24 +55,34 @@ def create_person():
 '''
 function that is called when you visit /response_rates
 Parameters
-    date: date string with the format MMDDYYYY
     year: year string with format YY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
-Either date or year is required.
 '''
-@main.route("/response_rates", methods=["GET"])
+@main.route("/rate", methods=["GET"])
 def get_response_rates():
     responses_rate = None
     
-    tract_id = request.args.get("tract_id", None)
-    date = request.args.get("date", None)
     year = request.args.get("year", None)
+    tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)
 
-    if date:
-        response_rates = get_response_rates_by_date(date, tract_id, state)
-    elif year:
+    if year:
+        response_rates = get_last_response_rates_by_year(year, tract_id, state)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(data={"response_rates": response_rates})
+
+@main.route("/rates_per_period", methods=["GET"])
+def get_response_rates_per_period():
+    response_rate = None
+
+    year = request.args.get("year", None)
+    tract_id = request.args.get("tract_id", None)
+    state = request.args.get("state", None)
+
+    if year:
         response_rates = get_response_rates_by_year(year, tract_id, state)
     else:
         return create_response(status=422, message="Missing request parameters")
@@ -101,6 +111,7 @@ def populate_db():
         responses = parse_census_data(file, date, date_initial, parse2000)
         parse2000 = False
         for r in responses:
+            if r.tract_id[:2] != "17": continue
             existing = CensusResponse.objects(tract_id=r.tract_id)
             if len(existing) > 0:
                 existing = existing[0]

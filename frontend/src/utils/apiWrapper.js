@@ -10,7 +10,7 @@ export const getResponseByTractID = tract_id => {
    * Returns all response rates associated to that id upon success
    * Returns GET_TRACT_DATA_FAIL upon failure
    */
-  const requestString = `${BASE_URL}response_rates?tract_id=${tract_id}`;
+  const requestString = `${BASE_URL}rate?tract_id=${tract_id}`;
   return axios
     .get(requestString, {
       headers: {
@@ -25,8 +25,8 @@ export const getResponseByTractID = tract_id => {
     });
 };
 
-export const getResponseRatesByDate = date => {
-  const requestString = `${BASE_URL}response_rates?date=${date}`;
+export const getResponseRatesByYear = year => {
+  const requestString = `${BASE_URL}rate?year=${year}`;
   return axios.get(requestString).catch(error => {
     return {
       type: "GET_TRACT_DATA_FAIL",
