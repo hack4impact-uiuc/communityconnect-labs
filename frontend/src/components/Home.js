@@ -48,10 +48,10 @@ class Home extends React.Component {
       maxBounds: MAX_BOUNDS
     });
 
-    this.map.on("load", function() {
+    this.map.on("load", () => {
       getResponseRatesByDate("03252010").then(data => {
         const responseRates = data.data.result.response_rates;
-        const tractData = responseRates.map(response_rate => {
+        var tractData = responseRates.map(response_rate => {
           return {
             GEOID: response_rate.tract_id,
             response_rate: response_rate.rate[0]
@@ -63,7 +63,7 @@ class Home extends React.Component {
         // converting the response rate into a color
         const LIGHTEST = [233, 244, 222];
         const DARKEST = [64, 89, 34];
-        tractData.forEach(row => {
+        tractData.map(row => {
           const rate = row["response_rate"];
           const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
           const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
@@ -75,22 +75,21 @@ class Home extends React.Component {
         fillColor.push("rgba(0,0,0,0)");
 
         stateLayers.map(stateLayer => {
-          this.map &&
-            this.map.addLayer(
-              {
-                id: stateLayer.sourceURL,
-                type: "fill",
-                source: {
-                  type: "vector",
-                  url: stateLayer.sourceURL
-                },
-                "source-layer": stateLayer.sourceLayer,
-                paint: {
-                  "fill-color": fillColor
-                }
+          this.map.addLayer(
+            {
+              id: stateLayer.sourceURL,
+              type: "fill",
+              source: {
+                type: "vector",
+                url: stateLayer.sourceURL
               },
-              "state-label"
-            );
+              "source-layer": stateLayer.sourceLayer,
+              paint: {
+                "fill-color": fillColor
+              }
+            },
+            "state-label"
+          );
         });
       });
     });
@@ -186,7 +185,7 @@ class Home extends React.Component {
                 />
               </div>
               <p
-                class="absolute left bottom minimize"
+                className="absolute left bottom minimize"
                 onClick={() => {
                   this.setState({ isOpen: false });
                 }}
