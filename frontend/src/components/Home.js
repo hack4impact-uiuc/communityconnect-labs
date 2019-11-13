@@ -182,7 +182,7 @@ class Home extends React.Component {
                   }}
                   showLoader={true}
                   inputClass="search-input"
-                  inputPlaceholder="Search for tract, address or zipcode"
+                  inputPlaceholder="Search for county, address or zipcode"
                   resultClass="search-results"
                 />
               </div>
