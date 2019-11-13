@@ -31,7 +31,6 @@ class Home extends React.Component {
       geocoderValue: ""
     };
     this.map = null;
-    this.isOpen = true;
   }
 
   componentDidMount() {
