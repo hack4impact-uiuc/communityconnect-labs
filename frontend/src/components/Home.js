@@ -91,7 +91,6 @@ class MapBox extends React.Component {
             );
         });
       });
-
     });
 
     this.map.on("move", () => {
@@ -116,7 +115,11 @@ class MapBox extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className= {isOpen ? "absolute top right bottom col-9 col-s-9": "absolute top right bottom col-11 col-s-11"}
+            className={
+              isOpen
+                ? "absolute top right bottom col-9 col-s-9"
+                : "absolute top right bottom col-11 col-s-11"
+            }
           />
         </div>
         <div>
@@ -143,8 +146,8 @@ class MapBox extends React.Component {
                   resultClass="search-results"
                 />
               </div>
-              <p 
-                class = "absolute left bottom minimize"
+              <p
+                class="absolute left bottom minimize"
                 onClick={() => {
                   this.setState({ isOpen: false });
                 }}
