@@ -48,14 +48,13 @@ class MapBox extends React.Component {
 
     this.map.on("load", function() {
       getResponseRatesByDate("03252010").then(data => {
-        // var responseRates = data.data.result.response_rates;
-        // var tractData = responseRates.map(response_rate => {
-        //   return {
-        //     GEOID: response_rate.tract_id,
-        //     response_rate: response_rate.rate[0]
-        //   };
-        // });
-        var tractData = [];
+        var responseRates = data.data.result.response_rates;
+        var tractData = responseRates.map(response_rate => {
+          return {
+            GEOID: response_rate.tract_id,
+            response_rate: response_rate.rate[0]
+          };
+        });
 
         var fillColor = ["match", ["get", "GEOID"]];
 
