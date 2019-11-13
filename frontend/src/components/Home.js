@@ -50,25 +50,25 @@ class MapBox extends React.Component {
 
     this.map.on("load", function() {
       getResponseRatesByDate("03252010").then(data => {
-        var responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
+        const responseRates = data.data.result.response_rates;
+        const tractData = responseRates.map(response_rate => {
           return {
             GEOID: response_rate.tract_id,
             response_rate: response_rate.rate[0]
           };
         });
 
-        var fillColor = ["match", ["get", "GEOID"]];
+        const fillColor = ["match", ["get", "GEOID"]];
 
         // converting the response rate into a color
         const LIGHTEST = [233, 244, 222];
         const DARKEST = [64, 89, 34];
         tractData.forEach(row => {
-          var rate = row["response_rate"];
-          var red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-          var green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-          var blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-          var color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+          const rate = row["response_rate"];
+          const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+          const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+          const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+          const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
           fillColor.push(row["GEOID"], color);
         });
 
@@ -107,7 +107,7 @@ class MapBox extends React.Component {
 
     this.map.on("mousemove", e => {
       stateLayers.forEach(element => {
-        var tracts = this.map.queryRenderedFeatures(e.point, {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
           // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
           layers: ["mapbox://meghabyte.ac7v02uw"]
         });
