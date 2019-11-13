@@ -26,7 +26,7 @@ export const getResponseByTractID = tract_id => {
 };
 
 export const getResponseRatesByDate = date => {
-  const requestString = `${BASE_URL}census_response?date=${date}`;
+  const requestString = `${BASE_URL}response_rates?date=${date}`;
   return axios.get(requestString).catch(error => {
     return {
       type: "GET_TRACT_DATA_FAIL",
