@@ -29,6 +29,7 @@ class MapBox extends React.Component {
       geocoderValue: ""
     };
     this.map = null;
+    this.isOpen = true;
   }
 
   componentDidMount() {
@@ -47,13 +48,14 @@ class MapBox extends React.Component {
 
     this.map.on("load", function() {
       getResponseRatesByDate("03252010").then(data => {
-        var responseRates = data.data.result.response_rates;
-        var tractData = responseRates.map(response_rate => {
-          return {
-            GEOID: response_rate.tract_id,
-            response_rate: response_rate.rate[0]
-          };
-        });
+        // var responseRates = data.data.result.response_rates;
+        // var tractData = responseRates.map(response_rate => {
+        //   return {
+        //     GEOID: response_rate.tract_id,
+        //     response_rate: response_rate.rate[0]
+        //   };
+        // });
+        var tractData = [];
 
         var fillColor = ["match", ["get", "GEOID"]];
 
@@ -105,7 +107,7 @@ class MapBox extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom } = this.state;
+    const { lng, lat, zoom, isOpen } = this.state;
 
     return (
       <div>
@@ -115,32 +117,35 @@ class MapBox extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className="absolute top right bottom col-9 col-s-9"
+            className= {isOpen ? "absolute top right bottom col-9 col-s-9": "absolute top right bottom col-11 col-s-11"}
           />
         </div>
         <div>
-          {this.state.isOpen ? (
+          {isOpen ? (
             <div className="sidebar sidebarOpen col-3 col-s-3">
               <img
                 src={logoWithText}
                 alt="CCL Logo"
                 className="sidebar-logo-text"
               />
-              <Geocoder
-                accessToken={mapboxgl.accessToken}
-                value={this.state.searchText}
-                onInput={e => {
-                  this.setState({ searchText: e });
-                }}
-                onSelect={e => {
-                  this.map.flyTo({ center: e.center, zoom: 10 });
-                }}
-                showLoader={true}
-                inputClass="search-input"
-                inputPlaceholder="Search for tract, address or zipcode"
-                resultClass="search-results"
-              />
-              <p
+              <div className="geocoder">
+                <Geocoder
+                  accessToken={mapboxgl.accessToken}
+                  value={this.state.searchText}
+                  onInput={e => {
+                    this.setState({ searchText: e });
+                  }}
+                  onSelect={e => {
+                    this.map.flyTo({ center: e.center, zoom: 10 });
+                  }}
+                  showLoader={true}
+                  inputClass="search-input"
+                  inputPlaceholder="Search for tract, address or zipcode"
+                  resultClass="search-results"
+                />
+              </div>
+              <p 
+                class = "absolute left bottom minimize"
                 onClick={() => {
                   this.setState({ isOpen: false });
                 }}

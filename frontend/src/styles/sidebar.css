@@ -12,12 +12,10 @@
 }
 .sidebar {
   display: flex;
-  justify-content: center;
   z-index: 1;
   background-color: white;
 }
 .sidebarOpen {
-  /* align-items: center; */
   flex-direction: column;
 }
 .sidebarClosed {
@@ -54,17 +52,24 @@ p {
   display: block;
 }
 .search-input {
-  border-radius: 5px;
-  /* background-color: #f2f2f2; */
-  border-color: grey;
-  font-size: 12pt;
-  border-width: 0px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  border-radius: 7px;
+  font-size: 10pt;
+  color: #757575;
+  border: 1px solid #C8C8CD;
+  padding: 7px;
+  width: 100%;
+}
+.geocoder {
+    width: 95%;
 }
 .search-results {
-    font-size: 12pt; 
-    color: grey;   
+    font-size: 10pt; 
+    color: #757575;
+}
+.minimize {
+    width: 90%;
+    text-align: right;
+    margin-bottom: 20px;
 }
 .search-button {
   border-radius: 5px;
