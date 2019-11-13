@@ -17,7 +17,7 @@ const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
 const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
 const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
 
-class MapBox extends React.Component {
+class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -210,4 +210,4 @@ class MapBox extends React.Component {
   }
 }
 
-export default MapBox;
+export default Home;
