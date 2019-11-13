@@ -52,10 +52,10 @@ class Home extends React.Component {
       getResponseRatesByDate("03252010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = responseRates.map(response_rate => {
-          return {
-            GEOID: response_rate.tract_id,
-            response_rate: response_rate.rate[0]
-          };
+          return tractData[response_rate.tract_id] = response_rate.rate;
+        });
+        this.setState({
+          tractData: tractData
         });
 
         const fillColor = ["match", ["get", "GEOID"]];
@@ -63,19 +63,20 @@ class Home extends React.Component {
         // converting the response rate into a color
         const LIGHTEST = [233, 244, 222];
         const DARKEST = [64, 89, 34];
-        tractData.map(row => {
-          const rate = row["response_rate"];
+        const geoIds = Object.keys(tractData);
+        geoIds.map(geoId => {
+          const rate = tractData[geoId];
           const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
           const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
           const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
           const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-          fillColor.push(row["GEOID"], color);
+          return fillColor.push(geoId, color);
         });
 
         fillColor.push("rgba(0,0,0,0)");
 
         stateLayers.map(stateLayer => {
-          this.map.addLayer(
+          return this.map.addLayer(
             {
               id: stateLayer.sourceURL,
               type: "fill",
