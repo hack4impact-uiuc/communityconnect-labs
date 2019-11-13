@@ -17,10 +17,15 @@ class Graph extends React.Component {
     }
 
     async componentDidMount() {
-        const arr = await getResponseByTractIDAndYear(id, year);
-        console.log(arr)
+        const response = await getResponseByTractIDAndYear(id, year);
+        const rates_dict = response.data.result.response_rates["0"].rates[id];
+        const rates_list = [];
+        for (var key in rates_dict) {
+            rates_list.push({"x": rates_dict[key][1], "y": rates_dict[key][0]});
+        }
+        console.log(rates_list);
         this.setState({
-            data: arr.result
+            data: rates_list
         });
     }
 
@@ -35,7 +40,7 @@ class Graph extends React.Component {
                 />
                 <VictoryAxis
                     dependentAxis
-                    tickValues={[30, 40, 50, 60, 70, 80]}
+                    tickValues={[0.30, 0.40, 0.50, 0.60, 0.70, 0.80]}
                     label="Self Response Rate (YEAR)"
                 />
 
