@@ -5,6 +5,7 @@ from api.core import create_response, serialize_list, logger
 from .populate_db import parse_census_data
 from .web_scrap import extract_data_links
 from .response_rates import *
+import time
 
 main = Blueprint("main", __name__)  # initialize blueprint
 
@@ -90,6 +91,7 @@ def populate_db():
 
     parent_link = data["parent_link"]
     logger.info("Populating Census Response Data from {}".format(parent_link))
+    t_old = time.time()
 
     files = extract_data_links(parent_link)
 
@@ -97,17 +99,105 @@ def populate_db():
     dates = list(files.values())
     dates.sort()
     date_initial = dates[0]
+    objs = {}
+    t_total = time.time()
+    num_files = 5
     for file, date in files.items():
-        responses = parse_census_data(file, date, date_initial, parse2000)
+        num_files -= 1
+        if num_files == -1:
+            break
+        t_new = time.time()
+        print(t_new-t_old)
+        t_old = t_new
+        print(date)
+        responses = parse_census_data(file, date, date_initial, parse2000) # 8 sec
+        # print("parse time: ")
+        # t_new = time.time()
+        # print(t_new-t_old)
+        # t_old = t_new
         parse2000 = False
-        for r in responses:
-            existing = CensusResponse.objects(tract_id=r.tract_id)
-            if len(existing) > 0:
-                existing = existing[0]
-                existing.update(r)
-                existing.save()
+        count = 0
+        # print(len(responses))
+        for r in responses: # 3 sec
+            if r.tract_id in objs:
+                existing = objs[r.tract_id]
+                r.update(existing)
+                objs[r.tract_id] = r
             else:
-                r.save()
+                objs[r.tract_id] = r
+        # print(len(objs.values()))
+    t_new = time.time()
+    print(t_new-t_total)
+
+    t_new = time.time()
+    t_old = t_new
+    count = 0
+    for r in objs.values():
+        count += 1
+        if count % 1000 == 1:
+            t_new = time.time()
+            print(t_new-t_old)
+            t_old = t_new
+        try:
+            existing = CensusResponse.objects.get(tract_id=r.tract_id)
+        except:
+            existing = []
+        if len(existing) > 0:
+            existing.update(r)
+            existing.save()
+        else:
+            r.save()
+
+        # for r in responses:
+        #     count += 1
+        #     if count % 500 == 0: # 1.8 sec per 500
+        #         t_new = time.time()
+        #         print(t_new-t_old)
+        #         t_old = t_new
+        #     try:
+        #         existing = CensusResponse.objects.get(tract_id=r.tract_id)
+        #     except:
+        #         existing = []
+        #     if len(existing) > 0:
+        #         existing.update(r)
+        #         objs[r.tract_id] = existing
+        #     else:
+        #         objs[r.tract_id] = r
+        # t_new = time.time()
+        # print(t_new-t_old)
+        # t_old = t_new
+        # print(len(objs.values()))
+
+        #     count += 1
+        #     if count % 500 == 0: # 2.3 sec per 500
+        #         t_new = time.time()
+        #         print(t_new-t_old)
+        #         t_old = t_new
+        #     try:
+        #         existing = CensusResponse.objects.get(tract_id=r.tract_id)
+        #     except:
+        #         existing = []
+        #     if len(existing) > 0:
+        #         existing.update(r)
+        #         existing.save()
+        #         # filtered_resps.append(existing)
+        #     else:
+        #         objs[r.tract_id] = existing
+        #         # filtered_resps.append(r)
+        # CensusResponse.objects.insert(filtered_resps)
+            # count += 1
+            # if count % 500 == 0: # 3.5 sec per 500
+            #     t_new = time.time()
+            #     print(t_new-t_old)
+            #     t_old = t_new
+            # existing = CensusResponse.objects(tract_id=r.tract_id)
+            # if len(existing) > 0:
+            #     existing = existing[0]
+            #     existing.update(r)
+            #     existing.save()
+            # else:
+            #     r.save()
+
 
     return create_response(
         message=f"Successfully added {len(responses)} new Census Responses"

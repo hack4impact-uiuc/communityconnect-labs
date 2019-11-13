@@ -8,3 +8,4 @@ gunicorn>=19.7.1
 psycopg2==2.7.5
 mongoengine>=0.18.2
 requests>=2.19.1
+psutil
