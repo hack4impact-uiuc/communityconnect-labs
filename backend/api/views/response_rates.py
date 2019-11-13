@@ -59,6 +59,18 @@ Output:
     ]
 The returned rate is the response rate on the last collection day in the year
 '''
+# def get_last_response_rates_by_year(year, tract_id=None, state=None):
+#     response_rates = {}
+#
+#     responses = get_census_responses(tract_id, state);
+#
+#     for resp in responses:
+#         rates = resp.rates[year]
+#         end_rate = rates[max(rates, key=str)]
+#         response_rates[resp.tract_id] = end_rate
+#
+#     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
+
 def get_response_rates_by_year(year, tract_id=None, state=None):
     response_rates = {}
 
@@ -66,7 +78,6 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
 
     for resp in responses:
         rates = resp.rates[year]
-        end_rate = rates[max(rates, key=str)]
-        response_rates[resp.tract_id] = end_rate
+        response_rates[resp.tract_id] = rates
 
-    return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
+    return [{"tract_id": tid, "rates": response_rates} for tid, rate in response_rates.items()]
