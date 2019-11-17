@@ -4,7 +4,7 @@ import Graph from './graph.js'
 import stateLayers from "../resources/stateLayers.js";
 import {
   getResponseByTractID,
-  getResponseRatesByDate
+  getResponseRatesByYear
 } from "../utils/apiWrapper";
 
 mapboxgl.accessToken =
@@ -43,7 +43,7 @@ class MapBox extends React.Component {
     });
 
     // TODO: set a default start date?
-    getResponseRatesByDate("03312010").then(data => {
+    getResponseRatesByYear("2010").then(data => {
       var responseRates = data.data.result.response_rates;
 
       // We're going to map IDs to response rates so we can display them
