@@ -4,6 +4,7 @@ from api.core import create_response, serialize_list, logger
 
 from .populate_db import parse_census_data
 from .web_scrap import extract_data_links
+from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
 
@@ -22,30 +23,6 @@ def index():
 def get_persons():
     persons = Person.objects()
     return create_response(data={"persons": persons})
-
-
-# function that is called when you visit /census_response
-@main.route("/census_response", methods=["GET"])
-def get_census_response():
-    responses = CensusResponse.objects()  # CURRENTLY DOESNT HAVE DATE BUT USE IT LATER
-    response_rates = []
-    has_date = "date" in request.args
-
-    if has_date:
-        date = request.args["date"]
-        year = date[-4:]
-    else:
-        year = request.args["year"]
-
-    for resp in responses:
-        if has_date:
-            rate = resp.rates[year][date]
-        else:
-            rate = resp.rates[year]
-        id_and_rate = {"tract_id": resp.tract_id, "rate": rate}
-        response_rates.append(id_and_rate)
-
-    return create_response(data={"response_rates": response_rates})
 
 
 # POST request for /persons
@@ -75,13 +52,41 @@ def create_person():
     )
 
 
+'''
+function that is called when you visit /response_rates
+Parameters
+    date: date string with the format MMDDYYYY
+    year: year string with format YY
+    optional tract_id: 11-digit tract id string
+    optional state: two digit id string
+Either date or year is required.
+'''
+@main.route("/response_rates", methods=["GET"])
+def get_response_rates():
+    responses_rate = None
+    
+    tract_id = request.args.get("tract_id", None)
+    date = request.args.get("date", None)
+    year = request.args.get("year", None)
+    state = request.args.get("state", None)
+
+    if date:
+        response_rates = get_response_rates_by_date(date, tract_id, state)
+    elif year:
+        response_rates = get_response_rates_by_year(year, tract_id, state)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(data={"response_rates": response_rates})
+
+
 @main.route("/census_response", methods=["POST"])
 def populate_db():
     data = request.get_json()
     if "parent_link" not in data:
         msg = "No parent link."
         logger.info(msg)
-        return create_response(status=442, message=msg)
+        return create_response(status=422, message=msg)
 
     parent_link = data["parent_link"]
     logger.info("Populating Census Response Data from {}".format(parent_link))
@@ -89,8 +94,11 @@ def populate_db():
     files = extract_data_links(parent_link)
 
     parse2000 = True
+    dates = list(files.values())
+    dates.sort()
+    date_initial = dates[0]
     for file, date in files.items():
-        responses = parse_census_data(file, date, parse2000)
+        responses = parse_census_data(file, date, date_initial, parse2000)
         parse2000 = False
         for r in responses:
             existing = CensusResponse.objects(tract_id=r.tract_id)
