@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import db, Person, Email, CensusResponse
+from api.models import db, CensusResponse
 from api.core import create_response, serialize_list, logger
 
 from .populate_db import parse_census_data
