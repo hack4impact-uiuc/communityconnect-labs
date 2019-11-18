@@ -52,7 +52,7 @@ def create_person():
     )
 
 
-'''
+"""
 function that is called when you visit /response_rates
 Parameters
     year: year string with format YY
@@ -62,7 +62,7 @@ Parameters
 @main.route("/rate", methods=["GET"])
 def get_response_rates():
     responses_rate = None
-    
+
     year = request.args.get("year", None)
     tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)

@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^4.5.0",
     "axios": "^0.19.0",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
+    "react-geocoder-autocomplete": "^3.1.0",
     "react-scripts": "3.1.2",
     "react-tooltip": "^3.11.1",
     "victory": "^33.1.2"
