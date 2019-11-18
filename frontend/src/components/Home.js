@@ -24,7 +24,7 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isOpen: true,
+      isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
@@ -34,7 +34,6 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    // TODO: Replace the log below with a valid tract request
     const { lng, lat, zoom } = this.state;
 
     this.map = new mapboxgl.Map({
@@ -48,6 +47,7 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
+      // TODO: make sure date is not hardcoded
       getResponseRatesByDate("03252010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
@@ -131,7 +131,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom, isOpen } = this.state;
+    const { lng, lat, zoom, isSidebarOpen } = this.state;
 
     return (
       <div>
@@ -188,7 +188,7 @@ class Home extends React.Component {
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {
-                  this.setState({ isOpen: false });
+                  this.setState({ isSidebarOpen: false });
                 }}
               >
                 &lt; Minimize
