@@ -63,6 +63,7 @@ def parse_census_data(link, date, date_initial, parse2000=False):
                 rates={"2000": {"00002000": [rates[0], days]}},
             )
             responses.append(censusResp)
+
     return responses
 
 
