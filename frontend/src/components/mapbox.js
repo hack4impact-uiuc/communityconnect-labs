@@ -6,6 +6,8 @@ import {
   getResponseRatesByDate
 } from "../utils/apiWrapper";
 
+import DateSlider from "./dateSlider.js";
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
@@ -42,7 +44,7 @@ class MapBox extends React.Component {
     });
 
     // TODO: set a default start date?
-    getResponseRatesByDate("03312010").then(data => {
+    getResponseRatesByDate("03252010").then(data => {
       var responseRates = data.data.result.response_rates;
 
       // We're going to map IDs to response rates so we can display them
@@ -151,7 +153,10 @@ class MapBox extends React.Component {
               </p>
             </>
           ) : (
-            <p> Hover over to see more detailed info! </p>
+            <div>
+                <DateSlider dates={['03/25/2019','03/26/2019']} dateChange={d => console.log(d)} />
+                <p> Hover over to see more detailed info! </p>
+            </div>
           )}
         </div>
       </div>
