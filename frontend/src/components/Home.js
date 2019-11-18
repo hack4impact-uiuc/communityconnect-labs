@@ -2,11 +2,12 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByDate } from "../utils/apiWrapper";
+import { getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import logo from "../resources/ccl_logo.png";
+import Graph from "./graph.js";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -48,7 +49,7 @@ class Home extends React.Component {
 
     this.map.on("load", () => {
       // TODO: make sure date is not hardcoded
-      getResponseRatesByDate("03252010").then(data => {
+      getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
@@ -128,6 +129,26 @@ class Home extends React.Component {
         }
       });
     });
+
+    this.map.on("click", e => {
+      stateLayers.forEach(element => {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
+          layers: ["mapbox://meghabyte.ac7v02uw"]
+        });
+
+        if (tracts.length > 0) {
+          this.setState({
+            ready: true,
+            tract_id: tracts[0].properties.GEOID
+          });
+        } else {
+          this.setState({
+            ready: false
+          });
+        }
+      });
+    });
   }
 
   render() {
@@ -147,19 +168,6 @@ class Home extends React.Component {
                 : "absolute top right bottom col-11 col-s-11"
             }
           />
-          <div className="map-overlay" id="features">
-            {this.state.tractSelected ? (
-              <>
-                <h2> {this.state.currentTract.name} </h2>
-                <p>
-                  Response rate:
-                  {this.state.tractData[this.state.currentTract.id]}
-                </p>
-              </>
-            ) : (
-              <p> Hover over to see more detailed info! </p>
-            )}
-          </div>
         </div>
         <div>
           {isSidebarOpen ? (
@@ -185,6 +193,17 @@ class Home extends React.Component {
                   resultClass="search-results"
                 />
               </div>
+              {this.state.ready && <Graph key={this.state.tract_id} tract_id={this.state.tract_id}></Graph>}
+
+              {this.state.tractSelected && (
+                <div className="tractDetails">
+                  <h2>{this.state.currentTract.id}</h2>
+                  <h1>Tract name</h1>
+                  <h2>{this.state.currentTract.name}</h2>
+                  <h1>Latest Censes Response Rate</h1>
+                  <h2>{this.state.tractData[this.state.currentTract.id] * 100}%</h2>
+                </div>)}
+
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {
@@ -205,6 +224,7 @@ class Home extends React.Component {
             </div>
           )}
         </div>
+
       </div>
     );
   }

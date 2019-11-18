@@ -52,7 +52,7 @@ def create_person():
     )
 
 
-"""
+'''
 function that is called when you visit /response_rates
 Parameters
     year: year string with format YY

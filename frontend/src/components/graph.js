@@ -16,7 +16,7 @@ class Graph extends React.Component {
             x_labels: [],
             y_labels: [],
             tract_id: this.props.tract_id,
-            year: this.props.year
+            year: 2010
         };
     }
 
@@ -35,8 +35,6 @@ class Graph extends React.Component {
         for (let i = 1; i <= STEPS; i++) {
           x_label_list.push(iterator + x_label_list[i - 1]);
         }
-
-        console.log(rates_list);
         this.setState({
             data: rates_list,
             x_labels: x_label_list
