@@ -17,41 +17,6 @@ def index():
     logger.info("Hello World!")
     return "Hello World!"
 
-
-# function that is called when you visit /persons
-@main.route("/persons", methods=["GET"])
-def get_persons():
-    persons = Person.objects()
-    return create_response(data={"persons": persons})
-
-
-# POST request for /persons
-@main.route("/persons", methods=["POST"])
-def create_person():
-    data = request.get_json()
-
-    logger.info("Data recieved: %s", data)
-    if "name" not in data:
-        msg = "No name provided for person."
-        logger.info(msg)
-        return create_response(status=422, message=msg)
-    if "emails" not in data:
-        msg = "No email provided for person."
-        logger.info(msg)
-        return create_response(status=422, message=msg)
-
-    #  create MongoEngine objects
-    new_person = Person(name=data["name"])
-    for email in data["emails"]:
-        email_obj = Email(email=email)
-        new_person.emails.append(email_obj)
-    new_person.save()
-
-    return create_response(
-        message=f"Successfully created person {new_person.name} with id: {new_person.id}"
-    )
-
-
 """
 function that is called when you visit /rate
 Parameters
