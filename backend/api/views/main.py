@@ -52,7 +52,7 @@ def create_person():
     )
 
 
-'''
+"""
 function that is called when you visit /response_rates
 Parameters
     date: date string with the format MMDDYYYY
@@ -60,11 +60,13 @@ Parameters
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 Either date or year is required.
-'''
+"""
+
+
 @main.route("/response_rates", methods=["GET"])
 def get_response_rates():
     responses_rate = None
-    
+
     tract_id = request.args.get("tract_id", None)
     date = request.args.get("date", None)
     year = request.args.get("year", None)
