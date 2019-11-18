@@ -24,7 +24,7 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isOpen: true,
+      isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
@@ -145,7 +145,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom, isOpen } = this.state;
+    const { lng, lat, zoom, isSidebarOpen } = this.state;
 
     return (
       <div>
@@ -159,7 +159,7 @@ class Home extends React.Component {
           />
         </div>
         <div>
-          {isOpen ? (
+          {isSidebarOpen ? (
             <div className="sidebar sidebarOpen">
               <img
                 src={logoWithText}
@@ -221,7 +221,7 @@ class Home extends React.Component {
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {
-                  this.setState({ isOpen: false });
+                  this.setState({ isSidebarOpen: false });
                 }}
               >
                 &lt; Minimize
@@ -231,7 +231,7 @@ class Home extends React.Component {
             <div
               className="sidebar sidebarClosed col-1 col-s-1"
               onClick={() => {
-                this.setState({ isOpen: true });
+                this.setState({ isSidebarOpen: true });
               }}
             >
               <img src={logo} alt="CCL Logo" className="sidebar-logo" />
