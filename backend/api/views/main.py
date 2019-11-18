@@ -74,7 +74,6 @@ def populate_db():
         responses = parse_census_data(file, date, date_initial, parse2000)
         parse2000 = False
         for r in responses:
-            if r.tract_id[:2] != "17": continue
             existing = CensusResponse.objects(tract_id=r.tract_id)
             if len(existing) > 0:
                 existing = existing[0]
