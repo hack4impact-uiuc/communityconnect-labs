@@ -129,10 +129,25 @@ class MapBox extends React.Component {
       });
     });
 
-    map.on("click", function(e) {
-      // If (mouse click location is inside a tract):
-      // display graph for tract
-    })
+    map.on("click", e => {
+      stateLayers.forEach(element => {
+        var tracts = map.queryRenderedFeatures(e.point, {
+          layers: ["mapbox://meghabyte.ac7v02uw"]
+        });
+
+        if (tracts.length > 0) {
+          this.setState({
+            tract_id: tracts[0].properties.GEOID,
+            year: "2010",
+            ready: true
+          });
+        } else {
+          this.setState({
+            ready: false
+          });
+        }
+      });
+    });
   }
 
   render() {
@@ -160,7 +175,7 @@ class MapBox extends React.Component {
             <p> Hover over to see more detailed info! </p>
           )}
         </div>
-        <Graph></Graph>
+        {this.state.ready && <Graph></Graph>}
       </div>
     );
   }

@@ -21,26 +21,26 @@ class Graph extends React.Component {
     }
 
     async componentDidMount() {
-        // const response = await getResponseByTractIDAndYear(this.state.tract_id, this.state.year);
-        // const rates_dict = response.data.result.response_rates["0"].rates[this.state.tract_id];
-        // const rates_list = [];
-        // for (var key in rates_dict) {
-        //     rates_list.push({"x": rates_dict[key][1], "y": rates_dict[key][0]});
-        // }
-        //
-        // const STEPS = 5
-        // const iterator = Math.ceil(Object.keys(rates_dict).length / STEPS);
-        // let x_label_list = [iterator];
-        //
-        // for (let i = 1; i <= STEPS; i++) {
-        //   x_label_list.push(iterator + x_label_list[i - 1]);
-        // }
-        //
-        // console.log(rates_list);
-        // this.setState({
-        //     data: rates_list,
-        //     x_labels: x_label_list
-        // });
+        const response = await getResponseByTractIDAndYear(this.state.tract_id, this.state.year);
+        const rates_dict = response.data.result.response_rates["0"].rates[this.state.tract_id];
+        const rates_list = [];
+        for (var key in rates_dict) {
+            rates_list.push({"x": rates_dict[key][1], "y": rates_dict[key][0]});
+        }
+
+        const STEPS = 5
+        const iterator = Math.ceil(Object.keys(rates_dict).length / STEPS);
+        let x_label_list = [iterator];
+
+        for (let i = 1; i <= STEPS; i++) {
+          x_label_list.push(iterator + x_label_list[i - 1]);
+        }
+
+        console.log(rates_list);
+        this.setState({
+            data: rates_list,
+            x_labels: x_label_list
+        });
     }
 
     render() {
