@@ -142,7 +142,7 @@ class Home extends React.Component {
           <div
             ref={el => (this.mapContainer = el)}
             className={
-              isOpen
+              isSidebarOpen
                 ? "absolute top right bottom col-9 col-s-9"
                 : "absolute top right bottom col-11 col-s-11"
             }
@@ -162,7 +162,7 @@ class Home extends React.Component {
           </div>
         </div>
         <div>
-          {isOpen ? (
+          {isSidebarOpen ? (
             <div className="sidebar sidebarOpen col-3 col-s-3">
               <img
                 src={logoWithText}
@@ -198,7 +198,7 @@ class Home extends React.Component {
             <div
               className="sidebar sidebarClosed col-1 col-s-1"
               onClick={() => {
-                this.setState({ isOpen: true });
+                this.setState({ isSidebarOpen: true });
               }}
             >
               <img src={logo} alt="CCL Logo" className="sidebar-logo" />
