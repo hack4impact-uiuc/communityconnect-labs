@@ -80,14 +80,14 @@ def get_response_rates():
     return create_response(data={"response_rates": response_rates})
 
 '''
-function that is called when you visit /rates_per_period
+function that is called when you visit /rate
 Parameters
     year: year string with format YY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 Either date or year is required.
 '''
-@main.route("/rates_per_period", methods=["GET"])
+@main.route("/rate", methods=["GET"])
 def get_response_rates_per_period():
     response_rate = None
 
