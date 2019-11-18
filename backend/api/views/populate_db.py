@@ -3,8 +3,6 @@ import requests
 
 from api.models import CensusResponse
 
-import time
-
 DELIM = " ||"
 NAME = "Tract"
 COUNTY = "County"
@@ -23,8 +21,6 @@ def is_county(t):
 
 
 def parse_census_data(link, date, date_initial, parse2000=False):
-    # print("PARSE_CENSUS_DATA")
-    # t_old = time.time()
     result = requests.get(link).text
     rows = result.strip().split("\n")
     responses = []
@@ -32,14 +28,7 @@ def parse_census_data(link, date, date_initial, parse2000=False):
     date_initial_obj = datetime.datetime.strptime(date_initial, "%m%d%Y").date()
 
     rows.sort()  # might be needed later because current code assumes counties are placed before tracts
-    # print(len(rows))
-    # count = 0
-    for row in rows:
-        # count += 1
-        # if count % 1000 == 0:
-        #     t_new = time.time()
-        #     print(t_new-t_old)
-        #     t_old = t_new
+    for row in rows: # 7-15 seconds right now
         columns = row.split(DELIM)
         i = columns[0]
         name = columns[1]
@@ -74,9 +63,6 @@ def parse_census_data(link, date, date_initial, parse2000=False):
                 rates={"2000": {"00002000": [rates[0], days]}},
             )
             responses.append(censusResp)
-    # t_new = time.time()
-    # print(t_new-t_old)
-    # t_old = t_new
     return responses
 
 
