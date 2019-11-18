@@ -24,7 +24,7 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isSidebarOpen: true,
+      isOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
@@ -33,7 +33,22 @@ class Home extends React.Component {
     this.map = null;
   }
 
+  getCensusMBRColor = (response_rate) => {
+    if (response_rate < 20) {
+      return { color: '#c62828' }
+    } else if (response_rate < 40) {
+      return { color: '#EF6C00' }
+    } else if (response_rate < 60) {
+      return { color: '#FBC02D' }
+    } else if (response_rate < 80) {
+      return { color: '#2E7D32' }
+    } else if (response_rate <= 100) {
+      return { color: '#7CB342' }
+    }
+  }
+
   componentDidMount() {
+    // TODO: Replace the log below with a valid tract request
     const { lng, lat, zoom } = this.state;
 
     this.map = new mapboxgl.Map({
@@ -47,7 +62,6 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure date is not hardcoded
       getResponseRatesByDate("03252010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
@@ -131,7 +145,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom, isSidebarOpen } = this.state;
+    const { lng, lat, zoom, isOpen } = this.state;
 
     return (
       <div>
@@ -141,29 +155,12 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className={
-              isSidebarOpen
-                ? "absolute top right bottom col-9 col-s-9"
-                : "absolute top right bottom col-11 col-s-11"
-            }
+            className="absolute top right bottom mapbox"
           />
-          <div className="map-overlay" id="features">
-            {this.state.tractSelected ? (
-              <>
-                <h2> {this.state.currentTract.name} </h2>
-                <p>
-                  Response rate:
-                  {this.state.tractData[this.state.currentTract.id]}
-                </p>
-              </>
-            ) : (
-              <p> Hover over to see more detailed info! </p>
-            )}
-          </div>
         </div>
         <div>
-          {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen col-3 col-s-3">
+          {isOpen ? (
+            <div className="sidebar sidebarOpen">
               <img
                 src={logoWithText}
                 alt="CCL Logo"
@@ -185,25 +182,45 @@ class Home extends React.Component {
                   resultClass="search-results"
                 />
               </div>
+
+              {this.state.tractSelected && (
+                <div className="tractDetails">
+                  <div className="tractDetails_inner">
+                    <h1>{this.state.currentTract.id}</h1>
+                    <h1>{this.state.currentTract.name}</h1>
+
+                    <h2>Latest Censes Response Rate</h2>
+                    <div style={this.getCensusMBRColor(this.state.tractData[this.state.currentTract.id] * 100)}>
+                      <h3>{this.state.tractData[this.state.currentTract.id] * 100}%</h3>
+                      <h4 className="h3_yaer">in 2010</h4>
+                    </div>
+
+                    <h2>History</h2>
+                    <div style={this.getCensusMBRColor(this.state.tractData[this.state.currentTract.id] * 100)}>
+                      <h3>{this.state.tractData[this.state.currentTract.id] * 100}%</h3>
+                      <h4 className="h3_yaer">in 2000</h4>
+                    </div>
+                  </div></div>)}
+
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {
-                  this.setState({ isSidebarOpen: false });
+                  this.setState({ isOpen: false });
                 }}
               >
                 &lt; Minimize
               </p>
             </div>
           ) : (
-            <div
-              className="sidebar sidebarClosed col-1 col-s-1"
-              onClick={() => {
-                this.setState({ isSidebarOpen: true });
-              }}
-            >
-              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
-            </div>
-          )}
+              <div
+                className="sidebar sidebarClosed col-1 col-s-1"
+                onClick={() => {
+                  this.setState({ isOpen: true });
+                }}
+              >
+                <img src={logo} alt="CCL Logo" className="sidebar-logo" />
+              </div>
+            )}
         </div>
       </div>
     );
