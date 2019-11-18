@@ -79,6 +79,28 @@ def get_response_rates():
 
     return create_response(data={"response_rates": response_rates})
 
+'''
+function that is called when you visit /rates_per_period
+Parameters
+    year: year string with format YY
+    optional tract_id: 11-digit tract id string
+    optional state: two digit id string
+Either date or year is required.
+'''
+@main.route("/rates_per_period", methods=["GET"])
+def get_response_rates_per_period():
+    response_rate = None
+
+    year = request.args.get("year", None)
+    tract_id = request.args.get("tract_id", None)
+    state = request.args.get("state", None)
+
+    if year:
+        response_rates = get_response_rates_by_year(year, tract_id, state)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(data={"response_rates": response_rates})
 
 @main.route("/census_response", methods=["POST"])
 def populate_db():
