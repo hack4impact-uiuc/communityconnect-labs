@@ -33,19 +33,19 @@ class Home extends React.Component {
     this.map = null;
   }
 
-  getCensusMBRColor = (response_rate) => {
+  getCensusMBRColor = response_rate => {
     if (response_rate < 20) {
-      return { color: '#c62828' }
+      return { color: "#c62828" };
     } else if (response_rate < 40) {
-      return { color: '#EF6C00' }
+      return { color: "#EF6C00" };
     } else if (response_rate < 60) {
-      return { color: '#FBC02D' }
+      return { color: "#FBC02D" };
     } else if (response_rate < 80) {
-      return { color: '#2E7D32' }
+      return { color: "#2E7D32" };
     } else if (response_rate <= 100) {
-      return { color: '#7CB342' }
+      return { color: "#7CB342" };
     }
-  }
+  };
 
   componentDidMount() {
     // TODO: Replace the log below with a valid tract request
@@ -190,17 +190,33 @@ class Home extends React.Component {
                     <h1>{this.state.currentTract.name}</h1>
 
                     <h2>Latest Censes Response Rate</h2>
-                    <div style={this.getCensusMBRColor(this.state.tractData[this.state.currentTract.id] * 100)}>
-                      <h3>{this.state.tractData[this.state.currentTract.id] * 100}%</h3>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {this.state.tractData[this.state.currentTract.id] * 100}
+                        %
+                      </h3>
                       <h4 className="h3_yaer">in 2010</h4>
                     </div>
 
                     <h2>History</h2>
-                    <div style={this.getCensusMBRColor(this.state.tractData[this.state.currentTract.id] * 100)}>
-                      <h3>{this.state.tractData[this.state.currentTract.id] * 100}%</h3>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {this.state.tractData[this.state.currentTract.id] * 100}
+                        %
+                      </h3>
                       <h4 className="h3_yaer">in 2000</h4>
                     </div>
-                  </div></div>)}
+                  </div>
+                </div>
+              )}
 
               <p
                 className="absolute left bottom minimize"
@@ -212,15 +228,15 @@ class Home extends React.Component {
               </p>
             </div>
           ) : (
-              <div
-                className="sidebar sidebarClosed col-1 col-s-1"
-                onClick={() => {
-                  this.setState({ isOpen: true });
-                }}
-              >
-                <img src={logo} alt="CCL Logo" className="sidebar-logo" />
-              </div>
-            )}
+            <div
+              className="sidebar sidebarClosed col-1 col-s-1"
+              onClick={() => {
+                this.setState({ isOpen: true });
+              }}
+            >
+              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
+            </div>
+          )}
         </div>
       </div>
     );
