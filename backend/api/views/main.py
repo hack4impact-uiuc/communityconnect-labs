@@ -56,7 +56,7 @@ def create_person():
 function that is called when you visit /response_rates
 Parameters
     date: date string with the format MMDDYYYY
-    year: year string with format YY
+    year: year string with format YYYY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 Either date or year is required.
@@ -82,7 +82,7 @@ def get_response_rates():
 '''
 function that is called when you visit /rate
 Parameters
-    year: year string with format YY
+    year: year string with format YYYY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 Either date or year is required.
