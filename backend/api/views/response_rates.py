@@ -28,7 +28,7 @@ def get_census_responses(tract_id, state):
 '''
 Returns response rate by year
 Parameters:
-    date: string with format YYYY
+    year: string with format YYYY
     optional tract_id: string 11 digit tract id
     optional state id: string 2 digit state id
 Output:
