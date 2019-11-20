@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-// const wrapperStyle = { width: 200, margin: 0 };
-
 class DateSlider extends Component {
   constructor(props) {
     super(props);
