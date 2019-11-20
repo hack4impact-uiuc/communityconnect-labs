@@ -9,9 +9,9 @@ from .response_rates import *
 main = Blueprint("main", __name__)  # initialize blueprint
 
 '''
-function that is called when you visit /response_rates
+function that is called when you visit /rate
 Parameters
-    year: year string with format YY
+    year: year string with format YYYY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 '''
@@ -29,6 +29,14 @@ def get_response_rates():
         return create_response(status=422, message="Missing request parameters")
 
     return create_response(data={"response_rates": response_rates})
+
+"""
+function that is called when you visit /rates_per_period
+Parameters
+    year: year string with format YYYY
+    optional tract_id: 11-digit tract id string
+    optional state: two digit id string
+"""
 
 @main.route("/rates_per_period", methods=["GET"])
 def get_response_rates_per_period():

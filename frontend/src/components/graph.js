@@ -4,6 +4,8 @@ import {
     getResponseByTractIDAndYear
 } from "../utils/apiWrapper";
 
+const STEPS = 5
+
 class Graph extends React.Component {
     constructor(props) {
         super(props)
@@ -29,7 +31,6 @@ class Graph extends React.Component {
             rates_list.push({"x": rates_dict[key][1], "y": rates_dict[key][0]});
         }
 
-        const STEPS = 5
         let iterator = Math.ceil((rates_list[rates_list.length - 1]["x"] - rates_list[0]["x"]) / STEPS);
         let x_label_list = [rates_list[0]["x"]];
 
