@@ -165,13 +165,13 @@ class Home extends React.Component {
           />
           <div className="map-overlay" id="features">
             {this.state.tractSelected ? (
-              <>
+              <div>
                 <h2> {this.state.currentTract.name} </h2>
                 <p>
                   Response rate:
                   {this.state.tractData[this.state.currentTract.id]}
                 </p>
-              </>
+              </div>
             ) : (
               <p> Hover over to see more detailed info! </p>
             )}
