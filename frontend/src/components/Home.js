@@ -10,6 +10,8 @@ import logo from "../resources/ccl_logo.png";
 
 import DateSlider from "./DateSlider.js";
 
+var moment = require('moment');
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
@@ -116,21 +118,28 @@ class Home extends React.Component {
 
 
         if (tracts.length > 0) {
-          console.log(tracts);
-          getResponseByTractIDAndYear(tracts[0].properties.GEOID, "2010").then(data => {
-            console.log(data);
-          });
-          this.setState({
-            tractSelected: true,
-            currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
+          let tractId = tracts[0].properties.GEOID;
+          getResponseByTractIDAndYear(tractId, "2010").then(data => {
+            let response_rates = data.data.result.response_rates;
+            let dates = null;
+            if (response_rates.length > 0) {
+              let rates = response_rates[0].rates[tractId];
+              dates = Object.keys(rates).map(d => moment(d, 'MMDDYYYY').format("MM-DD-YYYY"));
             }
+            
+            this.setState({
+              tractSelected: true,
+              currentTract: {
+                name: tracts[0].properties.NAMELSAD,
+                id: tractId,
+                dates
+              }
+            });
           });
         } else {
           this.setState({
             tractSelected: false,
-            currentTract: null
+            currentTract: {}
           });
         }
       });
@@ -201,7 +210,9 @@ class Home extends React.Component {
                 &lt; Minimize
               </p>
               <div>
-                <DateSlider dates={['03/25/2019','03/26/2019']} dateChange={d => console.log(d)} />
+                {this.state.currentTract.dates &&
+                <DateSlider dates={this.state.currentTract.dates} dateChange={d => console.log(d)} />
+                }
               </div>
             </div>
           ) : (

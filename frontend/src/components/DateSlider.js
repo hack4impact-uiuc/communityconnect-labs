@@ -9,32 +9,16 @@ class DateSlider extends Component {
     super(props);
   }
 
-  generateMarks() {
-    var nDates = this.props.dates.length;
-    if (nDates == 1) {
-      return {100: this.props.dates[0]};
-    }
-    var step = 100 / (nDates - 1);
-    var marks = {};
-    var i = 0;
-    this.props.dates.forEach(date => {
-      marks[i] = date;
-      i += step;
-    });
-    return marks;
-  }
-
   render() {
-    const marks = this.generateMarks();
+    const nDates = this.props.dates.length;
     return (
       <div>
         <div>
           <Slider
             min={0}
-            defaultValue={100}
-            marks={marks}
-            step={null}
-            onChange={ d => this.props.dateChange(marks[d]) } />
+            max={nDates - 1}
+            defaultValue={nDates - 1}
+            onChange={ i => this.props.dateChange(this.props.dates[i]) } />
         </div>
       </div>
     );
