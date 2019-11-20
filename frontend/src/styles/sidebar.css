@@ -69,14 +69,18 @@ p {
   border: 1.5px solid #c7c7cc;
   padding: 7px;
   margin-left: 10px;
+  margin-bottom: 15px;
   width: calc(100% - 20px);
 }
 .geocoder {
   /* width: 95%; */
 }
 .search-results {
-  font-size: 10pt;
-  color: #757575;
+  padding-left: 20px;
+  line-height: 175%;
+  font-size: 16px;
+  font-weight: 400;
+  color: #8E8E93;
 }
 .minimize {
   width: 90%;
@@ -95,7 +99,7 @@ p {
   text-align: center;
 }
 
-.tractDetails {
+.detail-box {
   margin-top: 20px;
   padding-top: 20px;
   margin-bottom: 30px;

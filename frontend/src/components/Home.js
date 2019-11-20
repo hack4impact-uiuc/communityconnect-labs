@@ -34,6 +34,7 @@ class Home extends React.Component {
   }
 
   getCensusMBRColor = response_rate => {
+    // temp for now, separation lines not final 
     if (response_rate < 20) {
       return { color: "#c62828" };
     } else if (response_rate < 40) {
@@ -48,7 +49,7 @@ class Home extends React.Component {
   };
 
   componentDidMount() {
-    // TODO: Replace the log below with a valid tract request
+    
     const { lng, lat, zoom } = this.state;
 
     this.map = new mapboxgl.Map({
@@ -184,8 +185,8 @@ class Home extends React.Component {
               </div>
 
               {this.state.tractSelected && (
-                <div className="tractDetails">
-                  <div className="tractDetails_inner">
+                <div className="detail-box">
+                  <div className="detail-box-inner">
                     <h1>{this.state.currentTract.id}</h1>
                     <h1>{this.state.currentTract.name}</h1>
 
