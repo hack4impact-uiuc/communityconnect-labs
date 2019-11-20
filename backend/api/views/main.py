@@ -63,18 +63,28 @@ def populate_db():
     dates = list(files.values())
     dates.sort()
     date_initial = dates[0]
-    for file, date in files.items():
-        responses = parse_census_data(file, date, date_initial, parse2000)
+    responses = {}
+    for file, date in files.items(): # 300 sec total
+        one_date_responses = parse_census_data(file, date, date_initial, parse2000) # 8 sec
         parse2000 = False
-        for r in responses:
-            if r.tract_id[:2] != "17": continue
-            existing = CensusResponse.objects(tract_id=r.tract_id)
-            if len(existing) > 0:
-                existing = existing[0]
-                existing.update(r)
-                existing.save()
+        for r in one_date_responses: # 3 sec
+            if r.tract_id in responses:
+                existing = responses[r.tract_id]
+                r.update(existing)
+                responses[r.tract_id] = r
             else:
-                r.save()
+                responses[r.tract_id] = r
+
+    for r in responses.values():
+        try:
+            existing = CensusResponse.objects.get(tract_id=r.tract_id)
+        except:
+            existing = []
+        if len(existing) > 0:
+            existing.update(r)
+            existing.save()
+        else:
+            r.save()
 
     return create_response(
         message=f"Successfully added {len(responses)} new Census Responses"
