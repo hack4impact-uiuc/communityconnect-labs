@@ -130,7 +130,7 @@ class Home extends React.Component {
       });
     });
 
-    this.map.on("click", e => {
+    this.map.on("mousemove", e => {
       stateLayers.forEach(element => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
           // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
