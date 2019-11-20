@@ -29,37 +29,9 @@ def get_census_responses(tract_id, state):
 
 
 """
-Returns response rate by date
-Parameters:
-    date: string with format MMDDYYYY
-    optional tract_id: string 11 digit tract id
-    optional state id: string 2 digit state id
-Output:
-    [
-    {"tract_id": string, "rate": float},
-    ...
-    ]
-"""
-
-
-def get_response_rates_by_date(date, tract_id=None, state=None):
-    response_rates = {}
-
-    responses = get_census_responses(tract_id, state)
-
-    year = get_year(date)
-
-    for resp in responses:
-        rate = resp.rates[year][date]
-        response_rates[resp.tract_id] = rate
-
-    return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
-
-
-"""
 Returns response rate by year
 Parameters:
-    date: string with format YY
+    year: string with format YYYY
     optional tract_id: string 11 digit tract id
     optional state id: string 2 digit state id
 Output:
@@ -71,7 +43,7 @@ The returned rate is the response rate on the last collection day in the year
 """
 
 
-def get_response_rates_by_year(year, tract_id=None, state=None):
+def get_last_response_rates_by_year(year, tract_id=None, state=None):
     response_rates = {}
 
     responses = get_census_responses(tract_id, state)
@@ -82,3 +54,32 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
         response_rates[resp.tract_id] = end_rate
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
+
+
+"""
+Returns all response rates by year
+Parameters:
+    year: string with format YYYY
+    optional tract_id: string 11 digit tract id
+    optional state id: string 2 digit state id
+Output:
+    [
+    {"tract_id": string, "rates": {"date": rate, ...}},
+    ...
+    ]
+"""
+
+
+def get_response_rates_by_year(year, tract_id=None, state=None):
+    response_rates = {}
+
+    responses = get_census_responses(tract_id, state)
+
+    for resp in responses:
+        rates = resp.rates[year]
+        response_rates[resp.tract_id] = rates
+
+    return [
+        {"tract_id": tid, "rates": response_rates}
+        for tid, rate in response_rates.items()
+    ]
