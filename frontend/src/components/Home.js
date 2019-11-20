@@ -106,11 +106,10 @@ class Home extends React.Component {
       });
     });
 
-    this.map.on("mousemove", e => {
-      stateLayers.forEach(element => {
+    this.map.on("click", e => {
+      stateLayers.forEach(stateLayer => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
-          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
-          layers: ["mapbox://meghabyte.ac7v02uw"]
+          layers: [stateLayer.sourceURL]
         });
 
         if (tracts.length > 0) {
@@ -130,7 +129,7 @@ class Home extends React.Component {
       });
     });
 
-    this.map.on("mousemove", e => {
+    this.map.on("click", e => {
       stateLayers.forEach(element => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
           // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
@@ -168,6 +167,19 @@ class Home extends React.Component {
                 : "absolute top right bottom col-11 col-s-11"
             }
           />
+          <div className="map-overlay" id="features">
+            {this.state.tractSelected ? (
+              <div>
+                <h2> {this.state.currentTract.name} </h2>
+                <p>
+                  Response rate:
+                  {this.state.tractData[this.state.currentTract.id]}
+                </p>
+              </div>
+            ) : (
+              <p> Hover over to see more detailed info! </p>
+            )}
+          </div>
         </div>
         <div>
           {isSidebarOpen ? (
