@@ -15,8 +15,6 @@ Parameters
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 """
-
-
 @main.route("/rate", methods=["GET"])
 def get_response_rates():
     responses_rate = None
@@ -40,8 +38,6 @@ Parameters
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 """
-
-
 @main.route("/rates_per_period", methods=["GET"])
 def get_response_rates_per_period():
     response_rate = None
