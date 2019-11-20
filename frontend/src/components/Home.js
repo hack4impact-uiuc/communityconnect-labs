@@ -106,10 +106,9 @@ class Home extends React.Component {
     });
 
     this.map.on("mousemove", e => {
-      stateLayers.forEach(element => {
+      stateLayers.forEach(stateLayer => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
-          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
-          layers: ["mapbox://meghabyte.ac7v02uw"]
+          layers: [stateLayer.sourceURL]
         });
 
         if (tracts.length > 0) {
