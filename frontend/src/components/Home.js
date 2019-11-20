@@ -8,6 +8,8 @@ import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import logo from "../resources/ccl_logo.png";
 
+import DateSlider from "./DateSlider.js";
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
@@ -193,6 +195,9 @@ class Home extends React.Component {
               >
                 &lt; Minimize
               </p>
+              <div>
+                <DateSlider dates={['03/25/2019','03/26/2019']} dateChange={d => console.log(d)} />
+              </div>
             </div>
           ) : (
             <div

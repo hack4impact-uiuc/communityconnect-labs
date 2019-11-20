@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-const wrapperStyle = { width: 200, margin: 0 };
+// const wrapperStyle = { width: 200, margin: 0 };
 
 class DateSlider extends Component {
   constructor(props) {
@@ -28,7 +28,7 @@ class DateSlider extends Component {
     const marks = this.generateMarks();
     return (
       <div>
-        <div style={wrapperStyle}>
+        <div>
           <Slider
             min={0}
             defaultValue={100}
