@@ -20,7 +20,11 @@ html {
   width: 375px;
   display: flex;
   z-index: 1;
-  background-color: white;
+
+  opacity: 1;
+  height: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  background: #fff;
 }
 .sidebarOpen {
   flex-direction: column;
@@ -63,10 +67,16 @@ p {
   display: block;
 }
 .search-input {
-  border-radius: 10px;
-  font-size: 10pt;
-  color: #757575;
-  border: 1.5px solid #c7c7cc;
+  border: 1px solid #d6d6d6;
+  border-radius: 7px;
+  background-color: #fff;
+  position: relative;
+
+  font-size: 15px;
+  font-weight: 400;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
   padding: 7px;
   margin-left: 10px;
   margin-bottom: 15px;

@@ -35,16 +35,26 @@ class Home extends React.Component {
 
   getCensusMBRColor = response_rate => {
     // temp for now, separation lines not final
-    if (response_rate < 20) {
-      return { color: "#c62828" };
-    } else if (response_rate < 40) {
-      return { color: "#EF6C00" };
-    } else if (response_rate < 60) {
-      return { color: "#FBC02D" };
-    } else if (response_rate < 80) {
+    if (response_rate < 10) {
+      return { color: "#1B5E20" };
+    } else if (response_rate < 20) {
       return { color: "#2E7D32" };
+    } else if (response_rate < 30) {
+      return { color: "#388E3C" };
+    } else if (response_rate < 40) {
+      return { color: "#FB8C00" };
+    } else if (response_rate < 50) {
+      return { color: "#F57C00" };
+    } else if (response_rate < 60) {
+      return { color: "#EF6C00" };
+    } else if (response_rate < 70) {
+      return { color: "#E65100" };
+    } else if (response_rate < 80) {
+      return { color: "#d32f2f" };
+    } else if (response_rate < 90) {
+      return { color: "#c62828" };
     } else if (response_rate <= 100) {
-      return { color: "#7CB342" };
+      return { color: "#b71c1c" };
     }
   };
 
@@ -196,7 +206,9 @@ class Home extends React.Component {
                       )}
                     >
                       <h3>
-                        {this.state.tractData[this.state.currentTract.id] * 100}
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
                         %
                       </h3>
                       <h4 className="h3_yaer">in 2010</h4>
@@ -209,7 +221,9 @@ class Home extends React.Component {
                       )}
                     >
                       <h3>
-                        {this.state.tractData[this.state.currentTract.id] * 100}
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
                         %
                       </h3>
                       <h4 className="h3_yaer">in 2000</h4>
