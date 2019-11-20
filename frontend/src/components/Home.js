@@ -34,7 +34,7 @@ class Home extends React.Component {
   }
 
   getCensusMBRColor = response_rate => {
-    // temp for now, separation lines not final 
+    // temp for now, separation lines not final
     if (response_rate < 20) {
       return { color: "#c62828" };
     } else if (response_rate < 40) {
@@ -49,7 +49,6 @@ class Home extends React.Component {
   };
 
   componentDidMount() {
-    
     const { lng, lat, zoom } = this.state;
 
     this.map = new mapboxgl.Map({
