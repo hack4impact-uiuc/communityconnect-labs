@@ -2,7 +2,7 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByDate } from "../utils/apiWrapper";
+import { getResponseRatesByYear, getResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -50,7 +50,7 @@ class Home extends React.Component {
 
     this.map.on("load", () => {
       // TODO: make sure date is not hardcoded
-      getResponseRatesByDate("03252010").then(data => {
+      getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
@@ -114,7 +114,12 @@ class Home extends React.Component {
           layers: ["mapbox://meghabyte.ac7v02uw"]
         });
 
+
         if (tracts.length > 0) {
+          console.log(tracts);
+          getResponseByTractIDAndYear(tracts[0].properties.GEOID, "2010").then(data => {
+            console.log(data);
+          });
           this.setState({
             tractSelected: true,
             currentTract: {
