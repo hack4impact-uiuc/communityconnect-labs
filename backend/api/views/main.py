@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import db, Person, Email, CensusResponse
+from api.models import db, CensusResponse
 from api.core import create_response, serialize_list, logger
 
 from .populate_db import parse_census_data
@@ -8,73 +8,49 @@ from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
 
-# function that is called when you visit /
-@main.route("/")
-def index():
-    # you are now in the current application context with the main.route decorator
-    # access the logger with the logger from api.core and uses the standard logging module
-    # try using ipdb here :) you can inject yourself
-    logger.info("Hello World!")
-    return "Hello World!"
-
-
-# function that is called when you visit /persons
-@main.route("/persons", methods=["GET"])
-def get_persons():
-    persons = Person.objects()
-    return create_response(data={"persons": persons})
-
-
-# POST request for /persons
-@main.route("/persons", methods=["POST"])
-def create_person():
-    data = request.get_json()
-
-    logger.info("Data recieved: %s", data)
-    if "name" not in data:
-        msg = "No name provided for person."
-        logger.info(msg)
-        return create_response(status=422, message=msg)
-    if "emails" not in data:
-        msg = "No email provided for person."
-        logger.info(msg)
-        return create_response(status=422, message=msg)
-
-    #  create MongoEngine objects
-    new_person = Person(name=data["name"])
-    for email in data["emails"]:
-        email_obj = Email(email=email)
-        new_person.emails.append(email_obj)
-    new_person.save()
-
-    return create_response(
-        message=f"Successfully created person {new_person.name} with id: {new_person.id}"
-    )
-
-
 """
-function that is called when you visit /response_rates
+function that is called when you visit /rate
 Parameters
-    date: date string with the format MMDDYYYY
-    year: year string with format YY
+    year: year string with format YYYY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
-Either date or year is required.
 """
 
 
-@main.route("/response_rates", methods=["GET"])
+@main.route("/rate", methods=["GET"])
 def get_response_rates():
     responses_rate = None
 
-    tract_id = request.args.get("tract_id", None)
-    date = request.args.get("date", None)
     year = request.args.get("year", None)
+    tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)
 
-    if date:
-        response_rates = get_response_rates_by_date(date, tract_id, state)
-    elif year:
+    if year:
+        response_rates = get_last_response_rates_by_year(year, tract_id, state)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(data={"response_rates": response_rates})
+
+
+"""
+function that is called when you visit /rates_per_period
+Parameters
+    year: year string with format YYYY
+    optional tract_id: 11-digit tract id string
+    optional state: two digit id string
+"""
+
+
+@main.route("/rates_per_period", methods=["GET"])
+def get_response_rates_per_period():
+    response_rate = None
+
+    year = request.args.get("year", None)
+    tract_id = request.args.get("tract_id", None)
+    state = request.args.get("state", None)
+
+    if year:
         response_rates = get_response_rates_by_year(year, tract_id, state)
     else:
         return create_response(status=422, message="Missing request parameters")
