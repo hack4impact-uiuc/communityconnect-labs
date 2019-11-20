@@ -181,7 +181,7 @@ class Home extends React.Component {
                   inputClass="search-input"
                   inputPlaceholder="Search for county, address or zipcode"
                   resultClass="search-results"
-                  bbox={[-171.791110603, 18.91619, -66.96466, 71.3577635769]}
+                  bbox={MAX_BOUNDS}
                 />
               </div>
               <p
