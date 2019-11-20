@@ -2,7 +2,7 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByDate } from "../utils/apiWrapper";
+import { getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -72,7 +72,8 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      getResponseRatesByDate("03252010").then(data => {
+      // TODO: make sure year is not hardcoded
+      getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
@@ -130,10 +131,9 @@ class Home extends React.Component {
     });
 
     this.map.on("mousemove", e => {
-      stateLayers.forEach(element => {
+      stateLayers.forEach(stateLayer => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
-          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
-          layers: ["mapbox://meghabyte.ac7v02uw"]
+          layers: [stateLayer.sourceURL]
         });
 
         if (tracts.length > 0) {
