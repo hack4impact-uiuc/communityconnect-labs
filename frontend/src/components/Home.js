@@ -21,7 +21,7 @@ class Home extends React.Component {
     this.state = {
       lng: -97,
       lat: 38,
-      zoom: 3.4,
+      zoom: 3.7,
       isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
