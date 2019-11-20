@@ -2,7 +2,7 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import stateLayers from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByDate } from "../utils/apiWrapper";
+import { getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -13,9 +13,7 @@ mapboxgl.accessToken =
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
-const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
-const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
-const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
+const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
 
 class Home extends React.Component {
   constructor(props) {
@@ -23,7 +21,7 @@ class Home extends React.Component {
     this.state = {
       lng: -97,
       lat: 38,
-      zoom: 3.7,
+      zoom: 3.4,
       isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
@@ -48,7 +46,7 @@ class Home extends React.Component {
 
     this.map.on("load", () => {
       // TODO: make sure date is not hardcoded
-      getResponseRatesByDate("03252010").then(data => {
+      getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
@@ -183,6 +181,7 @@ class Home extends React.Component {
                   inputClass="search-input"
                   inputPlaceholder="Search for county, address or zipcode"
                   resultClass="search-results"
+                  bbox={[-171.791110603, 18.91619, -66.96466, 71.3577635769]}
                 />
               </div>
               <p
