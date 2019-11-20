@@ -4,9 +4,6 @@ import {
     getResponseByTractIDAndYear
 } from "../utils/apiWrapper";
 
-const year = "2010";
-const id = "17001000201";
-
 class Graph extends React.Component {
     constructor(props) {
         super(props)
@@ -22,19 +19,24 @@ class Graph extends React.Component {
 
     async componentDidMount() {
         const response = await getResponseByTractIDAndYear(this.state.tract_id, this.state.year);
-        const rates_dict = response.data.result.response_rates["0"].rates[this.state.tract_id];
+        if (!response.data.result.response_rates["0"]) {
+          return;
+        }
+        let rates_dict = {};
+        rates_dict = response.data.result.response_rates["0"].rates[this.state.tract_id]
         const rates_list = [];
         for (var key in rates_dict) {
             rates_list.push({"x": rates_dict[key][1], "y": rates_dict[key][0]});
         }
-
+        console.log(rates_list);
         const STEPS = 5
-        const iterator = Math.ceil(Object.keys(rates_dict).length / STEPS);
-        let x_label_list = [iterator];
+        const iterator = Math.ceil((rates_list[rates_list.length - 1]["x"] - rates_list[0]["x"]) / STEPS);
+        let x_label_list = [rates_list[0]["x"]];
 
         for (let i = 1; i <= STEPS; i++) {
           x_label_list.push(iterator + x_label_list[i - 1]);
         }
+
         this.setState({
             data: rates_list,
             x_labels: x_label_list
@@ -44,16 +46,16 @@ class Graph extends React.Component {
     render() {
         return (
             <>
-            <VictoryChart domainPadding={20}>
-                <VictoryLabel text="(YEAR) Actual Response Rates Data" x={225} y={50} textAnchor="middle"/>
+            <VictoryChart domainPadding={20} height={500}>
+                <VictoryLabel text="Response Rates Data Over Collection Period" x={225} y={50} textAnchor="middle"/>
                 <VictoryAxis
                     tickValues={this.state.x_labels}
                     label="Days After Initial Census Mailing"
                 />
                 <VictoryAxis
                     dependentAxis
-                    tickValues={[0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00]}
-                    label="Self Response Rate (YEAR)"
+                    tickValues={[0, .2, .4, .6, .8, 1]}
+                    label="Response Rate"
                 />
 
                 <VictoryLine

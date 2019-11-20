@@ -139,12 +139,12 @@ class Home extends React.Component {
 
         if (tracts.length > 0) {
           this.setState({
-            ready: true,
+            ready_for_graph: true,
             tract_id: tracts[0].properties.GEOID
           });
         } else {
           this.setState({
-            ready: false
+            ready_for_graph: false
           });
         }
       });
@@ -193,7 +193,7 @@ class Home extends React.Component {
                   resultClass="search-results"
                 />
               </div>
-              {this.state.ready && <Graph key={this.state.tract_id} tract_id={this.state.tract_id}></Graph>}
+              {this.state.ready_for_graph && <Graph key={this.state.tract_id} tract_id={this.state.tract_id}></Graph>}
 
               {this.state.tractSelected && (
                 <div className="tractDetails">
