@@ -15,6 +15,8 @@ Parameters
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 """
+
+
 @main.route("/rate", methods=["GET"])
 def get_response_rates():
     responses_rate = None
@@ -38,6 +40,8 @@ Parameters
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
 """
+
+
 @main.route("/rates_per_period", methods=["GET"])
 def get_response_rates_per_period():
     response_rate = None
@@ -72,10 +76,12 @@ def populate_db():
     dates.sort()
     date_initial = dates[0]
     responses = {}
-    for file, date in files.items(): # 300 sec total
-        one_date_responses = parse_census_data(file, date, date_initial, parse2000) # 8 sec
+    for file, date in files.items():  # 300 sec total
+        one_date_responses = parse_census_data(
+            file, date, date_initial, parse2000
+        )  # 8 sec
         parse2000 = False
-        for r in one_date_responses: # 3 sec
+        for r in one_date_responses:  # 3 sec
             if r.tract_id in responses:
                 existing = responses[r.tract_id]
                 r.update(existing)
@@ -83,7 +89,7 @@ def populate_db():
             else:
                 responses[r.tract_id] = r
 
-    for r in responses.values(): 
+    for r in responses.values():
         try:
             existing = CensusResponse.objects.get(tract_id=r.tract_id)
         except:
