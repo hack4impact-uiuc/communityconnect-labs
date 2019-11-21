@@ -204,7 +204,12 @@ class Home extends React.Component {
                   bbox={MAX_BOUNDS}
                 />
               </div>
-              {this.state.ready_for_graph && <Graph key={this.state.tract_id} tract_id={this.state.tract_id}></Graph>}
+              {this.state.ready_for_graph && (
+                <Graph
+                  key={this.state.tract_id}
+                  tract_id={this.state.tract_id}
+                ></Graph>
+              )}
 
               {this.state.tractSelected && (
                 <div className="tractDetails">
@@ -212,8 +217,11 @@ class Home extends React.Component {
                   <h1>Tract name</h1>
                   <h2>{this.state.currentTract.name}</h2>
                   <h1>Latest Censes Response Rate</h1>
-                  <h2>{this.state.tractData[this.state.currentTract.id] * 100}%</h2>
-                </div>)}
+                  <h2>
+                    {this.state.tractData[this.state.currentTract.id] * 100}%
+                  </h2>
+                </div>
+              )}
 
               <p
                 className="absolute left bottom minimize"
@@ -235,7 +243,6 @@ class Home extends React.Component {
             </div>
           )}
         </div>
-
       </div>
     );
   }
