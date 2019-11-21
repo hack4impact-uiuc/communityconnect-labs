@@ -77,7 +77,7 @@ class Home extends React.Component {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
-          tractData[response_rate.tract_id] = response_rate.rate;
+          tractData[response_rate.tract_id] = response_rate.rate[0];
         });
         this.setState({
           tractData: tractData
