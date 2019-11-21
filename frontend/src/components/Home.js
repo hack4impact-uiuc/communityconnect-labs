@@ -7,7 +7,7 @@ import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import logo from "../resources/ccl_logo.png";
-import Graph from "./graph.js";
+import Graph from "./Graph.js";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";

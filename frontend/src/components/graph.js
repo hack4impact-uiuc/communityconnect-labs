@@ -54,7 +54,6 @@ class Graph extends React.Component {
 
     render() {
         return (
-            <>
             <VictoryChart domainPadding={20} height={500}>
                 <VictoryLabel text="Response Rates Data Over Collection Period" x={225} y={50} textAnchor="middle"/>
                 <VictoryAxis
@@ -75,7 +74,6 @@ class Graph extends React.Component {
                     data={this.state.data}
                 />
             </VictoryChart>
-            </>
         )
     }
 }
