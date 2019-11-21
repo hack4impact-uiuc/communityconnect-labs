@@ -36,25 +36,25 @@ class Home extends React.Component {
   getCensusMBRColor = response_rate => {
     // temp for now, separation lines not final
     if (response_rate < 10) {
-      return { color: "#1B5E20" };
-    } else if (response_rate < 20) {
-      return { color: "#2E7D32" };
-    } else if (response_rate < 30) {
-      return { color: "#388E3C" };
-    } else if (response_rate < 40) {
-      return { color: "#FB8C00" };
-    } else if (response_rate < 50) {
-      return { color: "#F57C00" };
-    } else if (response_rate < 60) {
-      return { color: "#EF6C00" };
-    } else if (response_rate < 70) {
-      return { color: "#E65100" };
-    } else if (response_rate < 80) {
-      return { color: "#d32f2f" };
-    } else if (response_rate < 90) {
-      return { color: "#c62828" };
-    } else if (response_rate <= 100) {
       return { color: "#b71c1c" };
+    } else if (response_rate < 20) {
+      return { color: "#c62828" };
+    } else if (response_rate < 30) {
+      return { color: "#d32f2f" };
+    } else if (response_rate < 40) {
+      return { color: "#E65100" };
+    } else if (response_rate < 50) {
+      return { color: "#EF6C00" };
+    } else if (response_rate < 60) {
+      return { color: "#F57C00" };
+    } else if (response_rate < 70) {
+      return { color: "#FB8C00" };
+    } else if (response_rate < 80) {
+      return { color: "#388E3C" };
+    } else if (response_rate < 90) {
+      return { color: "#2E7D32" };
+    } else if (response_rate <= 100) {
+      return { color: "#1B5E20" };
     }
   };
 
