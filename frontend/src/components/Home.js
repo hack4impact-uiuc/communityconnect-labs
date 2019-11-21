@@ -105,29 +105,6 @@ class Home extends React.Component {
     });
 
     this.map.on("click", e => {
-      stateLayers.forEach(stateLayer => {
-        const tracts = this.map.queryRenderedFeatures(e.point, {
-          layers: [stateLayer.sourceURL]
-        });
-
-        if (tracts.length > 0) {
-          this.setState({
-            tractSelected: true,
-            currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
-            }
-          });
-        } else {
-          this.setState({
-            tractSelected: false,
-            currentTract: null
-          });
-        }
-      });
-    });
-
-    this.map.on("click", e => {
       stateLayers.forEach(element => {
         const tracts = this.map.queryRenderedFeatures(e.point, {
           // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
@@ -136,11 +113,18 @@ class Home extends React.Component {
 
         if (tracts.length > 0) {
           this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            },
             ready_for_graph: true,
             tract_id: tracts[0].properties.GEOID
           });
         } else {
           this.setState({
+            tractSelected: false,
+            currentTract: null,
             ready_for_graph: false
           });
         }
