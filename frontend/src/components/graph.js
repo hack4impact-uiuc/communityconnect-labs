@@ -41,9 +41,14 @@ class Graph extends React.Component {
         iterator = (rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"]) / STEPS;
         let y_label_list = [Math.round(rates_list[0]["y"] * 10) / 10];
 
-        for (let i = 1; i <= STEPS; i++) {
-          y_label_list.push(Math.round((iterator + y_label_list[i - 1]) * 10) / 10);
+        for (let i = 1; i < STEPS + 2; i++) {
+          y_label_list.push(Math.round((iterator + y_label_list[i - 1]) * 100) / 100);
         }
+
+        console.log(y_label_list)
+        console.log(rates_list)
+        console.log(rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"])
+        console.log((rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"])/5)
 
         this.setState({
             data: rates_list,
