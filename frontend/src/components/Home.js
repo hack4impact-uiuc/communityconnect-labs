@@ -14,9 +14,7 @@ mapboxgl.accessToken =
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
-const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
-const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
-const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
+const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
 
 class Home extends React.Component {
   constructor(props) {
@@ -203,6 +201,7 @@ class Home extends React.Component {
                   inputClass="search-input"
                   inputPlaceholder="Search for county, address or zipcode"
                   resultClass="search-results"
+                  bbox={MAX_BOUNDS}
                 />
               </div>
               {this.state.ready_for_graph && <Graph key={this.state.tract_id} tract_id={this.state.tract_id}></Graph>}
