@@ -1,6 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import stateLayers from "../resources/stateLayers.js";
+import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
@@ -131,26 +131,24 @@ class Home extends React.Component {
     });
 
     this.map.on("mousemove", e => {
-      stateLayers.forEach(stateLayer => {
-        const tracts = this.map.queryRenderedFeatures(e.point, {
-          layers: [stateLayer.sourceURL]
-        });
-
-        if (tracts.length > 0) {
-          this.setState({
-            tractSelected: true,
-            currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
-            }
-          });
-        } else {
-          this.setState({
-            tractSelected: false,
-            currentTract: null
-          });
-        }
+      const tracts = this.map.queryRenderedFeatures(e.point, {
+        layers: sourceURLs
       });
+
+      if (tracts.length > 0) {
+        this.setState({
+          tractSelected: true,
+          currentTract: {
+            name: tracts[0].properties.NAMELSAD,
+            id: tracts[0].properties.GEOID
+          }
+        });
+      } else {
+        this.setState({
+          tractSelected: false,
+          currentTract: null
+        });
+      }
     });
   }
 
