@@ -67,7 +67,6 @@ class Graph extends React.Component {
           x={225}
           y={50}
           textAnchor="middle"
-          dx={-200}
         />
         <VictoryAxis
           tickValues={this.state.xLabels}
