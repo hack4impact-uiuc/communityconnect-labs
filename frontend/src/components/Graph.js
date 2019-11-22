@@ -61,7 +61,7 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <VictoryChart domainPadding={20} height={500}>
+      <VictoryChart domainPadding={20} height={300}>
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
           x={225}

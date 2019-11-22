@@ -194,20 +194,14 @@ class Home extends React.Component {
                   bbox={MAX_BOUNDS}
                 />
               </div>
-              {this.state.displayGraph && (
-                <Graph
-                  key={this.state.tract_id}
-                  tract_id={this.state.tract_id}
-                ></Graph>
-              )}
-
+            
               {this.state.tractSelected && (
                 <div className="detail-box">
                   <div className="detail-box-inner">
                     <h1>{this.state.currentTract.id}</h1>
                     <h1>{this.state.currentTract.name}</h1>
 
-                    <h2>Latest Censes Response Rate</h2>
+                    <h2>Latest Census Response Rate</h2>
                     <div
                       style={this.getCensusMBRColor(
                         this.state.tractData[this.state.currentTract.id] * 100
@@ -239,6 +233,14 @@ class Home extends React.Component {
                   </div>
                 </div>
               )}
+
+              {this.state.displayGraph && (
+                <Graph
+                  key={this.state.tract_id}
+                  tract_id={this.state.tract_id}
+                ></Graph>
+              )}
+
 
               <p
                 className="absolute left bottom minimize"
