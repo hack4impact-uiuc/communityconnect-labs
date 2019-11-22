@@ -19,8 +19,6 @@ Parameters
 
 @main.route("/rate", methods=["GET"])
 def get_response_rates():
-    responses_rate = None
-
     year = request.args.get("year", None)
     tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)
@@ -44,8 +42,6 @@ Parameters
 
 @main.route("/rates_per_period", methods=["GET"])
 def get_response_rates_per_period():
-    response_rate = None
-
     year = request.args.get("year", None)
     tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)

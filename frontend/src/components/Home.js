@@ -2,7 +2,7 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByYear } from "../utils/apiWrapper";
+import { getResponseByTractID, getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -11,6 +11,7 @@ import logo from "../resources/ccl_logo.png";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
+const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
@@ -26,9 +27,10 @@ class Home extends React.Component {
       searchText: "",
       tractSelected: false,
       currentTract: {},
-      geocoderValue: ""
+      geocoderValue: "",
     };
     this.map = null;
+    this.tractCache = {};
   }
 
   getCensusMBRColor = response_rate => {
@@ -120,17 +122,49 @@ class Home extends React.Component {
 
     this.map.on("move", () => {
       const { lng, lat } = this.map.getCenter();
+      const zoom = this.map.getZoom().toFixed(2);
 
       this.setState({
         lng: lng.toFixed(4),
         lat: lat.toFixed(4),
-        zoom: this.map.getZoom().toFixed(2)
+        zoom,
       });
+
+      if (zoom > MIN_TRACT_ZOOM) {
+        let tractIDs = this.getRenderedTracts();
+        console.log("updating rendered tracts");
+        if (tractIDs.length > 0) {
+          this.updateRenderedTracts(tractIDs);
+        }
+      }
     });
 
     this.map.on("mousemove", e => {
+<<<<<<< Updated upstream
       const tracts = this.map.queryRenderedFeatures(e.point, {
         layers: sourceURLs
+=======
+      stateLayers.forEach(stateLayer => {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          layers: [stateLayer.sourceURL],
+          validate: false,
+        });
+
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            }
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null
+          });
+        }
+>>>>>>> Stashed changes
       });
 
       if (tracts.length > 0) {
@@ -146,6 +180,40 @@ class Home extends React.Component {
           tractSelected: false,
           currentTract: null
         });
+      }
+    });
+  }
+
+  getRenderedTracts() {
+    let tracts = [];
+    stateLayers.forEach(stateLayer => {
+      const stateTracts = this.map.queryRenderedFeatures({
+        layers: [stateLayer.sourceURL], 
+        validate: false,
+      });
+      console.log(stateTracts);
+      tracts = tracts.concat(stateTracts);
+    });
+
+    let tractIDs = tracts.map(tract => tract.properties.GEOID);
+    return tractIDs;
+  }
+
+  updateRenderedTracts(tractIDs) {
+    var promises = [];
+    for (const tractID of tractIDs) {
+      if (!(tractID in this.tractCache)) {
+        promises.push(getResponseByTractID(tractID, "2010"));
+      }
+    }
+    Promise.all(promises).then(responses => {
+      console.log(responses);
+      for (const response in responses) {
+        const responseRate = response.data.result.response_rates;
+        if (responseRate.length > 0) {
+          const { rate, tract_id } = responseRate[0];
+          this.cache[tract_id] = rate[0];
+        }
       }
     });
   }

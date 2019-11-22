@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:5000/";
 
-export const getResponseByTractID = tract_id => {
+export const getResponseByTractID = (tract_id, year) => {
   /**
    * Given:
    * tract id in database
@@ -10,7 +10,7 @@ export const getResponseByTractID = tract_id => {
    * Returns all response rates associated to that id upon success
    * Returns GET_TRACT_DATA_FAIL upon failure
    */
-  const requestString = `${BASE_URL}rate?tract_id=${tract_id}`;
+  const requestString = `${BASE_URL}rate?tract_id=${tract_id}&year=${year}`;
   return axios
     .get(requestString, {
       headers: {
