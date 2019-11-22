@@ -27,7 +27,8 @@ class Home extends React.Component {
       searchText: "",
       tractSelected: false,
       currentTract: {},
-      geocoderValue: ""
+      geocoderValue: "",
+      displayGraph: false
     };
     this.map = null;
   }
@@ -118,14 +119,14 @@ class Home extends React.Component {
               name: tracts[0].properties.NAMELSAD,
               id: tracts[0].properties.GEOID
             },
-            ready_for_graph: true,
+            displayGraph: true,
             tract_id: tracts[0].properties.GEOID
           });
         } else {
           this.setState({
             tractSelected: false,
             currentTract: null,
-            ready_for_graph: false
+            displayGraph: false
           });
         }
       });
@@ -188,7 +189,7 @@ class Home extends React.Component {
                   bbox={MAX_BOUNDS}
                 />
               </div>
-              {this.state.ready_for_graph && (
+              {this.state.displayGraph && (
                 <Graph
                   key={this.state.tract_id}
                   tract_id={this.state.tract_id}
