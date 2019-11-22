@@ -194,7 +194,7 @@ class Home extends React.Component {
                   bbox={MAX_BOUNDS}
                 />
               </div>
-            
+
               {this.state.tractSelected && (
                 <div className="detail-box">
                   <div className="detail-box-inner">
@@ -240,7 +240,6 @@ class Home extends React.Component {
                   tract_id={this.state.tract_id}
                 ></Graph>
               )}
-
 
               <p
                 className="absolute left bottom minimize"
