@@ -1,5 +1,5 @@
 import React from "react";
-import { VictoryStack, VictoryAxis, VictoryArea, VictoryTheme, VictoryChart, VictoryLine, LineSegment, VictoryLabel} from 'victory';
+import { VictoryAxis, VictoryChart, VictoryLine, VictoryLabel} from 'victory';
 import {
     getResponseByTractIDAndYear
 } from "../utils/apiWrapper";
