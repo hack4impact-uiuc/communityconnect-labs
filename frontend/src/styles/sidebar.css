@@ -1,7 +1,13 @@
+html {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
 .sidebar-logo-text {
-  width: 70%;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  width: 162px;
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .sidebar-logo {
@@ -11,9 +17,14 @@
   padding-bottom: 20px;
 }
 .sidebar {
+  width: 375px;
   display: flex;
   z-index: 1;
-  background-color: white;
+
+  opacity: 1;
+  height: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  background: #fff;
 }
 .sidebarOpen {
   flex-direction: column;
@@ -24,12 +35,16 @@
   z-index: 1;
 }
 
+.mapbox {
+  width: calc(100% - 375px);
+}
+
 @media only screen and (min-width: 600px) {
   .sidebarOpen,
   .sidebarClosed {
     height: 100vh;
     position: absolute;
-    padding: 20px;
+    padding: 0px;
   }
 }
 
@@ -52,19 +67,30 @@ p {
   display: block;
 }
 .search-input {
+  border: 1px solid #d6d6d6;
   border-radius: 7px;
-  font-size: 10pt;
-  color: #757575;
-  border: 1px solid #c8c8cd;
+  background-color: #fff;
+  position: relative;
+
+  font-size: 15px;
+  font-weight: 400;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
   padding: 7px;
-  width: 100%;
+  margin-left: 10px;
+  margin-bottom: 15px;
+  width: calc(100% - 20px);
 }
 .geocoder {
-  width: 95%;
+  /* width: 95%; */
 }
 .search-results {
-  font-size: 10pt;
-  color: #757575;
+  padding-left: 20px;
+  line-height: 175%;
+  font-size: 16px;
+  font-weight: 400;
+  color: #8e8e93;
 }
 .minimize {
   width: 90%;
@@ -81,4 +107,49 @@ p {
   padding-bottom: 5px;
   font-size: 10pt;
   text-align: center;
+}
+
+.detail-box {
+  margin-top: 20px;
+  padding-top: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  background-color: #f3f3f8;
+  margin-left: 0px;
+  padding-left: 20px;
+  margin-right: 0px;
+  width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-left: 0px;
+}
+
+h1 {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+h2 {
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 28px;
+  font-weight: 400;
+  display: inline;
+}
+
+.h3_yaer {
+  font-size: 15px;
+  font-weight: 500;
+  display: inline;
+  margin-left: -2px;
 }
