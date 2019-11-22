@@ -1,6 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import stateLayers from "../resources/stateLayers.js";
+import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
@@ -31,6 +31,31 @@ class Home extends React.Component {
     this.map = null;
   }
 
+  getCensusMBRColor = response_rate => {
+    // temp for now, separation lines not final
+    if (response_rate < 10) {
+      return { color: "#b71c1c" };
+    } else if (response_rate < 20) {
+      return { color: "#c62828" };
+    } else if (response_rate < 30) {
+      return { color: "#d32f2f" };
+    } else if (response_rate < 40) {
+      return { color: "#E65100" };
+    } else if (response_rate < 50) {
+      return { color: "#EF6C00" };
+    } else if (response_rate < 60) {
+      return { color: "#F57C00" };
+    } else if (response_rate < 70) {
+      return { color: "#FB8C00" };
+    } else if (response_rate < 80) {
+      return { color: "#388E3C" };
+    } else if (response_rate < 90) {
+      return { color: "#2E7D32" };
+    } else if (response_rate <= 100) {
+      return { color: "#1B5E20" };
+    }
+  };
+
   componentDidMount() {
     const { lng, lat, zoom } = this.state;
 
@@ -45,7 +70,7 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure date is not hardcoded
+      // TODO: make sure year is not hardcoded
       getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
@@ -104,26 +129,24 @@ class Home extends React.Component {
     });
 
     this.map.on("mousemove", e => {
-      stateLayers.forEach(stateLayer => {
-        const tracts = this.map.queryRenderedFeatures(e.point, {
-          layers: [stateLayer.sourceURL]
-        });
-
-        if (tracts.length > 0) {
-          this.setState({
-            tractSelected: true,
-            currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
-            }
-          });
-        } else {
-          this.setState({
-            tractSelected: false,
-            currentTract: null
-          });
-        }
+      const tracts = this.map.queryRenderedFeatures(e.point, {
+        layers: sourceURLs
       });
+
+      if (tracts.length > 0) {
+        this.setState({
+          tractSelected: true,
+          currentTract: {
+            name: tracts[0].properties.NAMELSAD,
+            id: tracts[0].properties.GEOID
+          }
+        });
+      } else {
+        this.setState({
+          tractSelected: false,
+          currentTract: null
+        });
+      }
     });
   }
 
@@ -138,29 +161,12 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className={
-              isSidebarOpen
-                ? "absolute top right bottom col-9 col-s-9"
-                : "absolute top right bottom col-11 col-s-11"
-            }
+            className="absolute top right bottom mapbox"
           />
-          <div className="map-overlay" id="features">
-            {this.state.tractSelected ? (
-              <div>
-                <h2> {this.state.currentTract.name} </h2>
-                <p>
-                  Response rate:
-                  {this.state.tractData[this.state.currentTract.id]}
-                </p>
-              </div>
-            ) : (
-              <p> Hover over to see more detailed info! </p>
-            )}
-          </div>
         </div>
         <div>
           {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen col-3 col-s-3">
+            <div className="sidebar sidebarOpen">
               <img
                 src={logoWithText}
                 alt="CCL Logo"
@@ -183,6 +189,46 @@ class Home extends React.Component {
                   bbox={MAX_BOUNDS}
                 />
               </div>
+
+              {this.state.tractSelected && (
+                <div className="detail-box">
+                  <div className="detail-box-inner">
+                    <h1>{this.state.currentTract.id}</h1>
+                    <h1>{this.state.currentTract.name}</h1>
+
+                    <h2>Latest Censes Response Rate</h2>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
+                        %
+                      </h3>
+                      <h4 className="h3_yaer">in 2010</h4>
+                    </div>
+
+                    <h2>History</h2>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
+                        %
+                      </h3>
+                      <h4 className="h3_yaer">in 2000</h4>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {
