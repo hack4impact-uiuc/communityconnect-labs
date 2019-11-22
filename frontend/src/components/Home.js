@@ -2,7 +2,7 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseByTractID, getResponseRatesByYear } from "../utils/apiWrapper";
+import { getBatchResponseByTractIDAndYear, getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -129,10 +129,14 @@ class Home extends React.Component {
         lat: lat.toFixed(4),
         zoom,
       });
+    });
 
+    this.map.on("moveend", () => {
+      const zoom = this.map.getZoom().toFixed(2);
       if (zoom > MIN_TRACT_ZOOM) {
         let tractIDs = this.getRenderedTracts();
         console.log("updating rendered tracts");
+        console.log(tractIDs);
         if (tractIDs.length > 0) {
           this.updateRenderedTracts(tractIDs);
         }
@@ -168,7 +172,6 @@ class Home extends React.Component {
         layers: [stateLayer.sourceURL], 
         validate: false,
       });
-      console.log(stateTracts);
       tracts = tracts.concat(stateTracts);
     });
 
@@ -176,21 +179,18 @@ class Home extends React.Component {
     return tractIDs;
   }
 
-  updateRenderedTracts(tractIDs) {
-    var promises = [];
-    for (const tractID of tractIDs) {
-      if (!(tractID in this.tractCache)) {
-        promises.push(getResponseByTractID(tractID, "2010"));
+  updateRenderedTracts(tract_ids) {
+    var tracts_to_request = []
+    for (const tract_id of tract_ids) {
+      if (!(tract_id in this.tractCache)) {
+        tracts_to_request.push(tract_id);
       }
     }
-    Promise.all(promises).then(responses => {
-      console.log(responses);
-      for (const response in responses) {
-        const responseRate = response.data.result.response_rates;
-        if (responseRate.length > 0) {
-          const { rate, tract_id } = responseRate[0];
-          this.cache[tract_id] = rate[0];
-        }
+    getBatchResponseByTractIDAndYear(tracts_to_request, "2010").then(response => {
+      const responseRates = response.data.result.response_rates;
+      for (const responseRate of responseRates) {
+        const { rates, tract_id } = responseRate;
+        this.tractCache[tract_id] = rates[0]
       }
     });
   }

@@ -58,3 +58,28 @@ export const getResponseByTractIDAndYear = (tract_id, year) => {
       };
     });
 };
+
+export const getBatchResponseByTractIDAndYear = (tract_ids, year) => {
+  /**
+   * Given:
+   * tract id in database
+   * year
+   *
+   * Returns all tracts associated to that id upon success
+   * Returns GET_TRACT_DATA_FAIL upon failure
+   */
+  const requestString = `${BASE_URL}batch_rates?year=${year}`;
+  return axios
+    .post(requestString, {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: { tract_ids, year },
+    })
+    .catch(error => {
+      return {
+        type: "GET_TRACT_DATA_FAIL",
+        error
+      };
+    });
+};
