@@ -28,7 +28,7 @@ def get_census_responses(tract_id, state):
         return CensusResponse.objects()
 
 
-"""
+'''
 Returns response rate by year
 Parameters:
     year: string with format YYYY
@@ -40,7 +40,7 @@ Output:
     ...
     ]
 The returned rate is the response rate on the last collection day in the year
-"""
+'''
 
 
 def get_last_response_rates_by_year(year, tract_id=None, state=None):
@@ -56,7 +56,7 @@ def get_last_response_rates_by_year(year, tract_id=None, state=None):
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
 
 
-"""
+'''
 Returns all response rates by year
 Parameters:
     year: string with format YYYY
@@ -67,9 +67,7 @@ Output:
     {"tract_id": string, "rates": {"date": rate, ...}},
     ...
     ]
-"""
-
-
+'''
 def get_response_rates_by_year(year, tract_id=None, state=None):
     response_rates = {}
 
