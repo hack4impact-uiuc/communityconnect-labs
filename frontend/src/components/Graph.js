@@ -84,18 +84,23 @@ class Graph extends React.Component {
           label="Response Rate"
           style={{ axisLabel: {padding: 35} }}
         />
-
         <VictoryLine
-          style={{
-            data: { stroke: LINE_COLOR },
-            parent: { border: BORDER }
-          }}
-          data={this.state.data}
-          animate={{
-            duration: 1000,
-            onLoad: { duration: 1000 }
-          }}
-        />
+        style={{
+          data: { stroke: LINE_COLOR },
+          parent: { border: BORDER }
+        }}
+        data={this.state.data}
+        animate={{
+          duration: 1000,
+          onLoad: { duration: 1000 }
+        }}
+        style={{
+          data: {
+              stroke: 'gray',
+              strokeWidth: 2
+          }
+      }}
+      />
       </VictoryChart>
     );
   }
