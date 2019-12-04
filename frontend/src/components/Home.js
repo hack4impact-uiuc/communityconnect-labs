@@ -7,6 +7,7 @@ import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import logo from "../resources/ccl_logo.png";
+import Graph from "./Graph.js";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
@@ -28,6 +29,7 @@ class Home extends React.Component {
       tractSelected: false,
       currentTract: {},
       geocoderValue: "",
+      displayGraph: false
     };
     this.map = null;
     this.tractCache = {};
@@ -96,7 +98,7 @@ class Home extends React.Component {
       }
     });
 
-    this.map.on("mousemove", e => {
+    this.map.on("click", e => {
       const tracts = this.map.queryRenderedFeatures(e.point, {
         layers: sourceURLs
       });
@@ -107,12 +109,15 @@ class Home extends React.Component {
           currentTract: {
             name: tracts[0].properties.NAMELSAD,
             id: tracts[0].properties.GEOID
-          }
+          },
+          displayGraph: true,
+          tract_id: tracts[0].properties.GEOID
         });
       } else {
         this.setState({
           tractSelected: false,
-          currentTract: null
+          currentTract: null,
+          displayGraph: false
         });
       }
     });
@@ -277,7 +282,7 @@ class Home extends React.Component {
                     <h1>{this.state.currentTract.id}</h1>
                     <h1>{this.state.currentTract.name}</h1>
 
-                    <h2>Latest Censes Response Rate</h2>
+                    <h2>Latest Census Response Rate</h2>
                     <div
                       style={this.getCensusMBRColor(
                         this.state.tractData[this.state.currentTract.id] * 100
@@ -308,6 +313,13 @@ class Home extends React.Component {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {this.state.displayGraph && (
+                <Graph
+                  key={this.state.tract_id}
+                  tract_id={this.state.tract_id}
+                ></Graph>
               )}
 
               <p
