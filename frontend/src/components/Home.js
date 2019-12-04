@@ -1,12 +1,13 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import stateLayers from "../resources/stateLayers.js";
+import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getResponseRatesByYear, getResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import logo from "../resources/ccl_logo.png";
+import Graph from "./Graph.js";
 
 import DateSlider from "./DateSlider.js";
 
@@ -17,9 +18,7 @@ mapboxgl.accessToken =
 
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
-const MAX_BOUNDS_SW = new mapboxgl.LngLat(-175, 5);
-const MAX_BOUNDS_NE = new mapboxgl.LngLat(-25, 73);
-const MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUNDS_SW, MAX_BOUNDS_NE);
+const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
 
 class Home extends React.Component {
   constructor(props) {
@@ -32,10 +31,36 @@ class Home extends React.Component {
       searchText: "",
       tractSelected: false,
       currentTract: {},
-      geocoderValue: ""
+      geocoderValue: "",
+      displayGraph: false
     };
     this.map = null;
   }
+
+  getCensusMBRColor = response_rate => {
+    // temp for now, separation lines not final
+    if (response_rate < 10) {
+      return { color: "#b71c1c" };
+    } else if (response_rate < 20) {
+      return { color: "#c62828" };
+    } else if (response_rate < 30) {
+      return { color: "#d32f2f" };
+    } else if (response_rate < 40) {
+      return { color: "#E65100" };
+    } else if (response_rate < 50) {
+      return { color: "#EF6C00" };
+    } else if (response_rate < 60) {
+      return { color: "#F57C00" };
+    } else if (response_rate < 70) {
+      return { color: "#FB8C00" };
+    } else if (response_rate < 80) {
+      return { color: "#388E3C" };
+    } else if (response_rate < 90) {
+      return { color: "#2E7D32" };
+    } else if (response_rate <= 100) {
+      return { color: "#1B5E20" };
+    }
+  };
 
   componentDidMount() {
     const { lng, lat, zoom } = this.state;
@@ -51,12 +76,12 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure date is not hardcoded
+      // TODO: make sure year is not hardcoded
       getResponseRatesByYear("2010").then(data => {
         const responseRates = data.data.result.response_rates;
         var tractData = {};
         responseRates.forEach(response_rate => {
-          tractData[response_rate.tract_id] = response_rate.rate;
+          tractData[response_rate.tract_id] = response_rate.rate[0];
         });
         this.setState({
           tractData: tractData
@@ -144,6 +169,29 @@ class Home extends React.Component {
         }
       });
     });
+
+    this.map.on("click", e => {
+      const tracts = this.map.queryRenderedFeatures(e.point, {
+        layers: sourceURLs
+
+      if (tracts.length > 0) {
+        this.setState({
+          tractSelected: true,
+          currentTract: {
+            name: tracts[0].properties.NAMELSAD,
+            id: tracts[0].properties.GEOID
+          },
+          displayGraph: true,
+          tract_id: tracts[0].properties.GEOID
+        });
+      } else {
+        this.setState({
+          tractSelected: false,
+          currentTract: null,
+          displayGraph: false
+        });
+      }
+    });
   }
 
   render() {
@@ -157,29 +205,12 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className={
-              isSidebarOpen
-                ? "absolute top right bottom col-9 col-s-9"
-                : "absolute top right bottom col-11 col-s-11"
-            }
+            className="absolute top right bottom mapbox"
           />
-          <div className="map-overlay" id="features">
-            {this.state.tractSelected ? (
-              <div>
-                <h2> {this.state.currentTract.name} </h2>
-                <p>
-                  Response rate:
-                  {this.state.tractData[this.state.currentTract.id]}
-                </p>
-              </div>
-            ) : (
-              <p> Hover over to see more detailed info! </p>
-            )}
-          </div>
         </div>
         <div>
           {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen col-3 col-s-3">
+            <div className="sidebar sidebarOpen">
               <img
                 src={logoWithText}
                 alt="CCL Logo"
@@ -199,8 +230,56 @@ class Home extends React.Component {
                   inputClass="search-input"
                   inputPlaceholder="Search for county, address or zipcode"
                   resultClass="search-results"
+                  bbox={MAX_BOUNDS}
                 />
               </div>
+
+              {this.state.tractSelected && (
+                <div className="detail-box">
+                  <div className="detail-box-inner">
+                    <h1>{this.state.currentTract.id}</h1>
+                    <h1>{this.state.currentTract.name}</h1>
+
+                    <h2>Latest Census Response Rate</h2>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
+                        %
+                      </h3>
+                      <h4 className="h3_yaer">in 2010</h4>
+                    </div>
+
+                    <h2>History</h2>
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
+                        %
+                      </h3>
+                      <h4 className="h3_yaer">in 2000</h4>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {this.state.displayGraph && (
+                <Graph
+                  key={this.state.tract_id}
+                  tract_id={this.state.tract_id}
+                ></Graph>
+              )}
+
               <p
                 className="absolute left bottom minimize"
                 onClick={() => {

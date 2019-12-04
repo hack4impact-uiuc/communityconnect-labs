@@ -1,4 +1,4 @@
-const stateLayer = [
+export const stateLayers = [
   { sourceLayer: "alabama-7qk156", sourceURL: "mapbox://meghabyte.axjhrole" },
   { sourceLayer: "alaska-7sacrb", sourceURL: "mapbox://meghabyte.26h4rvji" },
   { sourceLayer: "arizona-0xkde3", sourceURL: "mapbox://meghabyte.1ze2f7je" },
@@ -111,4 +111,8 @@ const stateLayer = [
   { sourceLayer: "wyoming-758cbr", sourceURL: "mapbox://meghabyte.2zqpgoup" }
 ];
 
-export default stateLayer;
+export let sourceURLs = [];
+
+stateLayers.map(stateLayer => {
+  sourceURLs.push(stateLayer.sourceURL);
+});
