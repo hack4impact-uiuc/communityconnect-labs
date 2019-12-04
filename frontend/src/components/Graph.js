@@ -1,5 +1,11 @@
 import React from "react";
-import { VictoryAxis, VictoryChart, VictoryLine, VictoryLabel, VictoryTheme } from "victory";
+import {
+  VictoryAxis,
+  VictoryChart,
+  VictoryLine,
+  VictoryLabel,
+  VictoryTheme
+} from "victory";
 import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 
 const STEPS = 5;
@@ -53,7 +59,7 @@ class Graph extends React.Component {
     }
 
     for (let i = 0; i < yLabelList.length; i++) {
-      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10
+      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10;
     }
 
     this.setState({
@@ -65,8 +71,11 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <VictoryChart domainPadding={20} height={300} theme={VictoryTheme.material}>
-        
+      <VictoryChart
+        domainPadding={20}
+        height={300}
+        theme={VictoryTheme.material}
+      >
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
           x={170}
@@ -76,31 +85,31 @@ class Graph extends React.Component {
         <VictoryAxis
           tickValues={this.state.xLabels}
           label="Days After Initial Census Mailing"
-          style={{ axisLabel: {padding: 37} }}
+          style={{ axisLabel: { padding: 37 } }}
         />
         <VictoryAxis
           dependentAxis
           tickValues={this.state.yLabels}
           label="Response Rate"
-          style={{ axisLabel: {padding: 35} }}
+          style={{ axisLabel: { padding: 35 } }}
         />
         <VictoryLine
-        style={{
-          data: { stroke: LINE_COLOR },
-          parent: { border: BORDER }
-        }}
-        data={this.state.data}
-        animate={{
-          duration: 1000,
-          onLoad: { duration: 1000 }
-        }}
-        style={{
-          data: {
-              stroke: 'gray',
+          style={{
+            data: { stroke: LINE_COLOR },
+            parent: { border: BORDER }
+          }}
+          data={this.state.data}
+          animate={{
+            duration: 1000,
+            onLoad: { duration: 1000 }
+          }}
+          style={{
+            data: {
+              stroke: "gray",
               strokeWidth: 2
-          }
-      }}
-      />
+            }
+          }}
+        />
       </VictoryChart>
     );
   }
