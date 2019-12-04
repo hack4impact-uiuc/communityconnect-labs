@@ -92,7 +92,6 @@ class Home extends React.Component {
       const zoom = this.map.getZoom().toFixed(2);
       if (zoom > MIN_TRACT_ZOOM) {
         let tractIDs = this.getRenderedTracts();
-        console.log('rendered tracts:', tractIDs.length);
         if (tractIDs.length > 0) {
           this.updateRenderedTracts(tractIDs);
         }
@@ -174,8 +173,6 @@ class Home extends React.Component {
       }
     }
 
-    console.log('requesting tracts:', tractsToRequest.length);
-
     if (tractsToRequest.length == 0) {
       this.renderFromCache(tractIds);
     } else {
@@ -202,7 +199,6 @@ class Home extends React.Component {
     tractIds.forEach(id => {
       tractsToRender[id] = this.tractCache[id];
     })
-    console.log('render length:', tractIds.length);
     this.renderTracts(tractsToRender);
   }
 
