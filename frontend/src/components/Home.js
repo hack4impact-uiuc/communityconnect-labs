@@ -72,17 +72,7 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure year is not hardcoded
-      // getResponseRatesByYear("2010").then(data => {
-        // const responseRates = data.data.result.response_rates;
-        var tractData = {};
-        tractData['0'] = 0;
-        // responseRates.forEach(response_rate => {
-        //   tractData[response_rate.tract_id] = response_rate.rate[0];
-        // });
-
-        this.renderTracts(tractData);
-      // });
+      this.initTracts();
     });
 
     this.map.on("move", () => {
@@ -100,8 +90,6 @@ class Home extends React.Component {
       const zoom = this.map.getZoom().toFixed(2);
       if (zoom > MIN_TRACT_ZOOM) {
         let tractIDs = this.getRenderedTracts();
-        console.log("updating rendered tracts");
-        console.log(tractIDs);
         if (tractIDs.length > 0) {
           this.updateRenderedTracts(tractIDs);
         }
@@ -130,11 +118,39 @@ class Home extends React.Component {
     });
   }
 
+  initTracts() {
+    var tractData = {'0': 0};
+    this.setState({
+      tractData: tractData
+    });
+    const fillColor = this.generateFillColor(tractData);
+
+    stateLayers.map(stateLayer => {
+      const id = stateLayer.id;
+      this.map.addLayer(
+        {
+          id: id,
+          type: "fill",
+          source: {
+            type: "vector",
+            url: stateLayer.sourceURL
+          },
+          "source-layer": stateLayer.sourceLayer,
+          paint: {
+            "fill-color": fillColor
+          }
+        },
+        "state-label"
+      );
+      return 0;
+    });
+  }
+
   getRenderedTracts() {
     let tracts = [];
     stateLayers.forEach(stateLayer => {
       const stateTracts = this.map.queryRenderedFeatures({
-        layers: [stateLayer.sourceURL], 
+        layers: [stateLayer.id],
         validate: false,
       });
       tracts = tracts.concat(stateTracts);
@@ -144,35 +160,44 @@ class Home extends React.Component {
     return tractIDs;
   }
 
-  updateRenderedTracts(tract_ids) {
-    var tracts_to_request = []
-    for (const tract_id of tract_ids) {
+  updateRenderedTracts(tractIds) {
+    var tractsToRequest = []
+    for (const tract_id of tractIds) {
       if (!(tract_id in this.tractCache)) {
-        tracts_to_request.push(tract_id);
+        tractsToRequest.push(tract_id);
       }
     }
-    getBatchResponseByTractIDAndYear(tracts_to_request, "2010").then(response => {
-      const responseRates = response.data.result.response_rates;
-      for (const responseRate of responseRates) {
-        const { rates, tract_id } = responseRate;
-        this.tractCache[tract_id] = rates[0];
-      }
-      console.log('cache length: ', Object.keys(this.tractCache).length);
 
-      var tractsToRender = {};
-      tract_ids.forEach(id => {
-        tractsToRender[id] = this.tractCache[id];
-      })
-      console.log('render length: ', Object.keys(tractsToRender).length);
-      this.renderTracts(tractsToRender);
-    });
+    if (tractsToRequest.length == 0) {
+      this.renderFromCache(tractIds);
+    } else {
+      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(response => {
+        const responseRates = response.data.result.response_rates;
+        for (const responseRate of responseRates) {
+          const { rates, tract_id } = responseRate;
+          this.tractCache[tract_id] = rates[0];
+        }
+        // ignore missing tracts
+        for (const tract_id of tractsToRequest) {
+          if (!(tract_id in this.tractCache)) {
+            this.tractCache[tract_id] = undefined;
+          }
+        }
+
+        this.renderFromCache(tractIds);
+      });
+    }
   }
 
-  renderTracts(tractData) {
-    this.setState({
-      tractData: tractData
-    });
+  renderFromCache(tractIds) {
+    var tractsToRender = {};
+    tractIds.forEach(id => {
+      tractsToRender[id] = this.tractCache[id];
+    })
+    this.renderTracts(tractsToRender);
+  }
 
+  generateFillColor(tractData) {
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
@@ -181,6 +206,7 @@ class Home extends React.Component {
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
+      if (rate == undefined) { return; }
       const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
       const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
       const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
@@ -189,30 +215,19 @@ class Home extends React.Component {
     });
 
     fillColor.push("rgba(0,0,0,0)");
+    return fillColor;
+  }
 
-    stateLayers.map(stateLayer => {
-      const id = stateLayer.sourceURL;
-      if (this.map.getLayer(id)) {
-        this.map.setPaintProperty(id, 'fill-color', fillColor);
-      } else {
-        this.map.addLayer(
-          {
-            id: id,
-            type: "fill",
-            source: {
-              type: "vector",
-              url: stateLayer.sourceURL
-            },
-            "source-layer": stateLayer.sourceLayer,
-            paint: {
-              "fill-color": fillColor
-            }
-          },
-          "state-label"
-        );
-      }
+  renderTracts(tractData) {
+    this.setState({
+      tractData: tractData
+    });
+    const fillColor = this.generateFillColor(tractData);
+    let stateGeoIds = Object.keys(tractData).map(id => id.substring(0, 2));
+    stateGeoIds = stateGeoIds.filter( (value, index, self) => self.indexOf(value) === index ); 
 
-      return 0;
+    stateGeoIds.forEach(id => {
+      this.map.setPaintProperty(id, 'fill-color', fillColor);
     });
   }
 
