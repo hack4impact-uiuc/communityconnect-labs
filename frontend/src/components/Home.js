@@ -134,45 +134,11 @@ class Home extends React.Component {
       });
     });
 
-    this.map.on("mousemove", e => {
-      stateLayers.forEach(element => {
-        const tracts = this.map.queryRenderedFeatures(e.point, {
-          // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
-          layers: ["mapbox://meghabyte.ac7v02uw"]
-        });
-
-
-        if (tracts.length > 0) {
-          let tractId = tracts[0].properties.GEOID;
-          getResponseByTractIDAndYear(tractId, "2010").then(data => {
-            let response_rates = data.data.result.response_rates;
-            let dates = null;
-            if (response_rates.length > 0) {
-              let rates = response_rates[0].rates[tractId];
-              dates = Object.keys(rates).map(d => moment(d, 'MMDDYYYY').format("MM-DD-YYYY"));
-            }
-            
-            this.setState({
-              tractSelected: true,
-              currentTract: {
-                name: tracts[0].properties.NAMELSAD,
-                id: tractId,
-                dates
-              }
-            });
-          });
-        } else {
-          this.setState({
-            tractSelected: false,
-            currentTract: {}
-          });
-        }
-      });
-    });
-
     this.map.on("click", e => {
       const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceURLs
+        // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
+        layers: ["mapbox://meghabyte.ac7v02uw"]
+      });
 
       if (tracts.length > 0) {
         this.setState({
