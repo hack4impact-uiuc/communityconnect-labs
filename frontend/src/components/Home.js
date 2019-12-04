@@ -1,6 +1,6 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
+import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getBatchResponseByTractIDAndYear, getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
@@ -12,7 +12,7 @@ import Graph from "./Graph.js";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
-const MIN_TRACT_ZOOM = 8;
+const MIN_TRACT_ZOOM = 6;
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
@@ -92,6 +92,7 @@ class Home extends React.Component {
       const zoom = this.map.getZoom().toFixed(2);
       if (zoom > MIN_TRACT_ZOOM) {
         let tractIDs = this.getRenderedTracts();
+        console.log('rendered tracts:', tractIDs.length);
         if (tractIDs.length > 0) {
           this.updateRenderedTracts(tractIDs);
         }
@@ -100,7 +101,7 @@ class Home extends React.Component {
 
     this.map.on("click", e => {
       const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceURLs
+        layers: sourceIDs
       });
 
       if (tracts.length > 0) {
@@ -173,6 +174,8 @@ class Home extends React.Component {
       }
     }
 
+    console.log('requesting tracts:', tractsToRequest.length);
+
     if (tractsToRequest.length == 0) {
       this.renderFromCache(tractIds);
     } else {
@@ -199,6 +202,7 @@ class Home extends React.Component {
     tractIds.forEach(id => {
       tractsToRender[id] = this.tractCache[id];
     })
+    console.log('render length:', tractIds.length);
     this.renderTracts(tractsToRender);
   }
 

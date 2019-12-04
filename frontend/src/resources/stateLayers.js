@@ -62,3 +62,8 @@ export let sourceURLs = [];
 stateLayers.map(stateLayer => {
   sourceURLs.push(stateLayer.sourceURL);
 });
+
+export let sourceIDs = [];
+stateLayers.map(stateLayer => {
+  sourceIDs.push(stateLayer.id);
+});
