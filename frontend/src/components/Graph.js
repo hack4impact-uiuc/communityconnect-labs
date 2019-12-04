@@ -69,8 +69,8 @@ class Graph extends React.Component {
         
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
-          x={225}
-          y={50}
+          x={170}
+          y={20}
           textAnchor="middle"
         />
         <VictoryAxis
