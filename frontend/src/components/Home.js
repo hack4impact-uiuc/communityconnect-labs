@@ -12,7 +12,7 @@ import Graph from "./Graph.js";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
-const MIN_TRACT_ZOOM = 6;
+const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];

@@ -57,12 +57,6 @@ export const stateLayers = [
   { sourceLayer: "wyoming-758cbr", sourceURL: "mapbox://meghabyte.2zqpgoup", id: "56" },
 ];
 
-export let sourceURLs = [];
-
-stateLayers.map(stateLayer => {
-  sourceURLs.push(stateLayer.sourceURL);
-});
-
 export let sourceIDs = [];
 stateLayers.map(stateLayer => {
   sourceIDs.push(stateLayer.id);
