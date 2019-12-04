@@ -1,13 +1,13 @@
 # Flask Boilerplate [![CircleCI](https://circleci.com/gh/tko22/flask-boilerplate/tree/master.svg?style=svg&circle-token=:circle-token)](https://circleci.com/gh/tko22/flask-boilerplate/tree/master) <a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-[![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/tko22/flask-boilerplate&env=DATABASE_URL) 
+[![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/tko22/flask-boilerplate&env=DATABASE_URL)
 
 This is based off of [Flask Boilerplate](https://github.com/tko22/flask-boilerplate), but repurposed for MongoDB using MongoEngine.
 
 We use [black](https://github.com/ambv/black) for code formatting, and [mypy](http://mypy-lang.org/) for optional static typing.
 
-![](../master/docs/flask.gif)
+![](../master/docs/flask.gif)v
 
 ## Setup
 
@@ -15,7 +15,7 @@ We use [black](https://github.com/ambv/black) for code formatting, and [mypy](ht
 
 First, install [MongoDB](https://docs.mongodb.com/manual/administration/install-community/), and start it:
 
-Linux: 
+Linux:
 ```
 $ sudo service mongod start
 $ mongo
@@ -23,7 +23,7 @@ $ mongo
 
 IOS:
 ```
-$ mongod --config /usr/local/etc/mongod.conf
+$ sudo mongod --config /usr/local/etc/mongod.conf
 $ mongo
 ```
 OR
@@ -46,7 +46,7 @@ Start your virtual environment:
 
 ```
 $ pip3 install virtualenv
-$ virtualenv venv
+$ virtualenv venvv
 $ source venv/bin/activate
 ```
 Now, install the python dependencies and run the server:
@@ -74,8 +74,8 @@ Then, make Postman calls to verify that the server works:
 {
     "name": "Hack4Impact",
     "emails": [
-        "hack4impact@illinois.edu", 
-        "contact@hack4impact.org", 
+        "hack4impact@illinois.edu",
+        "contact@hack4impact.org",
         "uiuc@hack4impact.org"
     ]
 }
