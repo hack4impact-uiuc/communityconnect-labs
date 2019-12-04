@@ -73,51 +73,16 @@ class Home extends React.Component {
 
     this.map.on("load", () => {
       // TODO: make sure year is not hardcoded
-      getResponseRatesByYear("2010").then(data => {
-        const responseRates = data.data.result.response_rates;
+      // getResponseRatesByYear("2010").then(data => {
+        // const responseRates = data.data.result.response_rates;
         var tractData = {};
-        responseRates.forEach(response_rate => {
-          tractData[response_rate.tract_id] = response_rate.rate[0];
-        });
-        this.setState({
-          tractData: tractData
-        });
+        tractData['0'] = 0;
+        // responseRates.forEach(response_rate => {
+        //   tractData[response_rate.tract_id] = response_rate.rate[0];
+        // });
 
-        const fillColor = ["match", ["get", "GEOID"]];
-
-        // converting the response rate into a color
-        const LIGHTEST = [233, 244, 222];
-        const DARKEST = [64, 89, 34];
-        const geoIds = Object.keys(tractData);
-        geoIds.map(geoId => {
-          const rate = tractData[geoId];
-          const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-          const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-          const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-          const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-          return fillColor.push(geoId, color);
-        });
-
-        fillColor.push("rgba(0,0,0,0)");
-
-        stateLayers.map(stateLayer => {
-          return this.map.addLayer(
-            {
-              id: stateLayer.sourceURL,
-              type: "fill",
-              source: {
-                type: "vector",
-                url: stateLayer.sourceURL
-              },
-              "source-layer": stateLayer.sourceLayer,
-              paint: {
-                "fill-color": fillColor
-              }
-            },
-            "state-label"
-          );
-        });
-      });
+        this.renderTracts(tractData);
+      // });
     });
 
     this.map.on("move", () => {
@@ -190,8 +155,64 @@ class Home extends React.Component {
       const responseRates = response.data.result.response_rates;
       for (const responseRate of responseRates) {
         const { rates, tract_id } = responseRate;
-        this.tractCache[tract_id] = rates[0]
+        this.tractCache[tract_id] = rates[0];
       }
+      console.log('cache length: ', Object.keys(this.tractCache).length);
+
+      var tractsToRender = {};
+      tract_ids.forEach(id => {
+        tractsToRender[id] = this.tractCache[id];
+      })
+      console.log('render length: ', Object.keys(tractsToRender).length);
+      this.renderTracts(tractsToRender);
+    });
+  }
+
+  renderTracts(tractData) {
+    this.setState({
+      tractData: tractData
+    });
+
+    const fillColor = ["match", ["get", "GEOID"]];
+
+    // converting the response rate into a color
+    const LIGHTEST = [233, 244, 222];
+    const DARKEST = [64, 89, 34];
+    const geoIds = Object.keys(tractData);
+    geoIds.map(geoId => {
+      const rate = tractData[geoId];
+      const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+      const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+      const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+      const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+      return fillColor.push(geoId, color);
+    });
+
+    fillColor.push("rgba(0,0,0,0)");
+
+    stateLayers.map(stateLayer => {
+      const id = stateLayer.sourceURL;
+      if (this.map.getLayer(id)) {
+        this.map.setPaintProperty(id, 'fill-color', fillColor);
+      } else {
+        this.map.addLayer(
+          {
+            id: id,
+            type: "fill",
+            source: {
+              type: "vector",
+              url: stateLayer.sourceURL
+            },
+            "source-layer": stateLayer.sourceLayer,
+            paint: {
+              "fill-color": fillColor
+            }
+          },
+          "state-label"
+        );
+      }
+
+      return 0;
     });
   }
 
