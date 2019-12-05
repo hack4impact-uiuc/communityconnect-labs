@@ -8,17 +8,17 @@ from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
 
-'''
+"""
 function that is called when you visit /rate
 Parameters
     year: year string with format YYYY
     optional tract_id: 11-digit tract id string
     optional state: two digit id string
-'''
+"""
+
+
 @main.route("/rate", methods=["GET"])
 def get_response_rates():
-    responses_rate = None
-
     year = request.args.get("year", None)
     tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)
@@ -30,6 +30,20 @@ def get_response_rates():
 
     return create_response(data={"response_rates": response_rates})
 
+
+@main.route("/batch_rates", methods=["POST"])
+def get_batch_response_rates_per_period():
+    year = request.json["data"].get("year", None)
+    tract_ids = request.json["data"].get("tract_ids", None)
+
+    if year and tract_ids:
+        response_rates = get_batch_response_rates_by_year(year, tract_ids)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(data={"response_rates": response_rates})
+
+
 """
 function that is called when you visit /rates_per_period
 Parameters
@@ -38,10 +52,9 @@ Parameters
     optional state: two digit id string
 """
 
+
 @main.route("/rates_per_period", methods=["GET"])
 def get_response_rates_per_period():
-    response_rate = None
-
     year = request.args.get("year", None)
     tract_id = request.args.get("tract_id", None)
     state = request.args.get("state", None)

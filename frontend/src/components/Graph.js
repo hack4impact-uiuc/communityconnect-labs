@@ -37,8 +37,7 @@ class Graph extends React.Component {
       return;
     }
     let rates_dict = {};
-    rates_dict =
-      response.data.result.response_rates[0].rates[this.state.tractID];
+    rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
       rates_list.push({ x: rates_dict[key][1], y: rates_dict[key][0] });
