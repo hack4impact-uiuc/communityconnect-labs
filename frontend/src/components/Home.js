@@ -393,9 +393,16 @@ class Home extends React.Component {
               </div>
             )}
 
-                {this.state.tractSelected &&
-                <DateSlider dates={Object.keys(this.tractCache[this.state.currentTract.id])} dateChange={d => this.dateChange(d)} />
+            {this.state.tractSelected && (
+              <DateSlider
+                dates={
+                  this.tractCache[this.state.currentTract.id]
+                    ? Object.keys(this.tractCache[this.state.currentTract.id])
+                    : []
                 }
+                dateChange={d => this.dateChange(d)}
+              />
+            )}
           </div>
         </div>
       </div>
