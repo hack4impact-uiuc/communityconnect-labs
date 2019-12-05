@@ -346,3 +346,5 @@ export let sourceIDs = [];
 stateLayers.map(stateLayer => {
   sourceIDs.push(stateLayer.id);
 });
+
+export let stateGeoIds = Object.keys(mockStates);

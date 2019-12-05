@@ -4,7 +4,8 @@ import {
   stateLayers,
   sourceIDs,
   countryLayer,
-  mockStates
+  mockStates,
+  stateGeoIds
 } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
@@ -129,14 +130,12 @@ class Home extends React.Component {
 
     this.map.on("zoom", () => {
       let stateVisibility = this.map.getZoom() > 8 ? "none" : "visible";
-      let tractVisibility = stateVisibility == "none" ? "visible" : "none";
+      let tractVisibility = stateVisibility === "none" ? "visible" : "none";
 
       this.map.setLayoutProperty("00", "visibility", stateVisibility);
-      // const stateGeoIds = Object.keys(mockStates);
-      // console.log(stateGeoIds);
-      // stateGeoIds.map(id => {
-      //   this.map.setLayoutProperty(id, 'visibility', tractVisibility);
-      // })
+      stateGeoIds.map(id => {
+        this.map.setLayoutProperty(id, "visibility", tractVisibility);
+      });
     });
   }
 
@@ -268,13 +267,14 @@ class Home extends React.Component {
       tractData: tractData
     });
     const fillColor = this.generateFillColor(tractData);
-    let stateGeoIds = Object.keys(tractData).map(id => id.substring(0, 2));
-    stateGeoIds = stateGeoIds.filter(
+    let currentStateGeoIds = Object.keys(tractData).map(id =>
+      id.substring(0, 2)
+    );
+    currentStateGeoIds = currentStateGeoIds.filter(
       (value, index, self) => self.indexOf(value) === index
     );
-    console.log(stateGeoIds);
 
-    stateGeoIds.forEach(id => {
+    currentStateGeoIds.forEach(id => {
       this.map.setPaintProperty(id, "fill-color", fillColor);
     });
   }
