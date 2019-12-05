@@ -7,7 +7,7 @@ This is based off of [Flask Boilerplate](https://github.com/tko22/flask-boilerpl
 
 We use [black](https://github.com/ambv/black) for code formatting, and [mypy](http://mypy-lang.org/) for optional static typing.
 
-![](../master/docs/flask.gif)v
+![](../master/docs/flask.gif)
 
 ## Setup
 
@@ -46,7 +46,7 @@ Start your virtual environment:
 
 ```
 $ pip3 install virtualenv
-$ virtualenv venvv
+$ virtualenv venv
 $ source venv/bin/activate
 ```
 Now, install the python dependencies and run the server:

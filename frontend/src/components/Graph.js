@@ -11,6 +11,9 @@ import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 const STEPS = 5;
 const LINE_COLOR = "#d18b30";
 const BORDER = "1px solid #ccc";
+const GRAPH_TITLE_X_COOR = 170;
+const GRAPH_TITLE_Y_COOR = 20;
+const STROKE_WIDTH = 2;
 
 class Graph extends React.Component {
   constructor(props) {
@@ -78,8 +81,8 @@ class Graph extends React.Component {
       >
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
-          x={170}
-          y={20}
+          x={GRAPH_TITLE_X_COOR}
+          y={GRAPH_TITLE_Y_COOR}
           textAnchor="middle"
         />
         <VictoryAxis
@@ -106,7 +109,7 @@ class Graph extends React.Component {
           style={{
             data: {
               stroke: "gray",
-              strokeWidth: 2
+              strokeWidth: STROKE_WIDTH
             }
           }}
         />
