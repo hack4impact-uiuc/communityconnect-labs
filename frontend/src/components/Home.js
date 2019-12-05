@@ -277,9 +277,9 @@ class Home extends React.Component {
     Object.keys(tractData).forEach(id => {
       tractsToRender[id] = tractData[id][selectedDate];
     });
-
     const fillColor = this.generateFillColor(tractsToRender);
-    let currentStateGeoIds = Object.keys(tractData).map(id =>
+
+    let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
       id.substring(0, 2)
     );
     currentStateGeoIds = currentStateGeoIds.filter(
@@ -392,6 +392,10 @@ class Home extends React.Component {
                 />
               </div>
             )}
+
+                {this.state.tractSelected &&
+                <DateSlider dates={Object.keys(this.tractCache[this.state.currentTract.id])} dateChange={d => this.dateChange(d)} />
+                }
           </div>
         </div>
       </div>
