@@ -1,6 +1,11 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
+import {
+  stateLayers,
+  sourceIDs,
+  countryLayer,
+  mockStates
+} from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
 import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
@@ -119,6 +124,18 @@ class Home extends React.Component {
         });
       }
     });
+
+    this.map.on("zoom", () => {
+      let stateVisibility = this.map.getZoom() > 8 ? "none" : "visible";
+      let tractVisibility = stateVisibility == "none" ? "visible" : "none";
+
+      this.map.setLayoutProperty("00", "visibility", stateVisibility);
+      // const stateGeoIds = Object.keys(mockStates);
+      // console.log(stateGeoIds);
+      // stateGeoIds.map(id => {
+      //   this.map.setLayoutProperty(id, 'visibility', tractVisibility);
+      // })
+    });
   }
 
   initTracts() {
@@ -147,6 +164,22 @@ class Home extends React.Component {
       );
       return 0;
     });
+
+    this.map.addLayer(
+      {
+        id: countryLayer.id,
+        type: "fill",
+        source: {
+          type: "vector",
+          url: countryLayer.sourceURL
+        },
+        "source-layer": countryLayer.sourceLayer,
+        paint: {
+          "fill-color": this.generateFillColor(mockStates)
+        }
+      },
+      "state-label"
+    );
   }
 
   getRenderedTracts() {
@@ -174,9 +207,8 @@ class Home extends React.Component {
     if (tractsToRequest.length === 0) {
       this.renderFromCache(tractIds);
     } else {
-      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
-        response => {
-          console.log(response);
+      getBatchResponseByTractIDAndYear(tractsToRequest, "2010")
+        .then(response => {
           const responseRates = response.data.result.response_rates;
           for (const responseRate of responseRates) {
             const { rates, tract_id } = responseRate;
@@ -190,8 +222,10 @@ class Home extends React.Component {
           }
 
           this.renderFromCache(tractIds);
-        }
-      );
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   }
 
@@ -204,6 +238,7 @@ class Home extends React.Component {
   }
 
   generateFillColor(tractData) {
+    console.log(tractData);
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
@@ -235,6 +270,7 @@ class Home extends React.Component {
     stateGeoIds = stateGeoIds.filter(
       (value, index, self) => self.indexOf(value) === index
     );
+    console.log(stateGeoIds);
 
     stateGeoIds.forEach(id => {
       this.map.setPaintProperty(id, "fill-color", fillColor);
@@ -300,7 +336,7 @@ class Home extends React.Component {
                         ).toFixed(0)}
                         %
                       </h3>
-                      <h4 className="h3_yaer">in 2010</h4>
+                      <h4 className="h3_year">in 2010</h4>
                     </div>
                   )}
                 </div>
