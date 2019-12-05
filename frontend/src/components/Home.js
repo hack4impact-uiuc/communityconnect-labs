@@ -256,7 +256,11 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className="absolute top right bottom mapbox"
+            className={
+              "absolute top right bottom mapbox " +
+              (isSidebarOpen && " mapbox ") +
+              (!isSidebarOpen && " mapbox-wide")
+            }
           />
         </div>
         <div>
@@ -290,36 +294,25 @@ class Home extends React.Component {
                   <div className="detail-box-inner">
                     <h1>{this.state.currentTract.id}</h1>
                     <h1>{this.state.currentTract.name}</h1>
-
                     <h2>Latest Census Response Rate</h2>
-                    <div
-                      style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
-                      )}
-                    >
-                      <h3>
-                        {(
+                    {isNaN(this.state.tractData[this.state.currentTract.id]) ? (
+                      <div>Data unavailable</div>
+                    ) : (
+                      <div
+                        style={this.getCensusMBRColor(
                           this.state.tractData[this.state.currentTract.id] * 100
-                        ).toFixed(0)}
-                        %
-                      </h3>
-                      <h4 className="h3_yaer">in 2010</h4>
-                    </div>
-
-                    <h2>History</h2>
-                    <div
-                      style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
-                      )}
-                    >
-                      <h3>
-                        {(
-                          this.state.tractData[this.state.currentTract.id] * 100
-                        ).toFixed(0)}
-                        %
-                      </h3>
-                      <h4 className="h3_yaer">in 2000</h4>
-                    </div>
+                        )}
+                      >
+                        <h3>
+                          {(
+                            this.state.tractData[this.state.currentTract.id] *
+                            100
+                          ).toFixed(0)}
+                          %
+                        </h3>
+                        <h4 className="h3_yaer">in 2010</h4>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

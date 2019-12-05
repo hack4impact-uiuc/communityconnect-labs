@@ -30,6 +30,7 @@ html {
   flex-direction: column;
 }
 .sidebarClosed {
+  width: 100px;
   display: flex;
   justify-content: center;
   z-index: 1;
@@ -37,6 +38,10 @@ html {
 
 .mapbox {
   width: calc(100% - 375px);
+}
+
+.mapbox-wide {
+  width: calc(100% - 100px);
 }
 
 @media only screen and (min-width: 600px) {
