@@ -51,9 +51,10 @@ def get_last_response_rates_by_year(year, tract_id=None, state=None):
     responses = get_census_responses(tract_id, state)
 
     for resp in responses:
-        rates = resp.rates[year]
-        end_rate = rates[max(rates, key=str)]
-        response_rates[resp.tract_id] = end_rate
+        if year in resp.rates:
+            rates = resp.rates[year]
+            end_rate = rates[max(rates, key=str)]
+            response_rates[resp.tract_id] = end_rate
 
     return [{"tract_id": tid, "rate": rate} for tid, rate in response_rates.items()]
 
@@ -78,20 +79,21 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
     responses = get_census_responses(tract_id, state)
 
     for resp in responses:
-        rates = resp.rates[year]
-        response_rates[resp.tract_id] = rates
+        if year in resp.rates:
+            rates = resp.rates[year]
+            response_rates[resp.tract_id] = rates
 
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]
 
 
 def get_batch_response_rates_by_year(year, tract_ids):
     response_rates = {}
-
     responses = get_census_responses(tract_ids=tract_ids)
 
     for resp in responses:
-        rates = resp.rates[year]
-        end_rate = rates[max(rates, key=str)]
-        response_rates[resp.tract_id] = end_rate
+        if year in resp.rates:
+            rates = resp.rates[year]
+            end_rate = rates[max(rates, key=str)]
+            response_rates[resp.tract_id] = end_rate
 
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]

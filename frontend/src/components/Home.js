@@ -102,26 +102,28 @@ class Home extends React.Component {
     });
 
     this.map.on("click", e => {
-      const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceIDs
-      });
+      if (this.map.getZoom() > 8) {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          layers: sourceIDs
+        });
 
-      if (tracts.length > 0) {
-        this.setState({
-          tractSelected: true,
-          currentTract: {
-            name: tracts[0].properties.NAMELSAD,
-            id: tracts[0].properties.GEOID
-          },
-          displayGraph: true,
-          tract_id: tracts[0].properties.GEOID
-        });
-      } else {
-        this.setState({
-          tractSelected: false,
-          currentTract: null,
-          displayGraph: false
-        });
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            },
+            displayGraph: true,
+            tract_id: tracts[0].properties.GEOID
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null,
+            displayGraph: false
+          });
+        }
       }
     });
 
