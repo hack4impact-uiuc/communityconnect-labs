@@ -1,15 +1,17 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
-import Geocoder from "react-geocoder-autocomplete";
 import {
-  getBatchResponseByTractIDAndYear,
-  getResponseRatesByYear
-} from "../utils/apiWrapper";
+  stateLayers,
+  sourceIDs,
+  countryLayer,
+  mockStates,
+  stateGeoIds
+} from "../resources/stateLayers.js";
+import Geocoder from "react-geocoder-autocomplete";
+import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
-import logo from "../resources/ccl_logo.png";
 import Graph from "./Graph.js";
 
 mapboxgl.accessToken =
@@ -101,27 +103,40 @@ class Home extends React.Component {
     });
 
     this.map.on("click", e => {
-      const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceIDs
-      });
+      if (this.map.getZoom() > MIN_TRACT_ZOOM) {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          layers: sourceIDs
+        });
 
-      if (tracts.length > 0) {
-        this.setState({
-          tractSelected: true,
-          currentTract: {
-            name: tracts[0].properties.NAMELSAD,
-            id: tracts[0].properties.GEOID
-          },
-          displayGraph: true,
-          tract_id: tracts[0].properties.GEOID
-        });
-      } else {
-        this.setState({
-          tractSelected: false,
-          currentTract: null,
-          displayGraph: false
-        });
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            },
+            displayGraph: true,
+            tract_id: tracts[0].properties.GEOID
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null,
+            displayGraph: false
+          });
+        }
       }
+    });
+
+    this.map.on("zoom", () => {
+      let stateVisibility =
+        this.map.getZoom() > MIN_TRACT_ZOOM ? "none" : "visible";
+      let tractVisibility = stateVisibility === "none" ? "visible" : "none";
+
+      this.map.setLayoutProperty("00", "visibility", stateVisibility);
+      stateGeoIds.map(id => {
+        this.map.setLayoutProperty(id, "visibility", tractVisibility);
+      });
     });
   }
 
@@ -151,6 +166,22 @@ class Home extends React.Component {
       );
       return 0;
     });
+
+    this.map.addLayer(
+      {
+        id: countryLayer.id,
+        type: "fill",
+        source: {
+          type: "vector",
+          url: countryLayer.sourceURL
+        },
+        "source-layer": countryLayer.sourceLayer,
+        paint: {
+          "fill-color": this.generateFillColor(mockStates)
+        }
+      },
+      "state-label"
+    );
   }
 
   getRenderedTracts() {
@@ -175,7 +206,7 @@ class Home extends React.Component {
       }
     }
 
-    if (tractsToRequest.length == 0) {
+    if (tractsToRequest.length === 0) {
       this.renderFromCache(tractIds);
     } else {
       getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
@@ -215,7 +246,7 @@ class Home extends React.Component {
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
-      if (rate == undefined) {
+      if (rate === undefined) {
         return;
       }
       const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
@@ -234,12 +265,14 @@ class Home extends React.Component {
       tractData: tractData
     });
     const fillColor = this.generateFillColor(tractData);
-    let stateGeoIds = Object.keys(tractData).map(id => id.substring(0, 2));
-    stateGeoIds = stateGeoIds.filter(
+    let currentStateGeoIds = Object.keys(tractData).map(id =>
+      id.substring(0, 2)
+    );
+    currentStateGeoIds = currentStateGeoIds.filter(
       (value, index, self) => self.indexOf(value) === index
     );
 
-    stateGeoIds.forEach(id => {
+    currentStateGeoIds.forEach(id => {
       this.map.setPaintProperty(id, "fill-color", fillColor);
     });
   }
@@ -303,7 +336,7 @@ class Home extends React.Component {
                         ).toFixed(0)}
                         %
                       </h3>
-                      <h4 className="h3_yaer">in 2010</h4>
+                      <h4 className="h3_year">in 2010</h4>
                     </div>
                   )}
                 </div>
