@@ -255,72 +255,68 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className=
-              "absolute top right bottom mapbox"
-          
+            className="absolute top right bottom mapbox"
           />
         </div>
         <div>
-            <div className="sidebar">
-              <img
-                src={logoWithText}
-                alt="CCL Logo"
-                className="sidebar-logo-text"
+          <div className="sidebar">
+            <img
+              src={logoWithText}
+              alt="CCL Logo"
+              className="sidebar-logo-text"
+            />
+            <div className="geocoder">
+              <Geocoder
+                accessToken={mapboxgl.accessToken}
+                value={this.state.searchText}
+                onInput={e => {
+                  this.setState({ searchText: e });
+                }}
+                onSelect={e => {
+                  this.map.flyTo({ center: e.center, zoom: 10 });
+                }}
+                showLoader={true}
+                inputClass="search-input"
+                inputPlaceholder="Search for county, address or zipcode"
+                resultClass="search-results"
+                bbox={MAX_BOUNDS}
               />
-              <div className="geocoder">
-                <Geocoder
-                  accessToken={mapboxgl.accessToken}
-                  value={this.state.searchText}
-                  onInput={e => {
-                    this.setState({ searchText: e });
-                  }}
-                  onSelect={e => {
-                    this.map.flyTo({ center: e.center, zoom: 10 });
-                  }}
-                  showLoader={true}
-                  inputClass="search-input"
-                  inputPlaceholder="Search for county, address or zipcode"
-                  resultClass="search-results"
-                  bbox={MAX_BOUNDS}
-                />
-              </div>
-
-              {this.state.tractSelected && (
-                <div className="detail-box">
-                  <div className="detail-box-inner">
-                    <h1>{this.state.currentTract.id}</h1>
-                    <h1>{this.state.currentTract.name}</h1>
-                    <h2>Latest Census Response Rate</h2>
-                    {isNaN(this.state.tractData[this.state.currentTract.id]) ? (
-                      <div>Data unavailable</div>
-                    ) : (
-                      <div
-                        style={this.getCensusMBRColor(
-                          this.state.tractData[this.state.currentTract.id] * 100
-                        )}
-                      >
-                        <h3>
-                          {(
-                            this.state.tractData[this.state.currentTract.id] *
-                            100
-                          ).toFixed(0)}
-                          %
-                        </h3>
-                        <h4 className="h3_yaer">in 2010</h4>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {this.state.displayGraph && (
-                <Graph
-                  key={this.state.tract_id}
-                  tract_id={this.state.tract_id}
-                ></Graph>
-              )}
-
             </div>
+
+            {this.state.tractSelected && (
+              <div className="detail-box">
+                <div className="detail-box-inner">
+                  <h1>{this.state.currentTract.id}</h1>
+                  <h1>{this.state.currentTract.name}</h1>
+                  <h2>Latest Census Response Rate</h2>
+                  {isNaN(this.state.tractData[this.state.currentTract.id]) ? (
+                    <div>Data unavailable</div>
+                  ) : (
+                    <div
+                      style={this.getCensusMBRColor(
+                        this.state.tractData[this.state.currentTract.id] * 100
+                      )}
+                    >
+                      <h3>
+                        {(
+                          this.state.tractData[this.state.currentTract.id] * 100
+                        ).toFixed(0)}
+                        %
+                      </h3>
+                      <h4 className="h3_yaer">in 2010</h4>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {this.state.displayGraph && (
+              <Graph
+                key={this.state.tract_id}
+                tract_id={this.state.tract_id}
+              ></Graph>
+            )}
+          </div>
         </div>
       </div>
     );
