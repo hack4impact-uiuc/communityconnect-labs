@@ -74,7 +74,7 @@ export const getBatchResponseByTractIDAndYear = (tract_ids, year) => {
       headers: {
         "Content-Type": "application/json"
       },
-      data: { tract_ids, year },
+      data: { tract_ids, year }
     })
     .catch(error => {
       return {

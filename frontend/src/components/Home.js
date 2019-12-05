@@ -2,7 +2,10 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getBatchResponseByTractIDAndYear, getResponseRatesByYear } from "../utils/apiWrapper";
+import {
+  getBatchResponseByTractIDAndYear,
+  getResponseRatesByYear
+} from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -84,7 +87,7 @@ class Home extends React.Component {
       this.setState({
         lng: lng.toFixed(4),
         lat: lat.toFixed(4),
-        zoom,
+        zoom
       });
     });
 
@@ -124,7 +127,7 @@ class Home extends React.Component {
   }
 
   initTracts() {
-    var tractData = {'0': 0};
+    var tractData = { "0": 0 };
     this.setState({
       tractData: tractData
     });
@@ -156,7 +159,7 @@ class Home extends React.Component {
     stateLayers.forEach(stateLayer => {
       const stateTracts = this.map.queryRenderedFeatures({
         layers: [stateLayer.id],
-        validate: false,
+        validate: false
       });
       tracts = tracts.concat(stateTracts);
     });
@@ -166,7 +169,7 @@ class Home extends React.Component {
   }
 
   updateRenderedTracts(tractIds) {
-    var tractsToRequest = []
+    var tractsToRequest = [];
     for (const tract_id of tractIds) {
       if (!(tract_id in this.tractCache)) {
         tractsToRequest.push(tract_id);
@@ -176,21 +179,23 @@ class Home extends React.Component {
     if (tractsToRequest.length == 0) {
       this.renderFromCache(tractIds);
     } else {
-      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(response => {
-        const responseRates = response.data.result.response_rates;
-        for (const responseRate of responseRates) {
-          const { rates, tract_id } = responseRate;
-          this.tractCache[tract_id] = rates[0];
-        }
-        // ignore missing tracts
-        for (const tract_id of tractsToRequest) {
-          if (!(tract_id in this.tractCache)) {
-            this.tractCache[tract_id] = undefined;
+      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
+        response => {
+          const responseRates = response.data.result.response_rates;
+          for (const responseRate of responseRates) {
+            const { rates, tract_id } = responseRate;
+            this.tractCache[tract_id] = rates[0];
           }
-        }
+          // ignore missing tracts
+          for (const tract_id of tractsToRequest) {
+            if (!(tract_id in this.tractCache)) {
+              this.tractCache[tract_id] = undefined;
+            }
+          }
 
-        this.renderFromCache(tractIds);
-      });
+          this.renderFromCache(tractIds);
+        }
+      );
     }
   }
 
@@ -198,7 +203,7 @@ class Home extends React.Component {
     var tractsToRender = {};
     tractIds.forEach(id => {
       tractsToRender[id] = this.tractCache[id];
-    })
+    });
     this.renderTracts(tractsToRender);
   }
 
@@ -211,7 +216,9 @@ class Home extends React.Component {
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
-      if (rate == undefined) { return; }
+      if (rate == undefined) {
+        return;
+      }
       const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
       const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
       const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
@@ -229,10 +236,12 @@ class Home extends React.Component {
     });
     const fillColor = this.generateFillColor(tractData);
     let stateGeoIds = Object.keys(tractData).map(id => id.substring(0, 2));
-    stateGeoIds = stateGeoIds.filter( (value, index, self) => self.indexOf(value) === index ); 
+    stateGeoIds = stateGeoIds.filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
 
     stateGeoIds.forEach(id => {
-      this.map.setPaintProperty(id, 'fill-color', fillColor);
+      this.map.setPaintProperty(id, "fill-color", fillColor);
     });
   }
 
