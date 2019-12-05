@@ -37,7 +37,7 @@ class Home extends React.Component {
       currentTract: {},
       geocoderValue: "",
       displayGraph: false,
-      selectedDate: 0,
+      selectedDate: 25,
     };
     this.map = null;
     this.tractCache = {};
@@ -212,6 +212,7 @@ class Home extends React.Component {
     this.setState({
       tractData: tractsToRender
     });
+    console.log(this.state.tractData); 
     this.renderTracts();
   }
 
@@ -219,7 +220,7 @@ class Home extends React.Component {
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
-    const LIGHTEST = [233, 244, 222];
+    const LIGHTEST = [300, 300, 300];
     const DARKEST = [64, 89, 34];
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
@@ -256,6 +257,7 @@ class Home extends React.Component {
   }
 
   dateChange(newDate) {
+    console.log(newDate); 
     this.setState({
       selectedDate: newDate,
     }, () => this.renderTracts());
@@ -310,31 +312,16 @@ class Home extends React.Component {
                     <h2>Latest Census Response Rate</h2>
                     <div
                       style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
+                        this.state.tractData[this.state.tract_id][this.state.selectedDate] * 100
                       )}
                     >
                       <h3>
                         {(
-                          this.state.tractData[this.state.currentTract.id] * 100
+                          this.state.tractData[this.state.currentTract.id][this.state.selectedDate] * 100
                         ).toFixed(0)}
                         %
                       </h3>
                       <h4 className="h3_yaer">in 2010</h4>
-                    </div>
-
-                    <h2>History</h2>
-                    <div
-                      style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
-                      )}
-                    >
-                      <h3>
-                        {(
-                          this.state.tractData[this.state.currentTract.id] * 100
-                        ).toFixed(0)}
-                        %
-                      </h3>
-                      <h4 className="h3_yaer">in 2000</h4>
                     </div>
                   </div>
                 </div>
