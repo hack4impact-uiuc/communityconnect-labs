@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import Slider from 'rc-slider';
-import 'rc-slider/assets/index.css';
-import '../styles/index.css'
+import React, { Component } from "react";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
+import "../styles/index.css";
 
 class DateSlider extends Component {
   constructor(props) {
@@ -16,8 +16,9 @@ class DateSlider extends Component {
           <Slider
             min={0}
             max={nDates - 1}
-            defaultValue={nDates-1}
-            onAfterChange={ i => this.props.dateChange(this.props.dates[i]) } />
+            defaultValue={nDates - 1}
+            onAfterChange={i => this.props.dateChange(this.props.dates[i])}
+          />
         </div>
       </div>
     );

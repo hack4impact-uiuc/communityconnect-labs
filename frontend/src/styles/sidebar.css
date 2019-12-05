@@ -25,14 +25,7 @@ html {
   height: 100%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   background: #fff;
-}
-.sidebarOpen {
   flex-direction: column;
-}
-.sidebarClosed {
-  display: flex;
-  justify-content: center;
-  z-index: 1;
 }
 
 .mapbox {
@@ -40,14 +33,13 @@ html {
 }
 
 .slider {
-  padding-left: 10%; 
-  padding-right: 10%; 
-  padding-bottom: 5%; 
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-bottom: 5%;
 }
 
 @media only screen and (min-width: 600px) {
-  .sidebarOpen,
-  .sidebarClosed {
+  .sidebar {
     height: 100vh;
     position: absolute;
     padding: 0px;
@@ -153,7 +145,7 @@ h3 {
   display: inline;
 }
 
-.h3_yaer {
+.h3_year {
   font-size: 15px;
   font-weight: 500;
   display: inline;
