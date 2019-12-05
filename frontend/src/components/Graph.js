@@ -9,7 +9,7 @@ import {
 import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 
 const STEPS = 5;
-const LINE_COLOR = "#d18b30";
+const LINE_COLOR = "gray";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
@@ -97,19 +97,13 @@ class Graph extends React.Component {
         />
         <VictoryLine
           style={{
-            data: { stroke: LINE_COLOR },
+            data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
             parent: { border: BORDER }
           }}
           data={this.state.data}
           animate={{
             duration: 1000,
             onLoad: { duration: 1000 }
-          }}
-          style={{
-            data: {
-              stroke: "gray",
-              strokeWidth: STROKE_WIDTH
-            }
           }}
         />
       </VictoryChart>

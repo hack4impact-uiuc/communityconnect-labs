@@ -2,14 +2,10 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import {
-  getBatchResponseByTractIDAndYear,
-  getResponseRatesByYear
-} from "../utils/apiWrapper";
+import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
-import logo from "../resources/ccl_logo.png";
 import Graph from "./Graph.js";
 
 mapboxgl.accessToken =
@@ -175,11 +171,12 @@ class Home extends React.Component {
       }
     }
 
-    if (tractsToRequest.length == 0) {
+    if (tractsToRequest.length === 0) {
       this.renderFromCache(tractIds);
     } else {
       getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
         response => {
+          console.log(response);
           const responseRates = response.data.result.response_rates;
           for (const responseRate of responseRates) {
             const { rates, tract_id } = responseRate;
@@ -215,7 +212,7 @@ class Home extends React.Component {
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
-      if (rate == undefined) {
+      if (rate === undefined) {
         return;
       }
       const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];

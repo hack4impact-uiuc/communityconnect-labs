@@ -1,3 +1,15 @@
+export const stateLayer = {
+  sourceLayer: "tl_2019_us_state-cxqyym",
+  sourceURL: "hack4impact.1iskeiyy",
+  id: 0
+};
+
+// export const mockStates = [
+//   {
+//     "12022019":
+//   }
+// ]
+
 export const stateLayers = [
   {
     sourceLayer: "alabama-7qk156",
