@@ -37,18 +37,37 @@ def main():
         county_idx = 7
         num_days_idx = 12
         start_days = 10
+        count = 0
+        print(len(rows))
+        responses = {}
         for row in rows:
+            count += 1
+            if count % 10000 == 0:
+                print(count)
             if row[treat_idx] == '1' or row[treat_idx] == 'treat':
                 continue
             row_id = row[id_idx]
             if len(row_id) == 10:
                 row_id = '0' + row_id
-            days_after = start_days-int(row[num_days_idx])
+            days_after = int(row[num_days_idx])-start_days
             r = CensusResponse(
                     tract_id=row_id,
                     county=row[county_idx],
                     rates={"2020": {str(days_after): [float(row[mean_rate_idx]), float(row[sd_idx]), days_after]}},
                 )
+            if r.tract_id in responses:
+                existing = responses[r.tract_id]
+                r.update(existing)
+                responses[r.tract_id] = r
+            else:
+                responses[r.tract_id] = r
+        
+        print(len(responses.values()))
+        count = 0
+        for r in responses.values():
+            count += 1
+            if count % 100 == 0:
+                print(count)
             try:
                 existing = CensusResponse.objects.get(tract_id=r.tract_id)
                 existing.update(r)
