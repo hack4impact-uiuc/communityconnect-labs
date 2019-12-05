@@ -28,11 +28,11 @@ class Graph extends React.Component {
       return;
     }
     let rates_dict = {};
-    rates_dict =
-      response.data.result.response_rates[0].rates[this.state.tractID];
+    rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
+    console.log(rates_dict);
     for (var key in rates_dict) {
-      rates_list.push({ x: rates_dict[key][1], y: rates_dict[key][0] });
+      rates_list.push({ x: key, y: rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -41,8 +41,10 @@ class Graph extends React.Component {
     let xLabelList = [rates_list[0]["x"]];
 
     for (let i = 1; i <= STEPS; i++) {
-      xLabelList.push(iterator + xLabelList[i - 1]);
+      xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
+
+    console.log(xLabelList);
 
     iterator =
       (rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"]) / STEPS;

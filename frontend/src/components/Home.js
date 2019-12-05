@@ -1,8 +1,8 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
+import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByYear, getResponseByTractIDAndYear } from "../utils/apiWrapper";
+import { getBatchResponseByTractIDAndYear, getResponseRatesByYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
@@ -16,6 +16,7 @@ var moment = require('moment');
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
+const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
@@ -32,9 +33,11 @@ class Home extends React.Component {
       tractSelected: false,
       currentTract: {},
       geocoderValue: "",
-      displayGraph: false
+      displayGraph: false,
+      selectedDate: 0,
     };
     this.map = null;
+    this.tractCache = {};
   }
 
   getCensusMBRColor = response_rate => {
@@ -76,68 +79,33 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure year is not hardcoded
-      getResponseRatesByYear("2010").then(data => {
-        const responseRates = data.data.result.response_rates;
-        var tractData = {};
-        responseRates.forEach(response_rate => {
-          tractData[response_rate.tract_id] = response_rate.rate[0];
-        });
-        this.setState({
-          tractData: tractData
-        });
-
-        const fillColor = ["match", ["get", "GEOID"]];
-
-        // converting the response rate into a color
-        const LIGHTEST = [233, 244, 222];
-        const DARKEST = [64, 89, 34];
-        const geoIds = Object.keys(tractData);
-        geoIds.map(geoId => {
-          const rate = tractData[geoId];
-          const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-          const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-          const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-          const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-          return fillColor.push(geoId, color);
-        });
-
-        fillColor.push("rgba(0,0,0,0)");
-
-        stateLayers.map(stateLayer => {
-          return this.map.addLayer(
-            {
-              id: stateLayer.sourceURL,
-              type: "fill",
-              source: {
-                type: "vector",
-                url: stateLayer.sourceURL
-              },
-              "source-layer": stateLayer.sourceLayer,
-              paint: {
-                "fill-color": fillColor
-              }
-            },
-            "state-label"
-          );
-        });
-      });
+      this.initTracts();
     });
 
     this.map.on("move", () => {
       const { lng, lat } = this.map.getCenter();
+      const zoom = this.map.getZoom().toFixed(2);
 
       this.setState({
         lng: lng.toFixed(4),
         lat: lat.toFixed(4),
-        zoom: this.map.getZoom().toFixed(2)
+        zoom,
       });
+    });
+
+    this.map.on("moveend", () => {
+      const zoom = this.map.getZoom().toFixed(2);
+      if (zoom > MIN_TRACT_ZOOM) {
+        let tractIDs = this.getRenderedTracts();
+        if (tractIDs.length > 0) {
+          this.updateRenderedTracts(tractIDs);
+        }
+      }
     });
 
     this.map.on("click", e => {
       const tracts = this.map.queryRenderedFeatures(e.point, {
-        // TODO: get all layers using a .map on stateLayers instead of hardcoding IL
-        layers: ["mapbox://meghabyte.ac7v02uw"]
+        layers: sourceIDs
       });
 
       if (tracts.length > 0) {
@@ -158,6 +126,135 @@ class Home extends React.Component {
         });
       }
     });
+  }
+
+  initTracts() {
+    var tractData = {'0': 0};
+    this.setState({
+      tractData: tractData
+    });
+    const fillColor = this.generateFillColor(tractData);
+
+    stateLayers.map(stateLayer => {
+      const id = stateLayer.id;
+      this.map.addLayer(
+        {
+          id: id,
+          type: "fill",
+          source: {
+            type: "vector",
+            url: stateLayer.sourceURL
+          },
+          "source-layer": stateLayer.sourceLayer,
+          paint: {
+            "fill-color": fillColor
+          }
+        },
+        "state-label"
+      );
+      return 0;
+    });
+  }
+
+  getRenderedTracts() {
+    let tracts = [];
+    stateLayers.forEach(stateLayer => {
+      const stateTracts = this.map.queryRenderedFeatures({
+        layers: [stateLayer.id],
+        validate: false,
+      });
+      tracts = tracts.concat(stateTracts);
+    });
+
+    let tractIDs = tracts.map(tract => tract.properties.GEOID);
+    return tractIDs;
+  }
+
+  updateRenderedTracts(tractIds) {
+    var tractsToRequest = []
+    for (const tract_id of tractIds) {
+      if (!(tract_id in this.tractCache)) {
+        tractsToRequest.push(tract_id);
+      }
+    }
+
+    if (tractsToRequest.length == 0) {
+      this.renderFromCache(tractIds);
+    } else {
+      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(response => {
+        const responseRates = response.data.result.response_rates;
+        for (const responseRate of responseRates) {
+          const { rates, tract_id } = responseRate;
+          this.tractCache[tract_id] = rates;
+        }
+        console.log(this.tractCache);
+        // ignore missing tracts
+        for (const tract_id of tractsToRequest) {
+          if (!(tract_id in this.tractCache)) {
+            this.tractCache[tract_id] = undefined;
+          }
+        }
+
+        this.renderFromCache(tractIds);
+      });
+    }
+  }
+
+  renderFromCache(tractIds) {
+    var tractsToRender = {};
+    tractIds.forEach(id => {
+      if (this.tractCache[id]) {
+        tractsToRender[id] = this.tractCache[id];
+      }
+    });
+    this.setState({
+      tractData: tractsToRender
+    });
+    this.renderTracts();
+  }
+
+  generateFillColor(tractData) {
+    const fillColor = ["match", ["get", "GEOID"]];
+
+    // converting the response rate into a color
+    const LIGHTEST = [233, 244, 222];
+    const DARKEST = [64, 89, 34];
+    const geoIds = Object.keys(tractData);
+    geoIds.map(geoId => {
+      const rate = tractData[geoId];
+      if (rate == undefined) { return; }
+      const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+      const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+      const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+      const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+      return fillColor.push(geoId, color);
+    });
+
+    fillColor.push("rgba(0,0,0,0)");
+    return fillColor;
+  }
+
+  renderTracts() {
+    const { tractData, selectedDate } = this.state;
+
+    var tractsToRender = {};
+    Object.keys(tractData).forEach(id => {
+      tractsToRender[id] = tractData[id][selectedDate]
+    });
+
+    const fillColor = this.generateFillColor(tractsToRender);
+    let stateGeoIds = Object.keys(tractsToRender).map(id => id.substring(0, 2));
+    stateGeoIds = stateGeoIds.filter( (value, index, self) => self.indexOf(value) === index ); 
+
+    stateGeoIds.forEach(id => {
+      this.map.setPaintProperty(id, 'fill-color', fillColor);
+    });
+  }
+
+  dateChange(newDate) {
+    this.setState({
+      selectedDate: newDate,
+    }, () => this.renderTracts());
   }
 
   render() {
@@ -255,8 +352,8 @@ class Home extends React.Component {
                 &lt; Minimize
               </p>
               <div>
-                {this.state.currentTract.dates &&
-                <DateSlider dates={this.state.currentTract.dates} dateChange={d => console.log(d)} />
+                {this.state.tractSelected &&
+                <DateSlider dates={Object.keys(this.tractCache[this.state.currentTract.id])} dateChange={d => this.dateChange(d)} />
                 }
               </div>
             </div>

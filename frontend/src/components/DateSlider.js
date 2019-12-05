@@ -15,8 +15,8 @@ class DateSlider extends Component {
           <Slider
             min={0}
             max={nDates - 1}
-            defaultValue={nDates - 1}
-            onChange={ i => this.props.dateChange(this.props.dates[i]) } />
+            defaultValue={0}
+            onAfterChange={ i => this.props.dateChange(this.props.dates[i]) } />
         </div>
       </div>
     );
