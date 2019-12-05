@@ -25,28 +25,15 @@ html {
   height: 100%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   background: #fff;
-}
-.sidebarOpen {
   flex-direction: column;
-}
-.sidebarClosed {
-  width: 100px;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
 }
 
 .mapbox {
   width: calc(100% - 375px);
 }
 
-.mapbox-wide {
-  width: calc(100% - 100px);
-}
-
 @media only screen and (min-width: 600px) {
-  .sidebarOpen,
-  .sidebarClosed {
+  .sidebar {
     height: 100vh;
     position: absolute;
     padding: 0px;

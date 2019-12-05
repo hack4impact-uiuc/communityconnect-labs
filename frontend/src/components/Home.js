@@ -27,7 +27,6 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
@@ -246,7 +245,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom, isSidebarOpen } = this.state;
+    const { lng, lat, zoom } = this.state;
 
     return (
       <div>
@@ -256,16 +255,13 @@ class Home extends React.Component {
           </div>
           <div
             ref={el => (this.mapContainer = el)}
-            className={
-              "absolute top right bottom mapbox " +
-              (isSidebarOpen && " mapbox ") +
-              (!isSidebarOpen && " mapbox-wide")
-            }
+            className=
+              "absolute top right bottom mapbox"
+          
           />
         </div>
         <div>
-          {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen">
+            <div className="sidebar">
               <img
                 src={logoWithText}
                 alt="CCL Logo"
@@ -324,25 +320,7 @@ class Home extends React.Component {
                 ></Graph>
               )}
 
-              <p
-                className="absolute left bottom minimize"
-                onClick={() => {
-                  this.setState({ isSidebarOpen: false });
-                }}
-              >
-                &lt; Minimize
-              </p>
             </div>
-          ) : (
-            <div
-              className="sidebar sidebarClosed col-1 col-s-1"
-              onClick={() => {
-                this.setState({ isSidebarOpen: true });
-              }}
-            >
-              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
-            </div>
-          )}
         </div>
       </div>
     );
