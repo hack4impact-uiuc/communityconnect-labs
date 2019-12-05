@@ -1,10 +1,19 @@
 import React from "react";
-import { VictoryAxis, VictoryChart, VictoryLine, VictoryLabel } from "victory";
+import {
+  VictoryAxis,
+  VictoryChart,
+  VictoryLine,
+  VictoryLabel,
+  VictoryTheme
+} from "victory";
 import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 
 const STEPS = 5;
 const LINE_COLOR = "#d18b30";
 const BORDER = "1px solid #ccc";
+const GRAPH_TITLE_X_COOR = 170;
+const GRAPH_TITLE_Y_COOR = 20;
+const STROKE_WIDTH = 2;
 
 class Graph extends React.Component {
   constructor(props) {
@@ -54,6 +63,10 @@ class Graph extends React.Component {
       yLabelList.push(Math.round((iterator + yLabelList[i - 1]) * 100) / 100);
     }
 
+    for (let i = 0; i < yLabelList.length; i++) {
+      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10;
+    }
+
     this.setState({
       data: rates_list,
       xLabels: xLabelList,
@@ -63,29 +76,44 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <VictoryChart domainPadding={20} height={300}>
+      <VictoryChart
+        domainPadding={20}
+        height={300}
+        theme={VictoryTheme.material}
+      >
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
-          x={225}
-          y={50}
+          x={GRAPH_TITLE_X_COOR}
+          y={GRAPH_TITLE_Y_COOR}
           textAnchor="middle"
         />
         <VictoryAxis
           tickValues={this.state.xLabels}
           label="Days After Initial Census Mailing"
+          style={{ axisLabel: { padding: 37 } }}
         />
         <VictoryAxis
           dependentAxis
           tickValues={this.state.yLabels}
           label="Response Rate"
+          style={{ axisLabel: { padding: 35 } }}
         />
-
         <VictoryLine
           style={{
             data: { stroke: LINE_COLOR },
             parent: { border: BORDER }
           }}
           data={this.state.data}
+          animate={{
+            duration: 1000,
+            onLoad: { duration: 1000 }
+          }}
+          style={{
+            data: {
+              stroke: "gray",
+              strokeWidth: STROKE_WIDTH
+            }
+          }}
         />
       </VictoryChart>
     );
