@@ -1,15 +1,17 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceIDs } from "../resources/stateLayers.js";
-import Geocoder from "react-geocoder-autocomplete";
 import {
-  getBatchResponseByTractIDAndYear,
-  getResponseRatesByYear
-} from "../utils/apiWrapper";
+  stateLayers,
+  sourceIDs,
+  countryLayer,
+  mockStates,
+  stateGeoIds
+} from "../resources/stateLayers.js";
+import Geocoder from "react-geocoder-autocomplete";
+import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
-import logo from "../resources/ccl_logo.png";
 import Graph from "./Graph.js";
 
 import DateSlider from "./DateSlider.js";
@@ -31,7 +33,6 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
@@ -107,27 +108,40 @@ class Home extends React.Component {
     });
 
     this.map.on("click", e => {
-      const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceIDs
-      });
+      if (this.map.getZoom() > MIN_TRACT_ZOOM) {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          layers: sourceIDs
+        });
 
-      if (tracts.length > 0) {
-        this.setState({
-          tractSelected: true,
-          currentTract: {
-            name: tracts[0].properties.NAMELSAD,
-            id: tracts[0].properties.GEOID
-          },
-          displayGraph: true,
-          tract_id: tracts[0].properties.GEOID
-        });
-      } else {
-        this.setState({
-          tractSelected: false,
-          currentTract: null,
-          displayGraph: false
-        });
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            },
+            displayGraph: true,
+            tract_id: tracts[0].properties.GEOID
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null,
+            displayGraph: false
+          });
+        }
       }
+    });
+
+    this.map.on("zoom", () => {
+      let stateVisibility =
+        this.map.getZoom() > MIN_TRACT_ZOOM ? "none" : "visible";
+      let tractVisibility = stateVisibility === "none" ? "visible" : "none";
+
+      this.map.setLayoutProperty("00", "visibility", stateVisibility);
+      stateGeoIds.map(id => {
+        this.map.setLayoutProperty(id, "visibility", tractVisibility);
+      });
     });
   }
 
@@ -157,6 +171,22 @@ class Home extends React.Component {
       );
       return 0;
     });
+
+    this.map.addLayer(
+      {
+        id: countryLayer.id,
+        type: "fill",
+        source: {
+          type: "vector",
+          url: countryLayer.sourceURL
+        },
+        "source-layer": countryLayer.sourceLayer,
+        paint: {
+          "fill-color": this.generateFillColor(mockStates)
+        }
+      },
+      "state-label"
+    );
   }
 
   getRenderedTracts() {
@@ -181,7 +211,7 @@ class Home extends React.Component {
       }
     }
 
-    if (tractsToRequest.length == 0) {
+    if (tractsToRequest.length === 0) {
       this.renderFromCache(tractIds);
     } else {
       getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(response => {
@@ -225,7 +255,7 @@ class Home extends React.Component {
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
-      if (rate == undefined) {
+      if (rate === undefined) {
         return;
       }
       const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
@@ -246,13 +276,17 @@ class Home extends React.Component {
     Object.keys(tractData).forEach(id => {
       tractsToRender[id] = tractData[id][selectedDate]
     });
-
     const fillColor = this.generateFillColor(tractsToRender);
-    let stateGeoIds = Object.keys(tractsToRender).map(id => id.substring(0, 2));
-    stateGeoIds = stateGeoIds.filter( (value, index, self) => self.indexOf(value) === index ); 
 
-    stateGeoIds.forEach(id => {
-      this.map.setPaintProperty(id, 'fill-color', fillColor);
+    let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
+      id.substring(0, 2)
+    );
+    currentStateGeoIds = currentStateGeoIds.filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
+
+    currentStateGeoIds.forEach(id => {
+      this.map.setPaintProperty(id, "fill-color", fillColor);
     });
   }
 
@@ -264,7 +298,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { lng, lat, zoom, isSidebarOpen } = this.state;
+    const { lng, lat, zoom } = this.state;
 
     return (
       <div>
@@ -278,41 +312,42 @@ class Home extends React.Component {
           />
         </div>
         <div>
-          {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen">
-              <img
-                src={logoWithText}
-                alt="CCL Logo"
-                className="sidebar-logo-text"
+          <div className="sidebar">
+            <img
+              src={logoWithText}
+              alt="CCL Logo"
+              className="sidebar-logo-text"
+            />
+            <div className="geocoder">
+              <Geocoder
+                accessToken={mapboxgl.accessToken}
+                value={this.state.searchText}
+                onInput={e => {
+                  this.setState({ searchText: e });
+                }}
+                onSelect={e => {
+                  this.map.flyTo({ center: e.center, zoom: 10 });
+                }}
+                showLoader={true}
+                inputClass="search-input"
+                inputPlaceholder="Search for county, address or zipcode"
+                resultClass="search-results"
+                bbox={MAX_BOUNDS}
               />
-              <div className="geocoder">
-                <Geocoder
-                  accessToken={mapboxgl.accessToken}
-                  value={this.state.searchText}
-                  onInput={e => {
-                    this.setState({ searchText: e });
-                  }}
-                  onSelect={e => {
-                    this.map.flyTo({ center: e.center, zoom: 10 });
-                  }}
-                  showLoader={true}
-                  inputClass="search-input"
-                  inputPlaceholder="Search for county, address or zipcode"
-                  resultClass="search-results"
-                  bbox={MAX_BOUNDS}
-                />
-              </div>
+            </div>
 
-              {this.state.tractSelected && (
-                <div className="detail-box">
-                  <div className="detail-box-inner">
-                    <h1>{this.state.currentTract.id}</h1>
-                    <h1>{this.state.currentTract.name}</h1>
-
-                    <h2>Latest Census Response Rate</h2>
+            {this.state.tractSelected && (
+              <div className="detail-box">
+                <div className="detail-box-inner">
+                  <h1>{this.state.currentTract.id}</h1>
+                  <h1>{this.state.currentTract.name}</h1>
+                  <h2>Latest Census Response Rate</h2>
+                  {isNaN(this.state.tractData[this.state.currentTract.id][this.state.selectedDate]) ? (
+                    <div>Data unavailable</div>
+                  ) : (
                     <div
                       style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.tract_id][this.state.selectedDate] * 100
+                        this.state.tractData[this.state.currentTract.id][this.state.selectedDate] * 100
                       )}
                     >
                       <h3>
@@ -321,43 +356,24 @@ class Home extends React.Component {
                         ).toFixed(0)}
                         %
                       </h3>
-                      <h4 className="h3_yaer">in 2010</h4>
+                      <h4 className="h3_year">in 2010</h4>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {this.state.displayGraph && (
-                <Graph
-                  key={this.state.tract_id}
-                  tract_id={this.state.tract_id}
-                ></Graph>
-              )}
+            {this.state.displayGraph && (
+              <Graph
+                key={this.state.tract_id}
+                tract_id={this.state.tract_id}
+              ></Graph>
+            )}
 
-              <p
-                className="absolute left bottom minimize"
-                onClick={() => {
-                  this.setState({ isSidebarOpen: false });
-                }}
-              >
-                &lt; Minimize
-              </p>
-              <div>
                 {this.state.tractSelected &&
                 <DateSlider dates={Object.keys(this.tractCache[this.state.currentTract.id])} dateChange={d => this.dateChange(d)} />
                 }
-              </div>
-            </div>
-          ) : (
-            <div
-              className="sidebar sidebarClosed col-1 col-s-1"
-              onClick={() => {
-                this.setState({ isSidebarOpen: true });
-              }}
-            >
-              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
-            </div>
-          )}
+          </div>
         </div>
       </div>
     );
