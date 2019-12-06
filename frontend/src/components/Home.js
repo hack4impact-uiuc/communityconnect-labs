@@ -382,13 +382,17 @@ class Home extends React.Component {
                   key={this.state.tract_id}
                   tract_id={this.state.tract_id}
                 ></Graph>
-                {this.tractCache[this.state.currentTract.id] && 
-                <div className='slider'>
-                <DateSlider
-                  dates={Object.keys(this.tractCache[this.state.currentTract.id])}
-                  dateChange={d => this.dateChange(d)}
-                />
-                </div>}
+                {this.tractCache[this.state.currentTract.id] && (
+                  <div className="slider">
+                    <DateSlider
+                      dates={Object.keys(
+                        this.tractCache[this.state.currentTract.id]
+                      )}
+                      defaultValue={this.state.selectedDate}
+                      dateChange={d => this.dateChange(d)}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
