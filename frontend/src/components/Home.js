@@ -251,7 +251,7 @@ class Home extends React.Component {
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
-    const LIGHTEST = [300, 300, 300];
+    const LIGHTEST = [255, 255, 255];
     const DARKEST = [64, 89, 34];
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
@@ -382,26 +382,14 @@ class Home extends React.Component {
                   key={this.state.tract_id}
                   tract_id={this.state.tract_id}
                 ></Graph>
+                {this.tractCache[this.state.currentTract.id] && 
+                <div className='slider'>
                 <DateSlider
-                  dates={
-                    this.tractCache[this.state.currentTract.id]
-                      ? Object.keys(this.tractCache[this.state.currentTract.id])
-                      : []
-                  }
+                  dates={Object.keys(this.tractCache[this.state.currentTract.id])}
                   dateChange={d => this.dateChange(d)}
                 />
+                </div>}
               </div>
-            )}
-
-            {this.state.tractSelected && (
-              <DateSlider
-                dates={
-                  this.tractCache[this.state.currentTract.id]
-                    ? Object.keys(this.tractCache[this.state.currentTract.id])
-                    : []
-                }
-                dateChange={d => this.dateChange(d)}
-              />
             )}
           </div>
         </div>
