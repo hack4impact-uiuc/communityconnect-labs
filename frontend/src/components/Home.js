@@ -292,7 +292,6 @@ class Home extends React.Component {
   }
 
   dateChange(newDate) {
-    console.log(newDate);
     this.setState(
       {
         selectedDate: newDate
