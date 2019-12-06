@@ -32,6 +32,11 @@ html {
   width: calc(100% - 375px);
 }
 
+.slider {
+  padding-left: 7%;
+  padding-right: 7%;
+}
+
 @media only screen and (min-width: 600px) {
   .sidebar {
     height: 100vh;

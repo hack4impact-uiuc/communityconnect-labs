@@ -14,6 +14,10 @@ import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import Graph from "./Graph.js";
 
+import DateSlider from "./DateSlider.js";
+
+var moment = require("moment");
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
@@ -33,7 +37,8 @@ class Home extends React.Component {
       tractSelected: false,
       currentTract: {},
       geocoderValue: "",
-      displayGraph: false
+      displayGraph: false,
+      selectedDate: 25
     };
     this.map = null;
     this.tractCache = {};
@@ -214,7 +219,7 @@ class Home extends React.Component {
           const responseRates = response.data.result.response_rates;
           for (const responseRate of responseRates) {
             const { rates, tract_id } = responseRate;
-            this.tractCache[tract_id] = rates[0];
+            this.tractCache[tract_id] = rates;
           }
           // ignore missing tracts
           for (const tract_id of tractsToRequest) {
@@ -232,16 +237,21 @@ class Home extends React.Component {
   renderFromCache(tractIds) {
     var tractsToRender = {};
     tractIds.forEach(id => {
-      tractsToRender[id] = this.tractCache[id];
+      if (this.tractCache[id]) {
+        tractsToRender[id] = this.tractCache[id];
+      }
     });
-    this.renderTracts(tractsToRender);
+    this.setState({
+      tractData: tractsToRender
+    });
+    this.renderTracts();
   }
 
   generateFillColor(tractData) {
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
-    const LIGHTEST = [233, 244, 222];
+    const LIGHTEST = [255, 255, 255];
     const DARKEST = [64, 89, 34];
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
@@ -260,12 +270,16 @@ class Home extends React.Component {
     return fillColor;
   }
 
-  renderTracts(tractData) {
-    this.setState({
-      tractData: tractData
+  renderTracts() {
+    const { tractData, selectedDate } = this.state;
+
+    var tractsToRender = {};
+    Object.keys(tractData).forEach(id => {
+      tractsToRender[id] = tractData[id][selectedDate];
     });
-    const fillColor = this.generateFillColor(tractData);
-    let currentStateGeoIds = Object.keys(tractData).map(id =>
+    const fillColor = this.generateFillColor(tractsToRender);
+
+    let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
       id.substring(0, 2)
     );
     currentStateGeoIds = currentStateGeoIds.filter(
@@ -275,6 +289,15 @@ class Home extends React.Component {
     currentStateGeoIds.forEach(id => {
       this.map.setPaintProperty(id, "fill-color", fillColor);
     });
+  }
+
+  dateChange(newDate) {
+    this.setState(
+      {
+        selectedDate: newDate
+      },
+      () => this.renderTracts()
+    );
   }
 
   render() {
@@ -322,17 +345,26 @@ class Home extends React.Component {
                   <h1>{this.state.currentTract.id}</h1>
                   <h1>{this.state.currentTract.name}</h1>
                   <h2>Latest Census Response Rate</h2>
-                  {isNaN(this.state.tractData[this.state.currentTract.id]) ? (
+                  {!this.state.tractData[this.state.currentTract.id] ||
+                  isNaN(
+                    this.state.tractData[this.state.currentTract.id][
+                      this.state.selectedDate
+                    ]
+                  ) ? (
                     <div>Data unavailable</div>
                   ) : (
                     <div
                       style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
+                        this.state.tractData[this.state.currentTract.id][
+                          this.state.selectedDate
+                        ] * 100
                       )}
                     >
                       <h3>
                         {(
-                          this.state.tractData[this.state.currentTract.id] * 100
+                          this.state.tractData[this.state.currentTract.id][
+                            this.state.selectedDate
+                          ] * 100
                         ).toFixed(0)}
                         %
                       </h3>
@@ -344,10 +376,23 @@ class Home extends React.Component {
             )}
 
             {this.state.displayGraph && (
-              <Graph
-                key={this.state.tract_id}
-                tract_id={this.state.tract_id}
-              ></Graph>
+              <div>
+                <Graph
+                  key={this.state.tract_id}
+                  tract_id={this.state.tract_id}
+                ></Graph>
+                {this.tractCache[this.state.currentTract.id] && (
+                  <div className="slider">
+                    <DateSlider
+                      dates={Object.keys(
+                        this.tractCache[this.state.currentTract.id]
+                      )}
+                      defaultValue={this.state.selectedDate}
+                      dateChange={d => this.dateChange(d)}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

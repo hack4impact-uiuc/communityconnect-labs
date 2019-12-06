@@ -40,7 +40,7 @@ class Graph extends React.Component {
     rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
-      rates_list.push({ x: rates_dict[key][1], y: rates_dict[key][0] });
+      rates_list.push({ x: key, y: rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -49,7 +49,7 @@ class Graph extends React.Component {
     let xLabelList = [rates_list[0]["x"]];
 
     for (let i = 1; i <= STEPS; i++) {
-      xLabelList.push(iterator + xLabelList[i - 1]);
+      xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
 
     iterator =

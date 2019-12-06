@@ -81,7 +81,9 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
     for resp in responses:
         if year in resp.rates:
             rates = resp.rates[year]
-            response_rates[resp.tract_id] = rates
+            response_rates[resp.tract_id] = {
+                rate[1]: rate[0] for _, rate in rates.items()
+            }
 
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]
 
@@ -93,7 +95,8 @@ def get_batch_response_rates_by_year(year, tract_ids):
     for resp in responses:
         if year in resp.rates:
             rates = resp.rates[year]
-            end_rate = rates[max(rates, key=str)]
-            response_rates[resp.tract_id] = end_rate
+            response_rates[resp.tract_id] = {
+                rate[1]: rate[0] for _, rate in rates.items()
+            }
 
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]
