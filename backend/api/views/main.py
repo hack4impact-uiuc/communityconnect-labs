@@ -72,6 +72,7 @@ def get_response_rates_per_period():
 function that is called when you visit /predictive_rates
 Parameters
     tract_id: 11-digit tract id string
+    optional actual_year: the actual year. default 2010
 """
 
 
@@ -81,20 +82,21 @@ def get_predictive_rates():
     predictive_rates = None
 
     tract_id = request.args.get("tract_id", None)
+    actual_year = request.args.get("actual_year", None)
+
+    if not actual_year:
+        actual_year = "2010"
 
     if tract_id:
-        actual_rates = get_response_rates_by_year("2010", tract_id, None)
+        actual_rates = get_response_rates_by_year(actual_year, tract_id, None)
         predictive_rates = get_predictive_by_tract_id(PREDICTIVE_2020, tract_id)
     else:
         return create_response(status=422, message="Missing request parameters")
 
     return create_response(
         status=200,
-        data={
-            "2010": actual_rates,
-            "2020p": predictive_rates,
-        },
-        message="Success.",
+        data={actual_year: actual_rates, PREDICTIVE_2020: predictive_rates},
+        message="Success",
     )
 
 
