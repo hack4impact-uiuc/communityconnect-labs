@@ -42,7 +42,7 @@ class Home extends React.Component {
     };
     this.map = null;
     this.tractCache = {};
-    this.renderCount = 0; 
+    this.renderCount = 0;
   }
 
   getCensusMBRColor = response_rate => {
@@ -103,7 +103,6 @@ class Home extends React.Component {
         const zoom = this.map.getZoom().toFixed(2);
         if (zoom > MIN_TRACT_ZOOM) {
           let tractIDs = this.getRenderedTracts();
-          console.log(tractIDs);
           if (tractIDs.length > 0) {
             this.updateRenderedTracts(tractIDs);
           }
