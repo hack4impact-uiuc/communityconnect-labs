@@ -26,13 +26,23 @@ def init():
     Migrate(app, db)
 
 def main():
-    with open('chartData.csv') as f:
-        for resp in CensusResponse.objects:
-            for
+    responses = {}
+    count = 0
+    for resp in CensusResponse.objects:
+        count += 1
+        if count % 10 == 0:
+            break
+        if "2020" not in resp.rates:
+            continue
+        print(resp.tract_id)
+        old_2020_rates = resp.rates["2020"]
+        # print(old_2020_rates)
+        # print(type(old_2020_rates))
+        for days_after, data in old_2020_rates.items():
             r = CensusResponse(
                     tract_id=resp.tract_id,
                     county=resp.county,
-                    rates={"2020P": {str(days_after): [float(row[mean_rate_idx]), float(row[sd_idx]), days_after]}},
+                    rates={"2020P": {days_after: [float(data[0]/100), float(data[1]/100), days_after]}},
                 )
             if r.tract_id in responses:
                 existing = responses[r.tract_id]
@@ -40,21 +50,43 @@ def main():
                 responses[r.tract_id] = r
             else:
                 responses[r.tract_id] = r
-        
-        print(len(responses.values()))
-        count = 0
-        for r in responses.values():
-            count += 1
-            if count % 100 == 0:
-                print(count)
-            try:
-                existing = CensusResponse.objects.get(tract_id=r.tract_id)
-                existing.update(r)
-                existing.save()
-            except:
-                r.save()
+    
+    print(len(responses.values()))
+    count = 0
+    for r in responses.values():
+        count += 1
+        if count % 100 == 0:
+            print(count)
+        try:
+            print(r.tract_id)
+            existing = CensusResponse.objects.get(tract_id=r.tract_id)
+            print(existing.tract_id)
+            existing.update(r)
+            rates = existing.rates
+            del rates["2020"]
+            existing.rates = rates
+            print("4"*10)
+            print(existing)
+            print(existing.tract_id)
+            print(existing.county)
+            print(existing.rates["2000"])
+            print(existing.rates["2020P"])
+            # print(existing.rates["2020"])
+            existing.save()
+        except:
+            # print()
+            w = 2
+            # r.save()
+
+def del_extras():
+    for resp in CensusResponse.objects:
+        if "2020P" in resp.rates:
+            # print(resp.rates["2020"])
+            print(resp.tract_id)
+            resp.delete()
 
 
 if __name__ == "__main__":
     init()
+    # del_extras()
     main()
