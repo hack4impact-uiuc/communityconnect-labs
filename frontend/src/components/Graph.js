@@ -22,6 +22,8 @@ const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
 const STROKE_WIDTH = 2;
 const PREDICTED_2020 = "2020";
+const ANIMATION_DURATION = 1000; 
+const CHART_HEIGHT = 300; 
 
 class Graph extends React.Component {
   constructor(props) {
@@ -156,7 +158,7 @@ class Graph extends React.Component {
       yLabels
     } = this.state;
     return (
-      <VictoryChart height={300} theme={VictoryTheme.material}>
+      <VictoryChart height={CHART_HEIGHT} theme={VictoryTheme.material}>
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
           x={GRAPH_TITLE_X_COOR}
@@ -180,8 +182,8 @@ class Graph extends React.Component {
           }}
           data={standardDev}
           animate={{
-            duration: 1000,
-            onLoad: { duration: 1000 }
+            duration: ANIMATION_DURATION,
+            onLoad: { duration: ANIMATION_DURATION }
           }}
         />
         <VictoryLine
@@ -191,8 +193,8 @@ class Graph extends React.Component {
           }}
           data={actualData}
           animate={{
-            duration: 1000,
-            onLoad: { duration: 1000 }
+            duration: ANIMATION_DURATION,
+            onLoad: { duration: ANIMATION_DURATION }
           }}
         />
         <VictoryLine
@@ -202,8 +204,8 @@ class Graph extends React.Component {
           }}
           data={predictiveData}
           animate={{
-            duration: 1000,
-            onLoad: { duration: 1000 }
+            duration: ANIMATION_DURATION,
+            onLoad: { duration: ANIMATION_DURATION }
           }}
         />
         {actualData.length > 0 && (
@@ -214,8 +216,8 @@ class Graph extends React.Component {
             }}
             labels={[""]}
             animate={{
-              duration: 1000,
-              onLoad: { duration: 1000 }
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
             }}
             data={[
               {
