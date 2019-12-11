@@ -1,17 +1,27 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
-import { stateLayers, sourceURLs } from "../resources/stateLayers.js";
+import {
+  stateLayers,
+  sourceIDs,
+  countryLayer,
+  mockStates,
+  stateGeoIds
+} from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
-import { getResponseRatesByYear } from "../utils/apiWrapper";
+import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
-import logo from "../resources/ccl_logo.png";
 import Graph from "./Graph.js";
+
+import DateSlider from "./DateSlider.js";
+
+var moment = require("moment");
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
+const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
 const MIN_ZOOM = 2.5;
 const MAX_BOUNDS = [-171.791110603, 18.91619, -66.96466, 71.3577635769];
@@ -23,14 +33,15 @@ class Home extends React.Component {
       lng: -97,
       lat: 38,
       zoom: 3.7,
-      isSidebarOpen: true,
       searchText: "",
       tractSelected: false,
       currentTract: {},
       geocoderValue: "",
-      displayGraph: false
+      displayGraph: false,
+      selectedDate: 25
     };
     this.map = null;
+    this.tractCache = {};
   }
 
   getCensusMBRColor = response_rate => {
@@ -72,91 +83,225 @@ class Home extends React.Component {
     });
 
     this.map.on("load", () => {
-      // TODO: make sure year is not hardcoded
-      getResponseRatesByYear("2010").then(data => {
-        const responseRates = data.data.result.response_rates;
-        var tractData = {};
-        responseRates.forEach(response_rate => {
-          tractData[response_rate.tract_id] = response_rate.rate[0];
-        });
-        this.setState({
-          tractData: tractData
-        });
-
-        const fillColor = ["match", ["get", "GEOID"]];
-
-        // converting the response rate into a color
-        const LIGHTEST = [233, 244, 222];
-        const DARKEST = [64, 89, 34];
-        const geoIds = Object.keys(tractData);
-        geoIds.map(geoId => {
-          const rate = tractData[geoId];
-          const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
-          const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
-          const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
-          const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
-          return fillColor.push(geoId, color);
-        });
-
-        fillColor.push("rgba(0,0,0,0)");
-
-        stateLayers.map(stateLayer => {
-          return this.map.addLayer(
-            {
-              id: stateLayer.sourceURL,
-              type: "fill",
-              source: {
-                type: "vector",
-                url: stateLayer.sourceURL
-              },
-              "source-layer": stateLayer.sourceLayer,
-              paint: {
-                "fill-color": fillColor
-              }
-            },
-            "state-label"
-          );
-        });
-      });
+      this.initTracts();
     });
 
     this.map.on("move", () => {
       const { lng, lat } = this.map.getCenter();
+      const zoom = this.map.getZoom().toFixed(2);
 
       this.setState({
         lng: lng.toFixed(4),
         lat: lat.toFixed(4),
-        zoom: this.map.getZoom().toFixed(2)
+        zoom
       });
+    });
+
+    this.map.on("moveend", () => {
+      const zoom = this.map.getZoom().toFixed(2);
+      if (zoom > MIN_TRACT_ZOOM) {
+        let tractIDs = this.getRenderedTracts();
+        if (tractIDs.length > 0) {
+          this.updateRenderedTracts(tractIDs);
+        }
+      }
     });
 
     this.map.on("click", e => {
-      const tracts = this.map.queryRenderedFeatures(e.point, {
-        layers: sourceURLs
-      });
+      if (this.map.getZoom() > MIN_TRACT_ZOOM) {
+        const tracts = this.map.queryRenderedFeatures(e.point, {
+          layers: sourceIDs
+        });
 
-      if (tracts.length > 0) {
-        this.setState({
-          tractSelected: true,
-          currentTract: {
-            name: tracts[0].properties.NAMELSAD,
-            id: tracts[0].properties.GEOID
-          },
-          displayGraph: true,
-          tract_id: tracts[0].properties.GEOID
-        });
-      } else {
-        this.setState({
-          tractSelected: false,
-          currentTract: null,
-          displayGraph: false
-        });
+        if (tracts.length > 0) {
+          this.setState({
+            tractSelected: true,
+            currentTract: {
+              name: tracts[0].properties.NAMELSAD,
+              id: tracts[0].properties.GEOID
+            },
+            displayGraph: true,
+            tract_id: tracts[0].properties.GEOID
+          });
+        } else {
+          this.setState({
+            tractSelected: false,
+            currentTract: null,
+            displayGraph: false
+          });
+        }
       }
+    });
+
+    this.map.on("zoom", () => {
+      let stateVisibility =
+        this.map.getZoom() > MIN_TRACT_ZOOM ? "none" : "visible";
+      let tractVisibility = stateVisibility === "none" ? "visible" : "none";
+
+      this.map.setLayoutProperty("00", "visibility", stateVisibility);
+      stateGeoIds.map(id => {
+        this.map.setLayoutProperty(id, "visibility", tractVisibility);
+      });
     });
   }
 
+  initTracts() {
+    var tractData = { "0": 0 };
+    this.setState({
+      tractData: tractData
+    });
+    const fillColor = this.generateFillColor(tractData);
+
+    stateLayers.map(stateLayer => {
+      const id = stateLayer.id;
+      this.map.addLayer(
+        {
+          id: id,
+          type: "fill",
+          source: {
+            type: "vector",
+            url: stateLayer.sourceURL
+          },
+          "source-layer": stateLayer.sourceLayer,
+          paint: {
+            "fill-color": fillColor
+          }
+        },
+        "state-label"
+      );
+      return 0;
+    });
+
+    this.map.addLayer(
+      {
+        id: countryLayer.id,
+        type: "fill",
+        source: {
+          type: "vector",
+          url: countryLayer.sourceURL
+        },
+        "source-layer": countryLayer.sourceLayer,
+        paint: {
+          "fill-color": this.generateFillColor(mockStates)
+        }
+      },
+      "state-label"
+    );
+  }
+
+  getRenderedTracts() {
+    let tracts = [];
+    stateLayers.forEach(stateLayer => {
+      const stateTracts = this.map.queryRenderedFeatures({
+        layers: [stateLayer.id],
+        validate: false
+      });
+      tracts = tracts.concat(stateTracts);
+    });
+
+    let tractIDs = tracts.map(tract => tract.properties.GEOID);
+    return tractIDs;
+  }
+
+  updateRenderedTracts(tractIds) {
+    var tractsToRequest = [];
+    for (const tract_id of tractIds) {
+      if (!(tract_id in this.tractCache)) {
+        tractsToRequest.push(tract_id);
+      }
+    }
+
+    if (tractsToRequest.length === 0) {
+      this.renderFromCache(tractIds);
+    } else {
+      getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
+        response => {
+          const responseRates = response.data.result.response_rates;
+          for (const responseRate of responseRates) {
+            const { rates, tract_id } = responseRate;
+            this.tractCache[tract_id] = rates;
+          }
+          // ignore missing tracts
+          for (const tract_id of tractsToRequest) {
+            if (!(tract_id in this.tractCache)) {
+              this.tractCache[tract_id] = undefined;
+            }
+          }
+
+          this.renderFromCache(tractIds);
+        }
+      );
+    }
+  }
+
+  renderFromCache(tractIds) {
+    var tractsToRender = {};
+    tractIds.forEach(id => {
+      if (this.tractCache[id]) {
+        tractsToRender[id] = this.tractCache[id];
+      }
+    });
+    this.setState({
+      tractData: tractsToRender
+    });
+    this.renderTracts();
+  }
+
+  generateFillColor(tractData) {
+    const fillColor = ["match", ["get", "GEOID"]];
+
+    // converting the response rate into a color
+    const LIGHTEST = [255, 255, 255];
+    const DARKEST = [64, 89, 34];
+    const geoIds = Object.keys(tractData);
+    geoIds.map(geoId => {
+      const rate = tractData[geoId];
+      if (rate === undefined) {
+        return;
+      }
+      const red = (1 - rate) * (LIGHTEST[0] - DARKEST[0]) + DARKEST[0];
+      const green = (1 - rate) * (LIGHTEST[1] - DARKEST[1]) + DARKEST[1];
+      const blue = (1 - rate) * (LIGHTEST[2] - DARKEST[2]) + DARKEST[2];
+      const color = "rgba(" + red + ", " + green + ", " + blue + ", 0.8)";
+      return fillColor.push(geoId, color);
+    });
+
+    fillColor.push("rgba(0,0,0,0)");
+    return fillColor;
+  }
+
+  renderTracts() {
+    const { tractData, selectedDate } = this.state;
+
+    var tractsToRender = {};
+    Object.keys(tractData).forEach(id => {
+      tractsToRender[id] = tractData[id][selectedDate];
+    });
+    const fillColor = this.generateFillColor(tractsToRender);
+
+    let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
+      id.substring(0, 2)
+    );
+    currentStateGeoIds = currentStateGeoIds.filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
+
+    currentStateGeoIds.forEach(id => {
+      this.map.setPaintProperty(id, "fill-color", fillColor);
+    });
+  }
+
+  dateChange(newDate) {
+    this.setState(
+      {
+        selectedDate: newDate
+      },
+      () => this.renderTracts()
+    );
+  }
+
   render() {
-    const { lng, lat, zoom, isSidebarOpen } = this.state;
+    const { lng, lat, zoom } = this.state;
 
     return (
       <div>
@@ -170,96 +315,86 @@ class Home extends React.Component {
           />
         </div>
         <div>
-          {isSidebarOpen ? (
-            <div className="sidebar sidebarOpen">
-              <img
-                src={logoWithText}
-                alt="CCL Logo"
-                className="sidebar-logo-text"
+          <div className="sidebar">
+            <img
+              src={logoWithText}
+              alt="CCL Logo"
+              className="sidebar-logo-text"
+            />
+            <div className="geocoder">
+              <Geocoder
+                accessToken={mapboxgl.accessToken}
+                value={this.state.searchText}
+                onInput={e => {
+                  this.setState({ searchText: e });
+                }}
+                onSelect={e => {
+                  this.map.flyTo({ center: e.center, zoom: 10 });
+                }}
+                showLoader={true}
+                inputClass="search-input"
+                inputPlaceholder="Search for county, address or zipcode"
+                resultClass="search-results"
+                bbox={MAX_BOUNDS}
               />
-              <div className="geocoder">
-                <Geocoder
-                  accessToken={mapboxgl.accessToken}
-                  value={this.state.searchText}
-                  onInput={e => {
-                    this.setState({ searchText: e });
-                  }}
-                  onSelect={e => {
-                    this.map.flyTo({ center: e.center, zoom: 10 });
-                  }}
-                  showLoader={true}
-                  inputClass="search-input"
-                  inputPlaceholder="Search for county, address or zipcode"
-                  resultClass="search-results"
-                  bbox={MAX_BOUNDS}
-                />
-              </div>
+            </div>
 
-              {this.state.tractSelected && (
-                <div className="detail-box">
-                  <div className="detail-box-inner">
-                    <h1>{this.state.currentTract.id}</h1>
-                    <h1>{this.state.currentTract.name}</h1>
-
-                    <h2>Latest Census Response Rate</h2>
+            {this.state.tractSelected && (
+              <div className="detail-box">
+                <div className="detail-box-inner">
+                  <h1>{this.state.currentTract.id}</h1>
+                  <h1>{this.state.currentTract.name}</h1>
+                  <h2>Latest Census Response Rate</h2>
+                  {!this.state.tractData[this.state.currentTract.id] ||
+                  isNaN(
+                    this.state.tractData[this.state.currentTract.id][
+                      this.state.selectedDate
+                    ]
+                  ) ? (
+                    <div>Data unavailable</div>
+                  ) : (
                     <div
                       style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
+                        this.state.tractData[this.state.currentTract.id][
+                          this.state.selectedDate
+                        ] * 100
                       )}
                     >
                       <h3>
                         {(
-                          this.state.tractData[this.state.currentTract.id] * 100
+                          this.state.tractData[this.state.currentTract.id][
+                            this.state.selectedDate
+                          ] * 100
                         ).toFixed(0)}
                         %
                       </h3>
-                      <h4 className="h3_yaer">in 2010</h4>
+                      <h4 className="h3_year">in 2010</h4>
                     </div>
-
-                    <h2>History</h2>
-                    <div
-                      style={this.getCensusMBRColor(
-                        this.state.tractData[this.state.currentTract.id] * 100
-                      )}
-                    >
-                      <h3>
-                        {(
-                          this.state.tractData[this.state.currentTract.id] * 100
-                        ).toFixed(0)}
-                        %
-                      </h3>
-                      <h4 className="h3_yaer">in 2000</h4>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {this.state.displayGraph && (
+            {this.state.displayGraph && (
+              <div>
                 <Graph
                   key={this.state.tract_id}
                   tract_id={this.state.tract_id}
                 ></Graph>
-              )}
-
-              <p
-                className="absolute left bottom minimize"
-                onClick={() => {
-                  this.setState({ isSidebarOpen: false });
-                }}
-              >
-                &lt; Minimize
-              </p>
-            </div>
-          ) : (
-            <div
-              className="sidebar sidebarClosed col-1 col-s-1"
-              onClick={() => {
-                this.setState({ isSidebarOpen: true });
-              }}
-            >
-              <img src={logo} alt="CCL Logo" className="sidebar-logo" />
-            </div>
-          )}
+                {this.tractCache[this.state.currentTract.id] && (
+                  <div className="slider">
+                    <DateSlider
+                      dates={Object.keys(
+                        this.tractCache[this.state.currentTract.id]
+                      )}
+                      defaultValue={this.state.selectedDate}
+                      dateChange={d => this.dateChange(d)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

@@ -1,10 +1,19 @@
 import React from "react";
-import { VictoryAxis, VictoryChart, VictoryLine, VictoryLabel } from "victory";
+import {
+  VictoryAxis,
+  VictoryChart,
+  VictoryLine,
+  VictoryLabel,
+  VictoryTheme
+} from "victory";
 import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 
 const STEPS = 5;
-const LINE_COLOR = "#d18b30";
+const LINE_COLOR = "gray";
 const BORDER = "1px solid #ccc";
+const GRAPH_TITLE_X_COOR = 170;
+const GRAPH_TITLE_Y_COOR = 20;
+const STROKE_WIDTH = 2;
 
 class Graph extends React.Component {
   constructor(props) {
@@ -28,11 +37,10 @@ class Graph extends React.Component {
       return;
     }
     let rates_dict = {};
-    rates_dict =
-      response.data.result.response_rates[0].rates[this.state.tractID];
+    rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
-      rates_list.push({ x: rates_dict[key][1], y: rates_dict[key][0] });
+      rates_list.push({ x: key, y: rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -41,7 +49,7 @@ class Graph extends React.Component {
     let xLabelList = [rates_list[0]["x"]];
 
     for (let i = 1; i <= STEPS; i++) {
-      xLabelList.push(iterator + xLabelList[i - 1]);
+      xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
 
     iterator =
@@ -50,6 +58,10 @@ class Graph extends React.Component {
 
     for (let i = 1; i < STEPS + 2; i++) {
       yLabelList.push(Math.round((iterator + yLabelList[i - 1]) * 100) / 100);
+    }
+
+    for (let i = 0; i < yLabelList.length; i++) {
+      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10;
     }
 
     this.setState({
@@ -61,29 +73,38 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <VictoryChart domainPadding={20} height={300}>
+      <VictoryChart
+        domainPadding={20}
+        height={300}
+        theme={VictoryTheme.material}
+      >
         <VictoryLabel
           text="Response Rates Data Over Collection Period"
-          x={225}
-          y={50}
+          x={GRAPH_TITLE_X_COOR}
+          y={GRAPH_TITLE_Y_COOR}
           textAnchor="middle"
         />
         <VictoryAxis
           tickValues={this.state.xLabels}
           label="Days After Initial Census Mailing"
+          style={{ axisLabel: { padding: 37 } }}
         />
         <VictoryAxis
           dependentAxis
           tickValues={this.state.yLabels}
           label="Response Rate"
+          style={{ axisLabel: { padding: 35 } }}
         />
-
         <VictoryLine
           style={{
-            data: { stroke: LINE_COLOR },
+            data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
             parent: { border: BORDER }
           }}
           data={this.state.data}
+          animate={{
+            duration: 1000,
+            onLoad: { duration: 1000 }
+          }}
         />
       </VictoryChart>
     );

@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:5000/";
 
-export const getResponseByTractID = tract_id => {
+export const getResponseByTractID = (tract_id, year) => {
   /**
    * Given:
    * tract id in database
@@ -10,7 +10,7 @@ export const getResponseByTractID = tract_id => {
    * Returns all response rates associated to that id upon success
    * Returns GET_TRACT_DATA_FAIL upon failure
    */
-  const requestString = `${BASE_URL}rate?tract_id=${tract_id}`;
+  const requestString = `${BASE_URL}rate?tract_id=${tract_id}&year=${year}`;
   return axios
     .get(requestString, {
       headers: {
@@ -50,6 +50,31 @@ export const getResponseByTractIDAndYear = (tract_id, year) => {
       headers: {
         "Content-Type": "application/text"
       }
+    })
+    .catch(error => {
+      return {
+        type: "GET_TRACT_DATA_FAIL",
+        error
+      };
+    });
+};
+
+export const getBatchResponseByTractIDAndYear = (tract_ids, year) => {
+  /**
+   * Given:
+   * a list oftract id in database
+   * year
+   *
+   * Returns all rates for the tracts in the given year upon success
+   * Returns GET_TRACT_DATA_FAIL upon failure
+   */
+  const requestString = `${BASE_URL}batch_rates?year=${year}`;
+  return axios
+    .post(requestString, {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: { tract_ids, year }
     })
     .catch(error => {
       return {

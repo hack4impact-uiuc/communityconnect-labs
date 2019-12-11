@@ -9,6 +9,10 @@ from flask_mongoengine import MongoEngine
 from api.config import config
 from api.core import all_exception_handler
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):
@@ -73,10 +77,15 @@ def create_app(test_config=None):
     #         create_database(db_url)
 
     # app.config["MONGO_URI"] = "mongodb://localhost:27017/communityconnect-labs"
+    user = os.environ.get("MONGO_USER")
+    password = os.environ.get("MONGO_PASSWORD")
+    db = os.environ.get("MONGO_DB")
     app.config["MONGODB_SETTINGS"] = {
-        "db": "communityconnect-labs",
-        "host": "127.0.0.1",
-        "port": 27017,
+        "db": db,
+        "host": "mongodb+srv://%s:%s@ccl-census-c9iza.gcp.mongodb.net/test?retryWrites=true&w=majority"
+        % (user, password),
+        # "host": "127.0.0.1",
+        # "port": 27017,
     }
 
     # register mongoengine to this app
