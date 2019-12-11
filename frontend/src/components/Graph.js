@@ -13,9 +13,10 @@ import {
 } from "../utils/apiWrapper";
 
 const STEPS = 5;
-const LINE_COLOR = "gray";
+const LINE_COLOR = "black";
 const VERTICAL_COLOR = "#96dbfa";
 const PREDICTION_COLOR = "a3b5d1";
+const PREDICTIVE_LINE_COLOR = "7f90ad"; 
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
@@ -29,6 +30,7 @@ class Graph extends React.Component {
     this.state = {
       actualData: [],
       standardDev: [],
+      predictiveData: [], 
       xLabels: [],
       yLabels: [],
       tractID: this.props.tract_id,
@@ -50,29 +52,6 @@ class Graph extends React.Component {
     const rates_list = [];
     for (var key in rates_dict) {
       rates_list.push({ x: key, y: rates_dict[key] });
-    }
-
-    const predictions = await getPredictive(
-      this.state.tractID,
-      this.state.year
-    );
-
-    // Check if tract has predicted data
-    if (
-      !predictions.data.result[PREDICTED_2020] ||
-      !predictions.data.result[PREDICTED_2020][0].rates
-    ) {
-      return;
-    }
-
-    let predictions_dict = {};
-    predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
-    let standard_dev = [];
-    for (var key in predictions_dict) {
-      // TODO: take out divide by 100s when Mongo cluster is edited.
-      let rate = predictions_dict[key][0] / 100.0;
-      let sd = predictions_dict[key][1] / 100.0;
-      standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
     }
 
     let iterator = Math.ceil(
@@ -98,13 +77,68 @@ class Graph extends React.Component {
 
     this.setState({
       actualData: rates_list,
-      standardDev: standard_dev,
       xLabels: xLabelList,
       yLabels: yLabelList
     });
+
+    const predictions = await getPredictive(
+      this.state.tractID,
+      this.state.year
+    );
+
+    if (predictions && predictions.data.result[PREDICTED_2020] && predictions.data.result[PREDICTED_2020][0] &&
+      predictions.data.result[PREDICTED_2020][0].rates) {
+    // Check if tract has predicted data
+
+        let predictions_dict = {};
+        predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
+        let standard_dev = [];
+        let predictive_data = []; 
+        for (var key in predictions_dict) {
+          // TODO: take out divide by 100s when Mongo cluster is edited.
+          let rate = predictions_dict[key][0] / 100.0;
+          let sd = predictions_dict[key][1] / 100.0;
+          console.log(predictions_dict[key])
+          predictive_data.push({ x: key, y: rate}); 
+          standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
+        }
+
+        this.setState({
+          standardDev: standard_dev,
+          predictiveData: predictive_data
+        });
+
+        console.log(this.state.standardDev);
+    }
+  
+  }
+
+  getLowerLineBound = () => {
+    const { actualData, standardDev, yLabels } = this.state; 
+    const standardDevLowerBound = (standardDev && standardDev[0]) ? standardDev[0]["y0"] : null; 
+    const actualLowerBound = actualData[0]["y"] 
+    const axisLowerBound = yLabels[0]
+    if (!standardDevLowerBound) {
+      return Math.min(actualLowerBound, axisLowerBound); 
+    } else {
+      return Math.min(Math.min(standardDevLowerBound, actualLowerBound), axisLowerBound); 
+    }
+  }
+
+  getUpperLineBound = () => {
+    const { actualData, standardDev, yLabels } = this.state; 
+    const standardDevUpperBound = (standardDev && standardDev[standardDev.length-1]) ? standardDev[standardDev.length-1]["y"] : null; 
+    const actualUpperBound = actualData[actualData.length-1]["y"]
+    const axisUpperBound = yLabels[yLabels.length-1]
+    if (!standardDevUpperBound) {
+      return Math.max(actualUpperBound, axisUpperBound); 
+    } else {
+      return Math.max(Math.max(standardDevUpperBound, actualUpperBound), axisUpperBound); 
+    }
   }
 
   render() {
+    const { actualData, predictiveData, standardDev, xLabels, yLabels } = this.state; 
     return (
       <VictoryChart height={300} theme={VictoryTheme.material}>
         <VictoryLabel
@@ -114,13 +148,13 @@ class Graph extends React.Component {
           textAnchor="middle"
         />
         <VictoryAxis
-          tickValues={this.state.xLabels}
+          tickValues={xLabels}
           label="Days After Initial Census Mailing"
           style={{ axisLabel: { padding: 37 } }}
         />
         <VictoryAxis
           dependentAxis
-          tickValues={this.state.yLabels}
+          tickValues={yLabels}
           label="Response Rate"
           style={{ axisLabel: { padding: 35 } }}
         />
@@ -128,7 +162,7 @@ class Graph extends React.Component {
           style={{
             data: { fill: PREDICTION_COLOR }
           }}
-          data={this.state.standardDev}
+          data={standardDev}
           animate={{
             duration: 1000,
             onLoad: { duration: 1000 }
@@ -139,13 +173,24 @@ class Graph extends React.Component {
             data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
             parent: { border: BORDER }
           }}
-          data={this.state.actualData}
+          data={actualData}
           animate={{
             duration: 1000,
             onLoad: { duration: 1000 }
           }}
         />
-        {this.state.data && this.state.data.length > 0 && (
+        <VictoryLine
+          style={{
+            data: { stroke: PREDICTIVE_LINE_COLOR, strokeWidth: STROKE_WIDTH },
+            parent: { border: BORDER }
+          }}
+          data={predictiveData}
+          animate={{
+            duration: 1000,
+            onLoad: { duration: 1000 }
+          }}
+        />
+        {actualData.length > 0 && (
           <VictoryLine
             style={{
               data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
@@ -159,14 +204,11 @@ class Graph extends React.Component {
             data={[
               {
                 x: this.props.selectedDate,
-                y: Math.min(this.state.data[0]["y"], this.state.yLabels[0])
+                y: this.getLowerLineBound()
               },
               {
                 x: this.props.selectedDate,
-                y: Math.max(
-                  this.state.data[this.state.data.length - 1]["y"],
-                  this.state.yLabels[this.state.yLabels.length - 1]
-                )
+                y: this.getUpperLineBound()
               }
             ]}
           />
