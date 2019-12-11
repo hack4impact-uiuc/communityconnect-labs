@@ -7,7 +7,7 @@ from .web_scrap import extract_data_links
 from .response_rates import *
 
 main = Blueprint("main", __name__)  # initialize blueprint
-PREDICTIVE_2020 = "2020p"
+PREDICTIVE_2020 = "2020"
 
 """
 function that is called when you visit /rate
@@ -32,8 +32,6 @@ def get_response_rates():
     return create_response(data={"response_rates": response_rates})
 
 
-<<<<<<< HEAD
-=======
 @main.route("/batch_rates", methods=["POST"])
 def get_batch_response_rates_per_period():
     year = request.json["data"].get("year", None)
@@ -47,7 +45,6 @@ def get_batch_response_rates_per_period():
     return create_response(data={"response_rates": response_rates})
 
 
->>>>>>> master
 """
 function that is called when you visit /rates_per_period
 Parameters
@@ -87,13 +84,13 @@ def get_predictive_rates():
 
     if tract_id:
         actual_rates = get_response_rates_by_year("2010", tract_id, None)
-        predictive_rates = get_response_rates_by_year(PREDICTIVE_2020, tract_id, None)
+        predictive_rates = get_predictive_by_tract_id(PREDICTIVE_2020, tract_id)
     else:
         return create_response(status=422, message="Missing request parameters")
 
     return create_response(
         data={
-            "actual_response_rates": response_rates,
+            "actual_response_rates": actual_rates,
             "predictive_response_rates": predictive_rates,
         }
     )

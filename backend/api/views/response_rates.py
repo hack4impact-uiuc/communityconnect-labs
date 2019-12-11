@@ -88,6 +88,21 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]
 
 
+def get_predictive_by_tract_id(year, tract_id):
+    response_rates = {}
+
+    responses = get_census_responses(tract_id)
+
+    for resp in responses:
+        if year in resp.rates and tract_id:
+            rates = resp.rates[year]
+            response_rates[resp.tract_id] = {
+                rate[2]: [rate[0], rate[1]] for _, rate in rates.items()
+            }
+
+    return [{"rates": rate} for tid, rate in response_rates.items()]
+
+
 def get_batch_response_rates_by_year(year, tract_ids):
     response_rates = {}
     responses = get_census_responses(tract_ids=tract_ids)
