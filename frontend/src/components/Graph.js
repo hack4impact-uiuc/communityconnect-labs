@@ -6,21 +6,27 @@ import {
   VictoryLabel,
   VictoryTheme
 } from "victory";
-import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
+import {
+  getResponseByTractIDAndYear,
+  getPredictive
+} from "../utils/apiWrapper";
 
 const STEPS = 5;
 const LINE_COLOR = "gray";
+const PREDICTION_COLOR = "d1d1d1";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
 const STROKE_WIDTH = 2;
+const PREDICTED_2020 = "2020";
 
 class Graph extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      data: [],
+      actualData: [],
+      predictedData: [],
       xLabels: [],
       yLabels: [],
       tractID: this.props.tract_id,
@@ -33,6 +39,7 @@ class Graph extends React.Component {
       this.state.tractID,
       this.state.year
     );
+
     if (!response.data.result.response_rates[0]) {
       return;
     }
@@ -41,6 +48,21 @@ class Graph extends React.Component {
     const rates_list = [];
     for (var key in rates_dict) {
       rates_list.push({ x: key, y: rates_dict[key] });
+    }
+
+    const predictions = await getPredictive(
+      this.state.tractID,
+      this.state.year
+    );
+    if (!predictions.data.result[PREDICTED_2020][0].rates) {
+      return;
+    }
+
+    let predictions_dict = {};
+    predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
+    const predictions_list = [];
+    for (var key in predictions_dict) {
+      predictions_list.push({ x: key, y: predictions_dict[key][0] / 100.0 }); // take out divide by 100 when Mongo cluster is edited.
     }
 
     let iterator = Math.ceil(
@@ -65,7 +87,8 @@ class Graph extends React.Component {
     }
 
     this.setState({
-      data: rates_list,
+      actualData: rates_list,
+      predictedData: predictions_list,
       xLabels: xLabelList,
       yLabels: yLabelList
     });
@@ -97,10 +120,21 @@ class Graph extends React.Component {
         />
         <VictoryLine
           style={{
+            data: { stroke: PREDICTION_COLOR, strokeWidth: STROKE_WIDTH },
+            parent: { border: BORDER }
+          }}
+          data={this.state.predictedData}
+          animate={{
+            duration: 1000,
+            onLoad: { duration: 1000 }
+          }}
+        />
+        <VictoryLine
+          style={{
             data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
             parent: { border: BORDER }
           }}
-          data={this.state.data}
+          data={this.state.actualData}
           animate={{
             duration: 1000,
             onLoad: { duration: 1000 }
