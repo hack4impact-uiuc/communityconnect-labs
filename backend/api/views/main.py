@@ -91,8 +91,8 @@ def get_predictive_rates():
     return create_response(
         status=200,
         data={
-            "actual_response_rates": actual_rates,
-            "predictive_response_rates": predictive_rates,
+            "2010": actual_rates,
+            "2020p": predictive_rates,
         },
         message="Success.",
     )
