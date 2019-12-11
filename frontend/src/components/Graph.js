@@ -4,12 +4,13 @@ import {
   VictoryChart,
   VictoryLine,
   VictoryLabel,
-  VictoryTheme
+  VictoryTheme,
 } from "victory";
 import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
 
 const STEPS = 5;
 const LINE_COLOR = "gray";
+const VERTICAL_COLOR = "#96dbfa";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
@@ -72,9 +73,9 @@ class Graph extends React.Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <VictoryChart
-        domainPadding={20}
         height={300}
         theme={VictoryTheme.material}
       >
@@ -106,6 +107,25 @@ class Graph extends React.Component {
             onLoad: { duration: 1000 }
           }}
         />
+        {this.state.data.length > 0 && 
+          <VictoryLine
+            style={{
+              data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
+              parent: { border: BORDER }
+            }}
+
+            labels={['']}
+            animate={{
+              duration: 1000,
+              onLoad: { duration: 1000 }
+            }}
+            data={[
+              { x: this.props.selectedDate, y: Math.min(this.state.data[0]["y"], this.state.yLabels[0])},
+              { x: this.props.selectedDate, y:Math.max(this.state.data[this.state.data.length - 1]["y"], this.state.yLabels[this.state.yLabels.length - 1]) }
+            ]}
+          />
+        }
+        
       </VictoryChart>
     );
   }
