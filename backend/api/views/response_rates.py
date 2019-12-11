@@ -62,7 +62,7 @@ def get_last_response_rates_by_year(year, tract_id=None, state=None):
 """
 Returns all response rates by year
 Parameters:
-    year: string with format YYYY
+    year: string with format YYYY, or YYYYp for predictive rates
     optional tract_id: string 11 digit tract id
     optional state id: string 2 digit state id
 Output:
@@ -86,6 +86,21 @@ def get_response_rates_by_year(year, tract_id=None, state=None):
             }
 
     return [{"tract_id": tid, "rates": rate} for tid, rate in response_rates.items()]
+
+
+def get_predictive_by_tract_id(year, tract_id):
+    response_rates = {}
+
+    responses = get_census_responses(tract_id)
+
+    for resp in responses:
+        if year in resp.rates and tract_id:
+            rates = resp.rates[year]
+            response_rates[resp.tract_id] = {
+                rate[2]: [rate[0], rate[1]] for _, rate in rates.items()
+            }
+
+    return [{"rates": rate} for tid, rate in response_rates.items()]
 
 
 def get_batch_response_rates_by_year(year, tract_ids):

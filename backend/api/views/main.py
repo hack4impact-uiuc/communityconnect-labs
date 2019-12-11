@@ -6,6 +6,7 @@ from .populate_db import parse_census_data
 from .web_scrap import extract_data_links
 from .response_rates import *
 
+PREDICTIVE_2020 = "2020"
 main = Blueprint("main", __name__)  # initialize blueprint
 
 """
@@ -65,6 +66,38 @@ def get_response_rates_per_period():
         return create_response(status=422, message="Missing request parameters")
 
     return create_response(data={"response_rates": response_rates})
+
+
+"""
+function that is called when you visit /predictive_rates
+Parameters
+    tract_id: 11-digit tract id string
+    optional actual_year: the actual year. default 2010
+"""
+
+
+@main.route("/predictive_rates", methods=["GET"])
+def get_predictive_rates():
+    actual_rates = None
+    predictive_rates = None
+
+    tract_id = request.args.get("tract_id", None)
+    actual_year = request.args.get("actual_year", None)
+
+    if not actual_year:
+        actual_year = "2010"
+
+    if tract_id:
+        actual_rates = get_response_rates_by_year(actual_year, tract_id, None)
+        predictive_rates = get_predictive_by_tract_id(PREDICTIVE_2020, tract_id)
+    else:
+        return create_response(status=422, message="Missing request parameters")
+
+    return create_response(
+        status=200,
+        data={actual_year: actual_rates, PREDICTIVE_2020: predictive_rates},
+        message="Success",
+    )
 
 
 @main.route("/census_response", methods=["POST"])
