@@ -16,7 +16,7 @@ const STEPS = 5;
 const LINE_COLOR = "black";
 const VERTICAL_COLOR = "#96dbfa";
 const PREDICTION_COLOR = "a3b5d1";
-const PREDICTIVE_LINE_COLOR = "7f90ad"; 
+const PREDICTIVE_LINE_COLOR = "7f90ad";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
@@ -30,7 +30,7 @@ class Graph extends React.Component {
     this.state = {
       actualData: [],
       standardDev: [],
-      predictiveData: [], 
+      predictiveData: [],
       xLabels: [],
       yLabels: [],
       tractID: this.props.tract_id,
@@ -86,59 +86,75 @@ class Graph extends React.Component {
       this.state.year
     );
 
-    if (predictions && predictions.data.result[PREDICTED_2020] && predictions.data.result[PREDICTED_2020][0] &&
-      predictions.data.result[PREDICTED_2020][0].rates) {
-    // Check if tract has predicted data
+    if (
+      predictions &&
+      predictions.data.result[PREDICTED_2020] &&
+      predictions.data.result[PREDICTED_2020][0] &&
+      predictions.data.result[PREDICTED_2020][0].rates
+    ) {
+      // Check if tract has predicted data
 
-        let predictions_dict = {};
-        predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
-        let standard_dev = [];
-        let predictive_data = []; 
-        for (var key in predictions_dict) {
-          // TODO: take out divide by 100s when Mongo cluster is edited.
-          let rate = predictions_dict[key][0] / 100.0;
-          let sd = predictions_dict[key][1] / 100.0;
-          console.log(predictions_dict[key])
-          predictive_data.push({ x: key, y: rate}); 
-          standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
-        }
+      let predictions_dict = {};
+      predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
+      let standard_dev = [];
+      let predictive_data = [];
+      for (var key in predictions_dict) {
+        // TODO: take out divide by 100s when Mongo cluster is edited.
+        let rate = predictions_dict[key][0] / 100.0;
+        let sd = predictions_dict[key][1] / 100.0;
+        predictive_data.push({ x: key, y: rate });
+        standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
+      }
 
-        this.setState({
-          standardDev: standard_dev,
-          predictiveData: predictive_data
-        });
-
-        console.log(this.state.standardDev);
+      this.setState({
+        standardDev: standard_dev,
+        predictiveData: predictive_data
+      });
     }
-  
   }
 
   getLowerLineBound = () => {
-    const { actualData, standardDev, yLabels } = this.state; 
-    const standardDevLowerBound = (standardDev && standardDev[0]) ? standardDev[0]["y0"] : null; 
-    const actualLowerBound = actualData[0]["y"] 
-    const axisLowerBound = yLabels[0]
+    const { actualData, standardDev, yLabels } = this.state;
+    const standardDevLowerBound =
+      standardDev && standardDev[0] ? standardDev[0]["y0"] : null;
+    const actualLowerBound = actualData[0]["y"];
+    const axisLowerBound = yLabels[0];
     if (!standardDevLowerBound) {
-      return Math.min(actualLowerBound, axisLowerBound); 
+      return Math.min(actualLowerBound, axisLowerBound);
     } else {
-      return Math.min(Math.min(standardDevLowerBound, actualLowerBound), axisLowerBound); 
+      return Math.min(
+        Math.min(standardDevLowerBound, actualLowerBound),
+        axisLowerBound
+      );
     }
-  }
+  };
 
   getUpperLineBound = () => {
-    const { actualData, standardDev, yLabels } = this.state; 
-    const standardDevUpperBound = (standardDev && standardDev[standardDev.length-1]) ? standardDev[standardDev.length-1]["y"] : null; 
-    const actualUpperBound = actualData[actualData.length-1]["y"]
-    const axisUpperBound = yLabels[yLabels.length-1]
+    const { actualData, standardDev, yLabels } = this.state;
+    const standardDevUpperBound =
+      standardDev && standardDev[standardDev.length - 1]
+        ? standardDev[standardDev.length - 1]["y"]
+        : null;
+    const actualUpperBound = actualData[actualData.length - 1]["y"];
+    const axisUpperBound = yLabels[yLabels.length - 1];
     if (!standardDevUpperBound) {
-      return Math.max(actualUpperBound, axisUpperBound); 
+      return Math.max(actualUpperBound, axisUpperBound);
     } else {
-      return Math.max(Math.max(standardDevUpperBound, actualUpperBound), axisUpperBound); 
+      return Math.max(
+        Math.max(standardDevUpperBound, actualUpperBound),
+        axisUpperBound
+      );
     }
-  }
+  };
 
   render() {
-    const { actualData, predictiveData, standardDev, xLabels, yLabels } = this.state; 
+    const {
+      actualData,
+      predictiveData,
+      standardDev,
+      xLabels,
+      yLabels
+    } = this.state;
     return (
       <VictoryChart height={300} theme={VictoryTheme.material}>
         <VictoryLabel
