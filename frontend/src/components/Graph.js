@@ -4,7 +4,8 @@ import {
   VictoryChart,
   VictoryLine,
   VictoryLabel,
-  VictoryTheme
+  VictoryTheme,
+  VictoryArea
 } from "victory";
 import {
   getResponseByTractIDAndYear,
@@ -26,7 +27,7 @@ class Graph extends React.Component {
 
     this.state = {
       actualData: [],
-      predictedData: [],
+      standardDev: [],
       xLabels: [],
       yLabels: [],
       tractID: this.props.tract_id,
@@ -54,15 +55,22 @@ class Graph extends React.Component {
       this.state.tractID,
       this.state.year
     );
+
+    // Check if tract has predicted data
+    if (!predictions.data.result[PREDICTED_2020]) {
+      return;
+    }
     if (!predictions.data.result[PREDICTED_2020][0].rates) {
       return;
     }
 
     let predictions_dict = {};
     predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
-    const predictions_list = [];
+    let standard_dev = [];
     for (var key in predictions_dict) {
-      predictions_list.push({ x: key, y: predictions_dict[key][0] / 100.0 }); // take out divide by 100 when Mongo cluster is edited.
+      let rate = predictions_dict[key][0] / 100.0; // take out divide by 100s when Mongo cluster is edited.
+      let sd = predictions_dict[key][1] / 100.0;
+      standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
     }
 
     let iterator = Math.ceil(
@@ -88,7 +96,7 @@ class Graph extends React.Component {
 
     this.setState({
       actualData: rates_list,
-      predictedData: predictions_list,
+      standardDev: standard_dev,
       xLabels: xLabelList,
       yLabels: yLabelList
     });
@@ -118,12 +126,11 @@ class Graph extends React.Component {
           label="Response Rate"
           style={{ axisLabel: { padding: 35 } }}
         />
-        <VictoryLine
+        <VictoryArea
           style={{
-            data: { stroke: PREDICTION_COLOR, strokeWidth: STROKE_WIDTH },
-            parent: { border: BORDER }
+            data: { fill: PREDICTION_COLOR }
           }}
-          data={this.state.predictedData}
+          data={this.state.standardDev}
           animate={{
             duration: 1000,
             onLoad: { duration: 1000 }
