@@ -42,6 +42,7 @@ class Home extends React.Component {
     };
     this.map = null;
     this.tractCache = {};
+    this.renderCount = 0; 
   }
 
   getCensusMBRColor = response_rate => {
@@ -98,13 +99,16 @@ class Home extends React.Component {
     });
 
     this.map.on("moveend", () => {
-      const zoom = this.map.getZoom().toFixed(2);
-      if (zoom > MIN_TRACT_ZOOM) {
-        let tractIDs = this.getRenderedTracts();
-        if (tractIDs.length > 0) {
-          this.updateRenderedTracts(tractIDs);
+      this.map.once("idle", () => {
+        const zoom = this.map.getZoom().toFixed(2);
+        if (zoom > MIN_TRACT_ZOOM) {
+          let tractIDs = this.getRenderedTracts();
+          console.log(tractIDs);
+          if (tractIDs.length > 0) {
+            this.updateRenderedTracts(tractIDs);
+          }
         }
-      }
+      });
     });
 
     this.map.on("click", e => {
@@ -214,6 +218,8 @@ class Home extends React.Component {
     if (tractsToRequest.length === 0) {
       this.renderFromCache(tractIds);
     } else {
+      this.renderCount += 1;
+      const currentCount = this.renderCount;
       getBatchResponseByTractIDAndYear(tractsToRequest, "2010").then(
         response => {
           const responseRates = response.data.result.response_rates;
@@ -228,7 +234,9 @@ class Home extends React.Component {
             }
           }
 
-          this.renderFromCache(tractIds);
+          if (currentCount == this.renderCount) {
+            this.renderFromCache(tractIds);
+          }
         }
       );
     }
