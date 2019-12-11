@@ -37,13 +37,9 @@ def main():
         county_idx = 7
         num_days_idx = 12
         start_days = 10
-        count = 0
-        print(len(rows))
+
         responses = {}
         for row in rows:
-            count += 1
-            if count % 10000 == 0:
-                print(count)
             if row[treat_idx] == '1' or row[treat_idx] == 'treat':
                 continue
             row_id = row[id_idx]
@@ -62,12 +58,7 @@ def main():
             else:
                 responses[r.tract_id] = r
         
-        print(len(responses.values()))
-        count = 0
         for r in responses.values():
-            count += 1
-            if count % 100 == 0:
-                print(count)
             try:
                 existing = CensusResponse.objects.get(tract_id=r.tract_id)
                 existing.update(r)
