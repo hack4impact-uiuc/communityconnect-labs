@@ -387,6 +387,7 @@ class Home extends React.Component {
                 <Graph
                   key={this.state.tract_id}
                   tract_id={this.state.tract_id}
+                  selectedDate={this.state.selectedDate}
                 ></Graph>
                 {this.tractCache[this.state.currentTract.id] && (
                   <div className="slider">
