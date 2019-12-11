@@ -57,10 +57,10 @@ class Graph extends React.Component {
     );
 
     // Check if tract has predicted data
-    if (!predictions.data.result[PREDICTED_2020]) {
-      return;
-    }
-    if (!predictions.data.result[PREDICTED_2020][0].rates) {
+    if (
+      !predictions.data.result[PREDICTED_2020] ||
+      !predictions.data.result[PREDICTED_2020][0].rates
+    ) {
       return;
     }
 
@@ -68,7 +68,8 @@ class Graph extends React.Component {
     predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
     let standard_dev = [];
     for (var key in predictions_dict) {
-      let rate = predictions_dict[key][0] / 100.0; // take out divide by 100s when Mongo cluster is edited.
+      // TODO: take out divide by 100s when Mongo cluster is edited.
+      let rate = predictions_dict[key][0] / 100.0;
       let sd = predictions_dict[key][1] / 100.0;
       standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
     }
