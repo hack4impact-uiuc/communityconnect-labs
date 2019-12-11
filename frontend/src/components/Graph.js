@@ -14,8 +14,8 @@ import {
 
 const STEPS = 5;
 const LINE_COLOR = "gray";
-const PREDICTION_COLOR = "d1d1d1";
 const VERTICAL_COLOR = "#96dbfa";
+const PREDICTION_COLOR = "a3b5d1";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
 const GRAPH_TITLE_Y_COOR = 20;
@@ -145,7 +145,7 @@ class Graph extends React.Component {
             onLoad: { duration: 1000 }
           }}
         />
-        {this.state.data.length > 0 && (
+        {this.state.data && this.state.data.length > 0 && (
           <VictoryLine
             style={{
               data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
