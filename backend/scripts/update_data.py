@@ -30,8 +30,8 @@ def main():
     count = 0
     for resp in CensusResponse.objects:
         count += 1
-        if count % 10 == 0:
-            break
+        if count % 1000 == 0:
+            print(count)
         if "2020" not in resp.rates:
             continue
         print(resp.tract_id)
@@ -55,23 +55,16 @@ def main():
     count = 0
     for r in responses.values():
         count += 1
-        if count % 100 == 0:
+        if count % 1000 == 0:
             print(count)
         try:
-            print(r.tract_id)
             existing = CensusResponse.objects.get(tract_id=r.tract_id)
-            print(existing.tract_id)
+            if "2020" not in existing.rates:
+                continue
             existing.update(r)
             rates = existing.rates
             del rates["2020"]
             existing.rates = rates
-            print("4"*10)
-            print(existing)
-            print(existing.tract_id)
-            print(existing.county)
-            print(existing.rates["2000"])
-            print(existing.rates["2020P"])
-            # print(existing.rates["2020"])
             existing.save()
         except:
             # print()
