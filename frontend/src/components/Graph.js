@@ -34,7 +34,7 @@ class Graph extends React.Component {
       standardDev: [],
       predictiveData: [],
       xLabels: [],
-      yLabels: [],
+      yLabels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       tractID: this.props.tract_id,
       year: 2010
     };
@@ -53,7 +53,7 @@ class Graph extends React.Component {
     rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
-      rates_list.push({ x: key, y: rates_dict[key] });
+      rates_list.push({ x: key, y: 100*rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -64,23 +64,11 @@ class Graph extends React.Component {
     for (let i = 1; i <= STEPS; i++) {
       xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
-
-    iterator =
-      (rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"]) / STEPS;
-    let yLabelList = [Math.round(rates_list[0]["y"] * 10) / 10];
-
-    for (let i = 1; i < STEPS + 2; i++) {
-      yLabelList.push(Math.round((iterator + yLabelList[i - 1]) * 100) / 100);
-    }
-
-    for (let i = 0; i < yLabelList.length; i++) {
-      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10;
-    }
+    console.log(xLabelList);
 
     this.setState({
       actualData: rates_list,
-      xLabels: xLabelList,
-      yLabels: yLabelList
+      xLabels: xLabelList
     });
 
     const predictions = await getPredictive(
@@ -102,8 +90,8 @@ class Graph extends React.Component {
       let predictive_data = [];
       for (var key in predictions_dict) {
         // TODO: take out divide by 100s when Mongo cluster is edited.
-        let rate = predictions_dict[key][0] / 100.0;
-        let sd = predictions_dict[key][1] / 100.0;
+        let rate = predictions_dict[key][0];
+        let sd = predictions_dict[key][1];
         predictive_data.push({ x: key, y: rate });
         standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
       }
