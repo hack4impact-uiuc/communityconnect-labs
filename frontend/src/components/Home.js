@@ -13,13 +13,9 @@ import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
 import Graph from "./Graph.js";
-
 import DateSlider from "./DateSlider.js";
 
-var moment = require("moment");
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
@@ -64,10 +60,9 @@ class Home extends React.Component {
     } else if (response_rate < 80) {
       return { color: "#388E3C" };
     } else if (response_rate < 90) {
-      return { color: "#2E7D32" };
-    } else if (response_rate <= 100) {
-      return { color: "#1B5E20" };
+      return { color: "#2E7D32" }
     }
+    return { color: "#1B5E20" };
   };
 
   componentDidMount() {
@@ -75,7 +70,7 @@ class Home extends React.Component {
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
+      style: process.env.REACT_APP_MAPBOX_STYLE,
       center: [lng, lat],
       zoom,
       maxZoom: MAX_ZOOM,
