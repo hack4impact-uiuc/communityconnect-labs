@@ -1,0 +1,23 @@
+{ 
+    "name": "h4i-ccl-frontend",
+    "version": 2,
+    "env": {
+        "REACT_APP_MAPBOX_TOKEN": "@ccl_mapbox_token",
+        "REACT_APP_MAPBOX_STYLE": "@ccl_mapbox_style" 
+    },
+    "build": {
+        "env": {
+            "REACT_APP_MAPBOX_TOKEN": "@ccl_mapbox_token",
+            "REACT_APP_MAPBOX_STYLE": "@ccl_mapbox_style" 
+        }
+    },
+    "builds": [
+        { 
+            "src": "package.json", 
+            "use": "@now/static-build", 
+            "config": {
+                "distDir": "build"
+            }
+        }
+    ]
+}

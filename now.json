@@ -1,0 +1,30 @@
+{
+    "name": "h4i-ccl",
+    "version": 2,
+    "env": {
+        "MONGO_USER": "@ccl_mongo_user",
+        "MONGO_PASSWORD": "@ccl_mongo_password",
+        "MONGO_DB": "@ccl_mongo_db",
+        "REACT_APP_MAPBOX_TOKEN": "@ccl_mapbox_token",
+        "REACT_APP_MAPBOX_STYLE": "@ccl_mapbox_style" 
+    },
+    "builds": [
+        { 
+            "src": "frontend/package.json", 
+            "use": "@now/static-build", 
+            "config": {
+                "distDir": "build"
+            }
+        },
+        { "src": "backend/index.py", "use": "@now/python" }
+    ],
+    "routes": [
+        { "src": "/.*", "dest": "/"},
+        
+        {
+            "src": "/api/(.*)",
+            "headers": { "cache-control": "s-maxage=0" },
+            "dest": "backend/index.py"
+        }
+    ]
+  }
