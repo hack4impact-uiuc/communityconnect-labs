@@ -37,19 +37,6 @@ def create_app(test_config=None):
 
     CORS(app)  # add CORS
 
-    # check environment variables to see which config to load
-    env = os.environ.get("FLASK_ENV", "dev")
-    # for configuration options, look at api/config.py
-    if test_config:
-        # purposely done so we can inject test configurations
-        # this may be used as well if you'd like to pass
-        # in a separate configuration although I would recommend
-        # adding/changing it in api/config.py instead
-        # ignore environment variable config if config was given
-        app.config.from_mapping(**test_config)
-    else:
-        app.config.from_object(config[env])  # config dict is from api/config.py
-
     # logging
     formatter = RequestFormatter(
         "%(asctime)s %(remote_addr)s: requested %(url)s: %(levelname)s in [%(module)s: %(lineno)d]: %(message)s"
@@ -84,8 +71,6 @@ def create_app(test_config=None):
         "db": db,
         "host": "mongodb+srv://%s:%s@ccl-census-c9iza.gcp.mongodb.net/test?retryWrites=true&w=majority"
         % (user, password),
-        # "host": "127.0.0.1",
-        # "port": 27017,
     }
 
     # register mongoengine to this app

@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://h4i-ccl-backend.chyku.now.sh/";
-
+const BASE_URL = "/api/";
 
 export const getResponseByTractID = (tract_id, year) => {
   /**

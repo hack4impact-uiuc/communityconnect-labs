@@ -60,7 +60,7 @@ class Home extends React.Component {
     } else if (response_rate < 80) {
       return { color: "#388E3C" };
     } else if (response_rate < 90) {
-      return { color: "#2E7D32" }
+      return { color: "#2E7D32" };
     }
     return { color: "#1B5E20" };
   };

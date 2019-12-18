@@ -16,10 +16,22 @@
                 "distDir": "build"
             }
         },
-        { "src": "backend/index.py", "use": "@now/python" }
+        { 
+            "src": "backend/index.py", 
+            "use": "@now/python"
+        }
     ],
+    "build": {
+        "env": {
+            "MONGO_USER": "@ccl_mongo_user",
+            "MONGO_PASSWORD": "@ccl_mongo_password",
+            "MONGO_DB": "@ccl_mongo_db",
+            "REACT_APP_MAPBOX_TOKEN": "@ccl_mapbox_token",
+            "REACT_APP_MAPBOX_STYLE": "@ccl_mapbox_style" 
+        }
+    },
     "routes": [
-        { "src": "/.*", "dest": "/"},
+        { "src": "/.*", "dest": "frontend/package.json"},
         
         {
             "src": "/api/(.*)",
