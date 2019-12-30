@@ -16,8 +16,6 @@ import Graph from "./Graph.js";
 
 import DateSlider from "./DateSlider.js";
 
-var moment = require("moment");
-
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 

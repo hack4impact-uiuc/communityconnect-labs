@@ -5,7 +5,8 @@ import {
   VictoryLine,
   VictoryLabel,
   VictoryTheme,
-  VictoryArea
+  VictoryArea,
+  VictoryLegend
 } from "victory";
 import {
   getResponseByTractIDAndYear,
@@ -15,15 +16,17 @@ import {
 const STEPS = 5;
 const LINE_COLOR = "black";
 const VERTICAL_COLOR = "#96dbfa";
-const PREDICTION_COLOR = "a3b5d1";
-const PREDICTIVE_LINE_COLOR = "7f90ad";
+const PREDICTION_COLOR = "#d9ddff";
+const PREDICTIVE_LINE_COLOR = "#7584ff";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
-const GRAPH_TITLE_Y_COOR = 20;
+const GRAPH_TITLE_Y_COOR = 10;
+const LEGEND_X_COOR = 10;
+const LEGEND_Y_COOR = 20;
 const STROKE_WIDTH = 2;
 const PREDICTED_2020 = "2020";
-const ANIMATION_DURATION = 1000; 
-const CHART_HEIGHT = 300; 
+const ANIMATION_DURATION = 1000;
+const CHART_HEIGHT = 350;
 
 class Graph extends React.Component {
   constructor(props) {
@@ -53,7 +56,7 @@ class Graph extends React.Component {
     rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
-      rates_list.push({ x: key, y: 100*rates_dict[key] });
+      rates_list.push({ x: key, y: 100 * rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -64,7 +67,6 @@ class Graph extends React.Component {
     for (let i = 1; i <= STEPS; i++) {
       xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
-    console.log(xLabelList);
 
     this.setState({
       actualData: rates_list,
@@ -88,12 +90,12 @@ class Graph extends React.Component {
       predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
       let standard_dev = [];
       let predictive_data = [];
-      for (var key in predictions_dict) {
+      for (var predictions_key in predictions_dict) {
         // TODO: take out divide by 100s when Mongo cluster is edited.
-        let rate = predictions_dict[key][0];
-        let sd = predictions_dict[key][1];
-        predictive_data.push({ x: key, y: rate });
-        standard_dev.push({ x: key, y: rate + sd, y0: rate - sd });
+        let rate = predictions_dict[predictions_key][0];
+        let sd = predictions_dict[predictions_key][1];
+        predictive_data.push({ x: predictions_key, y: rate });
+        standard_dev.push({ x: predictions_key, y: rate + sd, y0: rate - sd });
       }
 
       this.setState({
@@ -146,80 +148,100 @@ class Graph extends React.Component {
       yLabels
     } = this.state;
     return (
-      <VictoryChart height={CHART_HEIGHT} theme={VictoryTheme.material}>
-        <VictoryLabel
-          text="Response Rates Data Over Collection Period"
-          x={GRAPH_TITLE_X_COOR}
-          y={GRAPH_TITLE_Y_COOR}
-          textAnchor="middle"
-        />
-        <VictoryAxis
-          tickValues={xLabels}
-          label="Days After Initial Census Mailing"
-          style={{ axisLabel: { padding: 37 } }}
-        />
-        <VictoryAxis
-          dependentAxis
-          tickValues={yLabels}
-          label="Response Rate"
-          style={{ axisLabel: { padding: 35 } }}
-        />
-        <VictoryArea
-          style={{
-            data: { fill: PREDICTION_COLOR }
-          }}
-          data={standardDev}
-          animate={{
-            duration: ANIMATION_DURATION,
-            onLoad: { duration: ANIMATION_DURATION }
-          }}
-        />
-        <VictoryLine
-          style={{
-            data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
-            parent: { border: BORDER }
-          }}
-          data={actualData}
-          animate={{
-            duration: ANIMATION_DURATION,
-            onLoad: { duration: ANIMATION_DURATION }
-          }}
-        />
-        <VictoryLine
-          style={{
-            data: { stroke: PREDICTIVE_LINE_COLOR, strokeWidth: STROKE_WIDTH },
-            parent: { border: BORDER }
-          }}
-          data={predictiveData}
-          animate={{
-            duration: ANIMATION_DURATION,
-            onLoad: { duration: ANIMATION_DURATION }
-          }}
-        />
-        {actualData.length > 0 && (
-          <VictoryLine
+      <>
+        <VictoryChart height={CHART_HEIGHT} theme={VictoryTheme.material}>
+          <VictoryLabel
+            text="Response Rates Data Over Collection Period"
+            x={GRAPH_TITLE_X_COOR}
+            y={GRAPH_TITLE_Y_COOR}
+            textAnchor="middle"
+          />
+          <VictoryAxis
+            tickValues={xLabels}
+            label="Collection Day"
+            style={{ axisLabel: { padding: 37 } }}
+          />
+          <VictoryAxis
+            dependentAxis
+            tickValues={yLabels}
+            label="Response Rate"
+            style={{ axisLabel: { padding: 35 } }}
+          />
+          <VictoryArea
             style={{
-              data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
-              parent: { border: BORDER }
+              data: { fill: PREDICTION_COLOR }
             }}
-            labels={[""]}
+            data={standardDev}
             animate={{
               duration: ANIMATION_DURATION,
               onLoad: { duration: ANIMATION_DURATION }
             }}
-            data={[
-              {
-                x: this.props.selectedDate,
-                y: this.getLowerLineBound()
+          />
+          <VictoryLine
+            style={{
+              data: {
+                stroke: PREDICTIVE_LINE_COLOR,
+                strokeWidth: STROKE_WIDTH
               },
+              parent: { border: BORDER }
+            }}
+            data={predictiveData}
+            animate={{
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
+            }}
+          />
+          <VictoryLine
+            style={{
+              data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
+              parent: { border: BORDER }
+            }}
+            data={actualData}
+            animate={{
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
+            }}
+          />
+          {actualData.length > 0 && (
+            <VictoryLine
+              style={{
+                data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
+                parent: { border: BORDER }
+              }}
+              labels={[""]}
+              animate={{
+                duration: ANIMATION_DURATION,
+                onLoad: { duration: ANIMATION_DURATION }
+              }}
+              data={[
+                {
+                  x: this.props.selectedDate,
+                  y: this.getLowerLineBound()
+                },
+                {
+                  x: this.props.selectedDate,
+                  y: this.getUpperLineBound()
+                }
+              ]}
+            />
+          )}
+
+          <VictoryLegend
+            x={LEGEND_X_COOR}
+            y={LEGEND_Y_COOR}
+            orientation="horizontal"
+            gutter={10}
+            data={[
+              { name: "2010", symbol: { fill: LINE_COLOR } },
               {
-                x: this.props.selectedDate,
-                y: this.getUpperLineBound()
-              }
+                name: "2020 predicted",
+                symbol: { fill: PREDICTIVE_LINE_COLOR }
+              },
+              { name: "2020 predicted SD", symbol: { fill: PREDICTION_COLOR } }
             ]}
           />
-        )}
-      </VictoryChart>
+        </VictoryChart>
+      </>
     );
   }
 }
