@@ -4,26 +4,40 @@ import {
   VictoryChart,
   VictoryLine,
   VictoryLabel,
-  VictoryTheme
+  VictoryTheme,
+  VictoryArea,
+  VictoryLegend
 } from "victory";
-import { getResponseByTractIDAndYear } from "../utils/apiWrapper";
+import {
+  getResponseByTractIDAndYear,
+  getPredictive
+} from "../utils/apiWrapper";
 
 const STEPS = 5;
-const LINE_COLOR = "gray";
+const LINE_COLOR = "black";
 const VERTICAL_COLOR = "#96dbfa";
+const PREDICTION_COLOR = "#d9ddff";
+const PREDICTIVE_LINE_COLOR = "#7584ff";
 const BORDER = "1px solid #ccc";
 const GRAPH_TITLE_X_COOR = 170;
-const GRAPH_TITLE_Y_COOR = 20;
+const GRAPH_TITLE_Y_COOR = 10;
+const LEGEND_X_COOR = 10;
+const LEGEND_Y_COOR = 20;
 const STROKE_WIDTH = 2;
+const PREDICTED_2020 = "2020";
+const ANIMATION_DURATION = 1000;
+const CHART_HEIGHT = 350;
 
 class Graph extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      data: [],
+      actualData: [],
+      standardDev: [],
+      predictiveData: [],
       xLabels: [],
-      yLabels: [],
+      yLabels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       tractID: this.props.tract_id,
       year: 2010
     };
@@ -34,6 +48,7 @@ class Graph extends React.Component {
       this.state.tractID,
       this.state.year
     );
+
     if (!response.data.result.response_rates[0]) {
       return;
     }
@@ -41,7 +56,7 @@ class Graph extends React.Component {
     rates_dict = response.data.result.response_rates[0].rates;
     const rates_list = [];
     for (var key in rates_dict) {
-      rates_list.push({ x: key, y: rates_dict[key] });
+      rates_list.push({ x: key, y: 100 * rates_dict[key] });
     }
 
     let iterator = Math.ceil(
@@ -53,83 +68,180 @@ class Graph extends React.Component {
       xLabelList.push(iterator + parseInt(xLabelList[i - 1]));
     }
 
-    iterator =
-      (rates_list[rates_list.length - 1]["y"] - rates_list[0]["y"]) / STEPS;
-    let yLabelList = [Math.round(rates_list[0]["y"] * 10) / 10];
-
-    for (let i = 1; i < STEPS + 2; i++) {
-      yLabelList.push(Math.round((iterator + yLabelList[i - 1]) * 100) / 100);
-    }
-
-    for (let i = 0; i < yLabelList.length; i++) {
-      yLabelList[i] = Math.round(yLabelList[i] * 10) / 10;
-    }
-
     this.setState({
-      data: rates_list,
-      xLabels: xLabelList,
-      yLabels: yLabelList
+      actualData: rates_list,
+      xLabels: xLabelList
     });
+
+    const predictions = await getPredictive(
+      this.state.tractID,
+      this.state.year
+    );
+
+    if (
+      predictions &&
+      predictions.data.result[PREDICTED_2020] &&
+      predictions.data.result[PREDICTED_2020][0] &&
+      predictions.data.result[PREDICTED_2020][0].rates
+    ) {
+      // Check if tract has predicted data
+
+      let predictions_dict = {};
+      predictions_dict = predictions.data.result[PREDICTED_2020][0].rates;
+      let standard_dev = [];
+      let predictive_data = [];
+      for (var predictions_key in predictions_dict) {
+        // TODO: take out divide by 100s when Mongo cluster is edited.
+        let rate = predictions_dict[predictions_key][0];
+        let sd = predictions_dict[predictions_key][1];
+        predictive_data.push({ x: predictions_key, y: rate });
+        standard_dev.push({ x: predictions_key, y: rate + sd, y0: rate - sd });
+      }
+
+      this.setState({
+        standardDev: standard_dev,
+        predictiveData: predictive_data
+      });
+    }
   }
 
+  getLowerLineBound = () => {
+    const { actualData, standardDev, yLabels } = this.state;
+    const standardDevLowerBound =
+      standardDev && standardDev[0] ? standardDev[0]["y0"] : null;
+    const actualLowerBound = actualData[0]["y"];
+    const axisLowerBound = yLabels[0];
+    if (!standardDevLowerBound) {
+      return Math.min(actualLowerBound, axisLowerBound);
+    } else {
+      return Math.min(
+        Math.min(standardDevLowerBound, actualLowerBound),
+        axisLowerBound
+      );
+    }
+  };
+
+  getUpperLineBound = () => {
+    const { actualData, standardDev, yLabels } = this.state;
+    const standardDevUpperBound =
+      standardDev && standardDev[standardDev.length - 1]
+        ? standardDev[standardDev.length - 1]["y"]
+        : null;
+    const actualUpperBound = actualData[actualData.length - 1]["y"];
+    const axisUpperBound = yLabels[yLabels.length - 1];
+    if (!standardDevUpperBound) {
+      return Math.max(actualUpperBound, axisUpperBound);
+    } else {
+      return Math.max(
+        Math.max(standardDevUpperBound, actualUpperBound),
+        axisUpperBound
+      );
+    }
+  };
+
   render() {
+    const {
+      actualData,
+      predictiveData,
+      standardDev,
+      xLabels,
+      yLabels
+    } = this.state;
     return (
-      <VictoryChart height={300} theme={VictoryTheme.material}>
-        <VictoryLabel
-          text="Response Rates Data Over Collection Period"
-          x={GRAPH_TITLE_X_COOR}
-          y={GRAPH_TITLE_Y_COOR}
-          textAnchor="middle"
-        />
-        <VictoryAxis
-          tickValues={this.state.xLabels}
-          label="Days After Initial Census Mailing"
-          style={{ axisLabel: { padding: 37 } }}
-        />
-        <VictoryAxis
-          dependentAxis
-          tickValues={this.state.yLabels}
-          label="Response Rate"
-          style={{ axisLabel: { padding: 35 } }}
-        />
-        <VictoryLine
-          style={{
-            data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
-            parent: { border: BORDER }
-          }}
-          data={this.state.data}
-          animate={{
-            duration: 1000,
-            onLoad: { duration: 1000 }
-          }}
-        />
-        {this.state.data.length > 0 && (
+      <>
+        <VictoryChart height={CHART_HEIGHT} theme={VictoryTheme.material}>
+          <VictoryLabel
+            text="Response Rates Data Over Collection Period"
+            x={GRAPH_TITLE_X_COOR}
+            y={GRAPH_TITLE_Y_COOR}
+            textAnchor="middle"
+          />
+          <VictoryAxis
+            tickValues={xLabels}
+            label="Collection Day"
+            style={{ axisLabel: { padding: 37 } }}
+          />
+          <VictoryAxis
+            dependentAxis
+            tickValues={yLabels}
+            label="Response Rate"
+            style={{ axisLabel: { padding: 35 } }}
+          />
+          <VictoryArea
+            style={{
+              data: { fill: PREDICTION_COLOR }
+            }}
+            data={standardDev}
+            animate={{
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
+            }}
+          />
           <VictoryLine
             style={{
-              data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
+              data: {
+                stroke: PREDICTIVE_LINE_COLOR,
+                strokeWidth: STROKE_WIDTH
+              },
               parent: { border: BORDER }
             }}
-            labels={[""]}
+            data={predictiveData}
             animate={{
-              duration: 1000,
-              onLoad: { duration: 1000 }
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
             }}
+          />
+          <VictoryLine
+            style={{
+              data: { stroke: LINE_COLOR, strokeWidth: STROKE_WIDTH },
+              parent: { border: BORDER }
+            }}
+            data={actualData}
+            animate={{
+              duration: ANIMATION_DURATION,
+              onLoad: { duration: ANIMATION_DURATION }
+            }}
+          />
+          {actualData.length > 0 && (
+            <VictoryLine
+              style={{
+                data: { stroke: VERTICAL_COLOR, strokeWidth: STROKE_WIDTH },
+                parent: { border: BORDER }
+              }}
+              labels={[""]}
+              animate={{
+                duration: ANIMATION_DURATION,
+                onLoad: { duration: ANIMATION_DURATION }
+              }}
+              data={[
+                {
+                  x: this.props.selectedDate,
+                  y: this.getLowerLineBound()
+                },
+                {
+                  x: this.props.selectedDate,
+                  y: this.getUpperLineBound()
+                }
+              ]}
+            />
+          )}
+
+          <VictoryLegend
+            x={LEGEND_X_COOR}
+            y={LEGEND_Y_COOR}
+            orientation="horizontal"
+            gutter={10}
             data={[
+              { name: "2010", symbol: { fill: LINE_COLOR } },
               {
-                x: this.props.selectedDate,
-                y: Math.min(this.state.data[0]["y"], this.state.yLabels[0])
+                name: "2020 predicted",
+                symbol: { fill: PREDICTIVE_LINE_COLOR }
               },
-              {
-                x: this.props.selectedDate,
-                y: Math.max(
-                  this.state.data[this.state.data.length - 1]["y"],
-                  this.state.yLabels[this.state.yLabels.length - 1]
-                )
-              }
+              { name: "2020 predicted SD", symbol: { fill: PREDICTION_COLOR } }
             ]}
           />
-        )}
-      </VictoryChart>
+        </VictoryChart>
+      </>
     );
   }
 }

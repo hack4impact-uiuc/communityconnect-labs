@@ -59,6 +59,30 @@ export const getResponseByTractIDAndYear = (tract_id, year) => {
     });
 };
 
+export const getPredictive = (tract_id, actual_year) => {
+  /**
+   * Given:
+   * tract id in database
+   * year
+   *
+   * Returns all tracts associated to that id upon success
+   * Returns GET_TRACT_DATA_FAIL upon failure
+   */
+  const requestString = `${BASE_URL}predictive_rates?tract_id=${tract_id}&actual_year=${actual_year}`;
+  return axios
+    .get(requestString, {
+      headers: {
+        "Content-Type": "application/text"
+      }
+    })
+    .catch(error => {
+      return {
+        type: "GET_TRACT_DATA_FAIL",
+        error
+      };
+    });
+};
+
 export const getBatchResponseByTractIDAndYear = (tract_ids, year) => {
   /**
    * Given:

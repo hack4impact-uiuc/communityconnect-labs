@@ -16,8 +16,6 @@ import Graph from "./Graph.js";
 
 import DateSlider from "./DateSlider.js";
 
-var moment = require("moment");
-
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
 
@@ -258,8 +256,8 @@ class Home extends React.Component {
     const fillColor = ["match", ["get", "GEOID"]];
 
     // converting the response rate into a color
-    const LIGHTEST = [255, 255, 255];
-    const DARKEST = [64, 89, 34];
+    const LIGHTEST = [250, 250, 110];
+    const DARKEST = [42, 72, 88];
     const geoIds = Object.keys(tractData);
     geoIds.map(geoId => {
       const rate = tractData[geoId];
