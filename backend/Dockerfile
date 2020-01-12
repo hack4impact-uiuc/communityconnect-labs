@@ -5,7 +5,6 @@ LABEL maintainer "Timothy Ko <tk2@illinois.edu>"
 COPY requirements.txt requirements.txt
 RUN apk update && \
     apk add --virtual build-deps gcc musl-dev && \
-    apk add postgresql-dev && \
     rm -rf /var/cache/apk/*
 
 RUN pip install -r requirements.txt
