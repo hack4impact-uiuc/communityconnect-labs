@@ -12,6 +12,7 @@ import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
+import Legend from "./Legend.js";
 import Graph from "./Graph.js";
 import DateSlider from "./DateSlider.js";
 
@@ -316,6 +317,7 @@ class Home extends React.Component {
             className="absolute top right bottom mapbox"
           />
         </div>
+        <Legend />
         <div>
           <div className="sidebar">
             <img

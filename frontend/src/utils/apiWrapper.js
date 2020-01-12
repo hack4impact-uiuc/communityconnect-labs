@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "/api/";
+const BASE_URL = "https://h4i-ccl-backend.hack4impact1.now.sh/";
 
 export const getResponseByTractID = (tract_id, year) => {
   /**

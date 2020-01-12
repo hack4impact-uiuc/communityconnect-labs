@@ -1,5 +1,5 @@
 { 
-    "name": "h4i-ccl-frontend",
+    "name": "h4i-ccl",
     "version": 2,
     "env": {
         "REACT_APP_MAPBOX_TOKEN": "@ccl_mapbox_token",
