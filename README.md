@@ -7,8 +7,9 @@ A GIS-centered data visualization project for [CommunityConnect Labs](https://ww
 </p>
 
 ## Our Team
-Product Manager [Betty Shen](https://www.linkedin.com/in/cybettyshen/), Tech Lead [Kelley Chau](https://www.linkedin.com/in/kelleychau/)
-Product Designer [Phillip Kuo](https://www.linkedin.com/in/pkgamma/), Software Developers: [Brandon Wang](http://linkedin.com/in/brandonw4/), [Alan Ren](https://www.linkedin.com/in/alan-ren-480344100/), [Yousef Ahmed](http://www.linkedin.com/in/yousef-a/), [Megha Mallya](https://www.linkedin.com/in/megha-mallya/), [Danielle Yang](https://www.linkedin.com/in/danielle-yang-254308154/)
+Product Manager [Betty Shen](https://www.linkedin.com/in/cybettyshen/), Tech Lead [Kelley Chau](https://www.linkedin.com/in/kelleychau/),
+Product Designer [Phillip Kuo](https://www.linkedin.com/in/pkgamma/), 
+Software Developers: [Brandon Wang](http://linkedin.com/in/brandonw4/), [Alan Ren](https://www.linkedin.com/in/alan-ren-480344100/), [Yousef Ahmed](http://www.linkedin.com/in/yousef-a/), [Megha Mallya](https://www.linkedin.com/in/megha-mallya/), [Danielle Yang](https://www.linkedin.com/in/danielle-yang-254308154/)
 
 ## The Product
 <p align="center">
