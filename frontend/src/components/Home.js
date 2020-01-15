@@ -4,7 +4,7 @@ import {
   stateLayers,
   sourceIDs,
   countryLayer,
-  mockStates,
+  state2010,
   stateGeoIds
 } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
@@ -116,11 +116,11 @@ class Home extends React.Component {
           this.setState({
             tractSelected: true,
             currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
+              name: tracts[0].properties.NAMELSAD10,
+              id: tracts[0].properties.GEOID10
             },
             displayGraph: true,
-            tract_id: tracts[0].properties.GEOID
+            tract_id: tracts[0].properties.GEOID10
           });
         } else {
           this.setState({
@@ -149,7 +149,7 @@ class Home extends React.Component {
     this.setState({
       tractData: tractData
     });
-    const fillColor = this.generateFillColor(tractData);
+    const fillColor = this.generateFillColor(tractData, true);
 
     stateLayers.map(stateLayer => {
       const id = stateLayer.id;
@@ -181,7 +181,7 @@ class Home extends React.Component {
         },
         "source-layer": countryLayer.sourceLayer,
         paint: {
-          "fill-color": this.generateFillColor(mockStates)
+          "fill-color": this.generateFillColor(state2010, false)
         }
       },
       "state-label"
@@ -198,7 +198,7 @@ class Home extends React.Component {
       tracts = tracts.concat(stateTracts);
     });
 
-    let tractIDs = tracts.map(tract => tract.properties.GEOID);
+    let tractIDs = tracts.map(tract => tract.properties.GEOID10);
     return tractIDs;
   }
 
@@ -250,8 +250,9 @@ class Home extends React.Component {
     this.renderTracts();
   }
 
-  generateFillColor(tractData) {
-    const fillColor = ["match", ["get", "GEOID"]];
+  generateFillColor(tractData, is2010) {
+    const geoIdVar = is2010 ? "GEOID10" : "GEOID";
+    var fillColor = ["match", ["get", geoIdVar]];
 
     // converting the response rate into a color
     const LIGHTEST = [250, 250, 110];
@@ -280,7 +281,7 @@ class Home extends React.Component {
     Object.keys(tractData).forEach(id => {
       tractsToRender[id] = tractData[id][selectedDate];
     });
-    const fillColor = this.generateFillColor(tractsToRender);
+    const fillColor = this.generateFillColor(tractsToRender, true);
 
     let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
       id.substring(0, 2)
