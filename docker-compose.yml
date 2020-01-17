@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    volumes:
+      - './frontend/src/app'
+      - './frontend/node_modules'
+    ports:
+      - '3001:3000'
+    environment:
+      - NODE_ENV=development
+
+  backend:
+    container_name: backend
+    build: .
+    volumes:
+      - '.:/app'
+    ports:
+      - '5000:5000'
+      

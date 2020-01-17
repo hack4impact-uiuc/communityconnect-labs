@@ -1,0 +1,19 @@
+.env
+
+# frontend 
+frontend/.env
+frontend/node_modules
+frontend/build
+
+# backend
+backend/*.pyc
+backend/.vscode/
+backend/.env
+backend/venv/
+backend/__pycache__
+backend/.DS_Store/
+backend/migrations/
+backend/.mypy_cache
+backend/api.log
+backend/test.db
+backend/creds.ini
