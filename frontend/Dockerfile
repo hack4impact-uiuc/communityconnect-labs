@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app
 RUN npm i
 COPY . ./
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT [ "npm", "start" ]
 # RUN npm run build
 
 # Stage 2 - the production environment
