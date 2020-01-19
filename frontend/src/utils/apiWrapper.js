@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "";
+const BASE_URL = "/";
 if (process.env.NODE_ENV === "development") BASE_URL = "http://localhost:5000/";
 
 export const getResponseByTractID = (tract_id, year) => {
