@@ -6,7 +6,6 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_mongoengine import MongoEngine
 
-from api.config import config
 from api.core import all_exception_handler
 
 from dotenv import load_dotenv
@@ -57,13 +56,6 @@ def create_app(test_config=None):
     root = logging.getLogger("core")
     root.addHandler(strm)
 
-    # decide whether to create database
-    # if env != "prod":
-    #     db_url = app.config["SQLALCHEMY_DATABASE_URI"]
-    #     if not database_exists(db_url):
-    #         create_database(db_url)
-
-    # app.config["MONGO_URI"] = "mongodb://localhost:27017/communityconnect-labs"
     user = os.environ.get("MONGO_USER")
     password = os.environ.get("MONGO_PASSWORD")
     db = os.environ.get("MONGO_DB")

@@ -4,10 +4,6 @@ import "../styles/index.css";
 const colors = ["#fafa6e", "#c6cd68", "#91a163", "#5e745d", "#2a4858"];
 
 class Legend extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div className="map-overlay" id="features">

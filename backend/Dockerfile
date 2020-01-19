@@ -8,16 +8,16 @@ RUN apt-get update -y && \
 
 RUN pip install -r requirements.txt
 
-# delete dependencies required to install certain python packages 
-# so the docker image size is low enough for Zeit now
-# RUN apk del build-deps gcc musl-dev
-
 COPY . /app
 WORKDIR /app
 
 # for the flask config
-ENV FLASK_ENV=prod
+ENV FLASK_ENV=dev
+ENV MONGO_USER=$MONGO_USER
+ENV MONGO_PASSWORD=$MONGO_PASSWORD
+ENV MONGO_DB=$MONGO_DB
+
 
 ENTRYPOINT [ "python" ]
 
-CMD ["manage.py", "runserver"]
+CMD [ "manage.py", "runprod" ]

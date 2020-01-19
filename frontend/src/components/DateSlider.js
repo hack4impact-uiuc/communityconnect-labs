@@ -4,10 +4,6 @@ import "rc-slider/assets/index.css";
 import "../styles/index.css";
 
 class DateSlider extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const nDates = this.props.dates.length;
     return (

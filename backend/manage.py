@@ -19,6 +19,11 @@ def runserver():
 
 
 @manager.command
+def runprod():
+    app.run(debug=True, host="0.0.0.0")
+
+
+@manager.command
 def runworker():
     app.run(debug=False)
 

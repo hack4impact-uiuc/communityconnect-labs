@@ -229,7 +229,7 @@ class Home extends React.Component {
             }
           }
 
-          if (currentCount == this.renderCount) {
+          if (currentCount === this.renderCount) {
             this.renderFromCache(tractIds);
           }
         }
