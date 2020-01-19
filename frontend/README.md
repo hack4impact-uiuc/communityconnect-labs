@@ -1,7 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Setup
-Make sure you have [npm](https://www.npmjs.com/) installed, then run `npm install` when in this folder. You will also need the environment variables in a `.env` file to be able to run this locally.
+Make sure you have [npm](https://www.npmjs.com/) installed, then run `npm install` when in this folder. You will also need the environment variables in a `.env` file:
+```
+REACT_APP_MAPBOX_TOKEN=[Mapbox Token]
+REACT_APP_MAPBOX_STYLE=[Mapbox Style URL]
+```
 
 ## Available Scripts
 
