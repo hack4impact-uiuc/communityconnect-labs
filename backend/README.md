@@ -1,7 +1,4 @@
-# Flask Boilerplate [![CircleCI](https://circleci.com/gh/tko22/flask-boilerplate/tree/master.svg?style=svg&circle-token=:circle-token)](https://circleci.com/gh/tko22/flask-boilerplate/tree/master) <a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-[![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/tko22/flask-boilerplate&env=DATABASE_URL)
+# Flask Boilerplate
 
 This is based off of [Flask Boilerplate](https://github.com/tko22/flask-boilerplate), but repurposed for MongoDB using MongoEngine.
 
@@ -9,7 +6,17 @@ We use [black](https://github.com/ambv/black) for code formatting, and [mypy](ht
 
 ![](../master/docs/flask.gif)
 
-## Setup
+## Remote Database Setup
+Create a `.env` file in this folder with the contents:
+```
+MONGO_USER=[DB username]
+MONGO_PASSWORD=[DB password]
+MONGO_DB=communityconnect-labs
+```
+Replace the `[xxx]` with your own credentials.
+
+## Local Setup
+* This is no longer relevant to this specific project.
 
 ### MongoDB
 
