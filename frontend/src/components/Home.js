@@ -4,7 +4,7 @@ import {
   stateLayers,
   sourceIDs,
   countryLayer,
-  mockStates,
+  state2010,
   stateGeoIds
 } from "../resources/stateLayers.js";
 import Geocoder from "react-geocoder-autocomplete";
@@ -12,12 +12,11 @@ import { getBatchResponseByTractIDAndYear } from "../utils/apiWrapper";
 import "../styles/index.css";
 import "../styles/sidebar.css";
 import logoWithText from "../resources/ccl_logo_text.png";
+import Legend from "./Legend.js";
 import Graph from "./Graph.js";
-
 import DateSlider from "./DateSlider.js";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoibWVnaGFieXRlIiwiYSI6ImNrMXlzbDYxNzA3NXYzbnBjbWg5MHd2bGgifQ._sJyE87zG6o5k32efYbrAA";
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const MIN_TRACT_ZOOM = 8;
 const MAX_ZOOM = 22;
@@ -63,9 +62,8 @@ class Home extends React.Component {
       return { color: "#388E3C" };
     } else if (response_rate < 90) {
       return { color: "#2E7D32" };
-    } else if (response_rate <= 100) {
-      return { color: "#1B5E20" };
     }
+    return { color: "#1B5E20" };
   };
 
   componentDidMount() {
@@ -73,7 +71,7 @@ class Home extends React.Component {
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: "mapbox://styles/meghabyte/ck1yssrtr3sge1drt4qb8kdde",
+      style: process.env.REACT_APP_MAPBOX_STYLE,
       center: [lng, lat],
       zoom,
       maxZoom: MAX_ZOOM,
@@ -118,11 +116,11 @@ class Home extends React.Component {
           this.setState({
             tractSelected: true,
             currentTract: {
-              name: tracts[0].properties.NAMELSAD,
-              id: tracts[0].properties.GEOID
+              name: tracts[0].properties.NAMELSAD10,
+              id: tracts[0].properties.GEOID10
             },
             displayGraph: true,
-            tract_id: tracts[0].properties.GEOID
+            tract_id: tracts[0].properties.GEOID10
           });
         } else {
           this.setState({
@@ -151,7 +149,7 @@ class Home extends React.Component {
     this.setState({
       tractData: tractData
     });
-    const fillColor = this.generateFillColor(tractData);
+    const fillColor = this.generateFillColor(tractData, true);
 
     stateLayers.map(stateLayer => {
       const id = stateLayer.id;
@@ -183,7 +181,7 @@ class Home extends React.Component {
         },
         "source-layer": countryLayer.sourceLayer,
         paint: {
-          "fill-color": this.generateFillColor(mockStates)
+          "fill-color": this.generateFillColor(state2010, false)
         }
       },
       "state-label"
@@ -200,7 +198,7 @@ class Home extends React.Component {
       tracts = tracts.concat(stateTracts);
     });
 
-    let tractIDs = tracts.map(tract => tract.properties.GEOID);
+    let tractIDs = tracts.map(tract => tract.properties.GEOID10);
     return tractIDs;
   }
 
@@ -231,7 +229,7 @@ class Home extends React.Component {
             }
           }
 
-          if (currentCount == this.renderCount) {
+          if (currentCount === this.renderCount) {
             this.renderFromCache(tractIds);
           }
         }
@@ -252,8 +250,9 @@ class Home extends React.Component {
     this.renderTracts();
   }
 
-  generateFillColor(tractData) {
-    const fillColor = ["match", ["get", "GEOID"]];
+  generateFillColor(tractData, is2010) {
+    const geoIdVar = is2010 ? "GEOID10" : "GEOID";
+    var fillColor = ["match", ["get", geoIdVar]];
 
     // converting the response rate into a color
     const LIGHTEST = [250, 250, 110];
@@ -282,7 +281,7 @@ class Home extends React.Component {
     Object.keys(tractData).forEach(id => {
       tractsToRender[id] = tractData[id][selectedDate];
     });
-    const fillColor = this.generateFillColor(tractsToRender);
+    const fillColor = this.generateFillColor(tractsToRender, true);
 
     let currentStateGeoIds = Object.keys(tractsToRender).map(id =>
       id.substring(0, 2)
@@ -319,6 +318,7 @@ class Home extends React.Component {
             className="absolute top right bottom mapbox"
           />
         </div>
+        <Legend />
         <div>
           <div className="sidebar">
             <img

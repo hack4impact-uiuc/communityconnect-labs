@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+    env_file:
+     - ./frontend/.env
+
+  backend:
+    container_name: backend
+    build: ./backend
+    ports:
+      - '5000:5000'
+    env_file:
+    - ./backend/.env
+      

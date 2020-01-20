@@ -1,23 +1,23 @@
 # this dockerfile is used for product deployments
-FROM python:3.7-alpine
-LABEL maintainer "Timothy Ko <tk2@illinois.edu>"
+FROM python:3.7
+LABEL maintainer "Kelley Chau <kelleyc2@illinois.edu>"
 
 COPY requirements.txt requirements.txt
-RUN apk update && \
-    apk add --virtual build-deps gcc musl-dev && \
-    rm -rf /var/cache/apk/*
+RUN apt-get update -y && \
+    apt-get install -y python-pip python-dev
 
 RUN pip install -r requirements.txt
-
-# delete dependencies required to install certain python packages 
-# so the docker image size is low enough for Zeit now
-RUN apk del build-deps gcc musl-dev
 
 COPY . /app
 WORKDIR /app
 
 # for the flask config
-ENV FLASK_ENV=prod
+ENV FLASK_ENV=dev
+ENV MONGO_USER=$MONGO_USER
+ENV MONGO_PASSWORD=$MONGO_PASSWORD
+ENV MONGO_DB=$MONGO_DB
 
-EXPOSE 5000
-ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:5000", "--log-level", "INFO", "manage:app" ]
+
+ENTRYPOINT [ "python" ]
+
+CMD [ "manage.py", "runprod" ]
