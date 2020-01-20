@@ -11,12 +11,9 @@ RUN pip install -r requirements.txt
 COPY . /app
 WORKDIR /app
 
-# for the flask config
-ENV FLASK_ENV=dev
 ENV MONGO_USER=$MONGO_USER
 ENV MONGO_PASSWORD=$MONGO_PASSWORD
 ENV MONGO_DB=$MONGO_DB
-
 
 ENTRYPOINT [ "python" ]
 
