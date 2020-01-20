@@ -11,10 +11,6 @@ RUN pip install -r requirements.txt
 COPY . /app
 WORKDIR /app
 
-ENV MONGO_USER=$MONGO_USER
-ENV MONGO_PASSWORD=$MONGO_PASSWORD
-ENV MONGO_DB=$MONGO_DB
-
 ENTRYPOINT [ "python" ]
 
 CMD [ "manage.py", "runprod" ]
