@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@mapbox/mapbox-gl-geocoder": "^4.5.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "rc-slider": "^8.7.1",
     "react": "^16.10.1",
